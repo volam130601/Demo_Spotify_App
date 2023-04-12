@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "980091084490",
+    "project_id": "fir-spotify-app",
+    "storage_bucket": "fir-spotify-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980091084490:android:9da76446ca66e89a4d5e33",
+        "android_client_info": {
+          "package_name": "com.example.demo_spotify_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "980091084490-d2f90o1torc60pjpeq67rg6m6b712eev.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.demo_spotify_app",
+            "certificate_hash": "db1f0e433473a53bbdeec190cf99a25e438f610f"
+          }
+        },
+        {
+          "client_id": "980091084490-3mgn1og70v56jitbso3ckl9ub9s184ng.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiSW7BGQ1iRVuNfghann6UoJiqHDG0gwM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "980091084490-3mgn1og70v56jitbso3ckl9ub9s184ng.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
