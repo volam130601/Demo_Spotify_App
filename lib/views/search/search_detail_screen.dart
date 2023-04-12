@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_spotify_app/models/category.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/res/colors.dart';
@@ -9,13 +8,16 @@ import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/response/status.dart';
 import '../../models/album.dart';
 import '../../models/artist.dart';
+import '../../models/firebase/recent_search.dart';
 import '../../models/track.dart';
 import '../../res/constants/default_constant.dart';
+import '../../services/firebase/recent_search_service.dart';
 import '../../view_models/multi_control_player_view_model.dart';
 import '../../view_models/track_play_view_model.dart';
 import '../home/components/list_tile_item.dart';
@@ -36,10 +38,10 @@ class _BoxSearchState extends State<BoxSearch> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
   final FocusNode _focusNode = FocusNode();
+  final RecentSearchService _recentSearchService = RecentSearchService();
 
   int _selectIndex = 0;
   String categoryCode = Category.tracks;
-
   Timer? _debounce;
   final Duration _searchDelay = const Duration(milliseconds: 500);
 
@@ -152,6 +154,14 @@ class _BoxSearchState extends State<BoxSearch> {
                         albumId: tracks[index].album!.id as int,
                         artist: tracks[index].artist,
                         index: trackIndex);
+
+                    _recentSearchService.addItem(RecentSearchItem(
+                      id: DateTime.now().toString(),
+                      itemId: '${tracks[index].album!.id}',
+                      title: '${tracks[index].title}',
+                      image: '${tracks[index].album!.coverSmall}',
+                      type: '${tracks[index].type}',
+                    ));
                   },
                 ),
                 itemCount: tracks!.length,
@@ -185,7 +195,7 @@ class _BoxSearchState extends State<BoxSearch> {
                     image: '${artists[index].pictureSmall}',
                     title: '${artists[index].name}',
                     isArtist: true,
-                    onTap: () {
+                    onTap: () async {
                       showBottomBar();
                       Navigator.push(
                         context,
@@ -202,6 +212,14 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
+
+                      _recentSearchService.addItem(RecentSearchItem(
+                        id: DateTime.now().toString(),
+                        itemId: '${artists[index].id}',
+                        title: '${artists[index].name}',
+                        image: '${artists[index].pictureSmall}',
+                        type: '${artists[index].type}',
+                      ));
                     },
                   );
                 },
@@ -241,7 +259,7 @@ class _BoxSearchState extends State<BoxSearch> {
                 ),
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
-                    onTap: () {
+                    onTap: () async {
                       showBottomBar();
                       Navigator.push(
                         context,
@@ -260,6 +278,13 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
+                      _recentSearchService.addItem(RecentSearchItem(
+                        id: DateTime.now().toString(),
+                        itemId: '${playlists[index].id}',
+                        title: '${playlists[index].title}',
+                        image: '${playlists[index].pictureSmall}',
+                        type: '${playlists[index].type}',
+                      ));
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,7 +347,7 @@ class _BoxSearchState extends State<BoxSearch> {
                 ),
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
-                    onTap: () {
+                    onTap: () async {
                       showBottomBar();
                       Navigator.push(
                         context,
@@ -341,6 +366,14 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
+
+                      _recentSearchService.addItem(RecentSearchItem(
+                        id: DateTime.now().toString(),
+                        itemId: '${albums[index].id}',
+                        title: '${albums[index].title}',
+                        image: '${albums[index].coverSmall}',
+                        type: '${albums[index].type}',
+                      ));
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -507,105 +540,102 @@ class RecentSearch extends StatefulWidget {
 }
 
 class _RecentSearchState extends State<RecentSearch> {
-  final CollectionReference _recentSearch =
-      FirebaseFirestore.instance.collection('recent_search');
-
-  Future<void> _createOrUpdate(
-      [DocumentSnapshot? documentSnapshot, dynamic value]) async {
-    await _recentSearch.add({
-      "id": '1',
-      "title": 'hi',
-      'image':
-          'https://e-cdns-images.dzcdn.net/images/artist/19cc38f9d69b352f718782e7a22f9c32/56x56-000000-80-0-0.jpg',
-      'type': 'artist'
-    });
-    await _recentSearch.add({
-      "id": '2',
-      "title": 'I am iron man',
-      'image':
-          'https://e-cdns-images.dzcdn.net/images/artist/19cc38f9d69b352f718782e7a22f9c32/56x56-000000-80-0-0.jpg',
-      'type': 'playlist'
-    });
-    await _recentSearch.add({
-      "id": '3',
-      "title": 'Boom',
-      'image':
-          'https://e-cdns-images.dzcdn.net/images/artist/19cc38f9d69b352f718782e7a22f9c32/56x56-000000-80-0-0.jpg',
-      'type': 'track'
-    });
-    await _recentSearch.add({
-      "id": '4',
-      "title": 'Heh eh eh',
-      'image':
-          'https://e-cdns-images.dzcdn.net/images/artist/19cc38f9d69b352f718782e7a22f9c32/56x56-000000-80-0-0.jpg',
-      'type': 'album'
-    });
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _createOrUpdate();
-  }
+  final RecentSearchService _recentSearchService = RecentSearchService();
+  bool? isClear = false;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-          child: Text(
-            'Recent searches 123',
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(color: Colors.white),
-          ),
-        ),
-        paddingHeight(1),
-        StreamBuilder(
-            stream: _recentSearch.snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
-              if (streamSnapshot.hasData) {
-                var data = streamSnapshot.data!.docs;
-                return SizedBox(
-                  height: (data.length > 5)
-                      ? MediaQuery.of(context).size.height - 350
-                      : ((data.length) * 60),
-                  child: ListView.builder(
-                      itemCount: data.length,
-                      itemBuilder: (context, index) {
-                        DocumentSnapshot doc = data[index];
-                        return buildRecentSearchItem(context, doc);
-                      }),
-                );
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }),
-        TextButton(
-          onPressed: () {
-            _recentSearch.get().then((querySnapshot) {
-              for (var doc in querySnapshot.docs) {
-                doc.reference.delete();
-              }
-            });
-          },
-          child: Text(
-            'Clear recent searches',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.grey.shade300, fontWeight: FontWeight.w400),
-          ),
-        ),
-        paddingHeight(6),
-      ],
+    return StreamBuilder<List<RecentSearchItem>>(
+      stream: _recentSearchService.getItems(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (!snapshot.hasData) {
+          return SizedBox(
+            height: MediaQuery.of(context).size.height - 300,
+            child: Center(
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          );
+        }
+
+        List<RecentSearchItem>? data = snapshot.data!.reversed.toList();
+        if (data.isEmpty) {
+          return SizedBox(
+            height: MediaQuery.of(context).size.height - 300,
+            child: Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Play what you love',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Text(
+                    'Search for artists, songs, albums, and more.',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+              child: Text(
+                'Recent searches',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(color: Colors.white),
+              ),
+            ),
+            SizedBox(
+              height: (data.length > 5)
+                  ? MediaQuery.of(context).size.height - 350
+                  : ((data.length) * 60),
+              child: ListView.builder(
+                  itemCount: data.length,
+                  itemBuilder: (context, index) {
+                    return buildRecentSearchItem(
+                        context, data[index], (data.first.id == data.last.id));
+                  }),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+              child: TextButton(
+                onPressed: () {
+                  _recentSearchService.deleteAll();
+                },
+                child: Text(
+                  'Clear recent searches',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: ColorsConsts.primaryColorDark,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+            ),
+            paddingHeight(6),
+          ],
+        );
+      },
     );
   }
 
-  Widget buildRecentSearchItem(BuildContext context, DocumentSnapshot doc) {
+  Widget buildRecentSearchItem(
+      BuildContext context, RecentSearchItem item, bool checkData) {
     return SizedBox(
       height: 60,
       child: ListTile(
@@ -613,14 +643,14 @@ class _RecentSearchState extends State<RecentSearch> {
           height: 50,
           width: 50,
           child: CachedNetworkImage(
-            imageUrl: doc['image'],
+            imageUrl: item.image,
             fit: BoxFit.cover,
           ),
         ),
         title: Container(
           margin: const EdgeInsets.only(bottom: defaultPadding / 2),
           child: Text(
-            doc['title'],
+            item.title,
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
@@ -630,13 +660,20 @@ class _RecentSearchState extends State<RecentSearch> {
           ),
         ),
         subtitle: Text(
-          doc['type'],
+          item.type,
           style: Theme.of(context).textTheme.titleSmall,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         trailing: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            if (checkData) {
+              setState(() {
+                isClear = true;
+              });
+            }
+            _recentSearchService.deleteItem(item.id);
+          },
           icon: const Icon(Ionicons.close),
         ),
       ),

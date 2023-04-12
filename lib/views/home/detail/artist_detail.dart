@@ -50,7 +50,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
   }
 
   Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 700));
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {
       isLoading = false;
     });
