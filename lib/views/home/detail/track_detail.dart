@@ -89,7 +89,7 @@ class _TrackDetailState extends State<TrackDetail> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               height: 200,
               width: 200,
               child: CachedNetworkImage(

@@ -1,3 +1,4 @@
+import 'package:demo_spotify_app/views/library/library_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../views/home/home_screen.dart';
@@ -8,7 +9,7 @@ class LayoutScreenViewModel with ChangeNotifier {
   final List<Widget> _pageWidget = const [
     HomeScreen(),
     SearchScreen(),
-    Placeholder(),
+    LibraryScreen(),
     ProfileScreen(),
   ];
 

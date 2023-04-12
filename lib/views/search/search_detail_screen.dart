@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/models/category.dart';
+import 'package:demo_spotify_app/models/category/category_search.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/res/colors.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
@@ -41,7 +41,7 @@ class _BoxSearchState extends State<BoxSearch> {
   final RecentSearchService _recentSearchService = RecentSearchService();
 
   int _selectIndex = 0;
-  String categoryCode = Category.tracks;
+  String categoryCode = CategorySearch.tracks;
   Timer? _debounce;
   final Duration _searchDelay = const Duration(milliseconds: 500);
 
@@ -84,16 +84,16 @@ class _BoxSearchState extends State<BoxSearch> {
   }
 
   void callApiSearch() {
-    if (categoryCode == Category.tracks) {
+    if (categoryCode == CategorySearch.tracks) {
       Provider.of<SearchViewModel>(context, listen: false)
           .fetchTracksApi(_searchText, 0, 50);
-    } else if (categoryCode == Category.artists) {
+    } else if (categoryCode == CategorySearch.artists) {
       Provider.of<SearchViewModel>(context, listen: false)
           .fetchArtistsApi(_searchText, 0, 50);
-    } else if (categoryCode == Category.albums) {
+    } else if (categoryCode == CategorySearch.albums) {
       Provider.of<SearchViewModel>(context, listen: false)
           .fetchAlbumsApi(_searchText, 0, 50);
-    } else if (categoryCode == Category.playlists) {
+    } else if (categoryCode == CategorySearch.playlists) {
       Provider.of<SearchViewModel>(context, listen: false)
           .fetchPlaylistsApi(_searchText, 0, 50);
     }
@@ -113,7 +113,7 @@ class _BoxSearchState extends State<BoxSearch> {
       Widget contentBody = const SizedBox();
       final searchProvider =
           Provider.of<SearchViewModel>(context, listen: true);
-      if (categoryCode == Category.tracks) {
+      if (categoryCode == CategorySearch.tracks) {
         switch (searchProvider.tracks.status) {
           case Status.LOADING:
             contentBody = SizedBox(
@@ -174,7 +174,7 @@ class _BoxSearchState extends State<BoxSearch> {
             break;
         }
       }
-      if (categoryCode == Category.artists) {
+      if (categoryCode == CategorySearch.artists) {
         switch (searchProvider.artists.status) {
           case Status.LOADING:
             contentBody = SizedBox(
@@ -233,7 +233,7 @@ class _BoxSearchState extends State<BoxSearch> {
             break;
         }
       }
-      if (categoryCode == Category.playlists) {
+      if (categoryCode == CategorySearch.playlists) {
         switch (searchProvider.playlists.status) {
           case Status.LOADING:
             contentBody = SizedBox(
@@ -289,7 +289,7 @@ class _BoxSearchState extends State<BoxSearch> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
+                        SizedBox(
                           width: 200,
                           height: 200,
                           child: CachedNetworkImage(
@@ -322,7 +322,7 @@ class _BoxSearchState extends State<BoxSearch> {
             break;
         }
       }
-      if (categoryCode == Category.albums) {
+      if (categoryCode == CategorySearch.albums) {
         switch (searchProvider.albums.status) {
           case Status.LOADING:
             contentBody = SizedBox(

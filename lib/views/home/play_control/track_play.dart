@@ -205,7 +205,7 @@ class _TrackPlayState extends State<TrackPlay> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               height: height,
               width: width,
               child: CachedNetworkImage(

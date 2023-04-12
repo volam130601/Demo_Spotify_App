@@ -221,7 +221,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
                         ),
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       height: 40,
                       width: 40,
 
@@ -293,7 +293,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
                   height: 70,
                   child: Row(
                     children: [
-                      Container(
+                      SizedBox(
                         width: 70,
                         height: double.infinity,
                         child: CachedNetworkImage(

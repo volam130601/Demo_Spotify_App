@@ -34,16 +34,16 @@ class Styles {
       appBarTheme: const AppBarTheme(
         elevation: 0.0,
       ),
-      textTheme: TextTheme(
-        headlineSmall: const TextStyle(fontWeight: FontWeight.bold),
+      textTheme: const TextTheme(
+        headlineSmall: TextStyle(fontWeight: FontWeight.bold),
         headlineMedium:
-            const TextStyle(fontWeight: FontWeight.bold),
-        headlineLarge: const TextStyle(fontWeight: FontWeight.bold),
+            TextStyle(fontWeight: FontWeight.bold),
+        headlineLarge: TextStyle(fontWeight: FontWeight.bold),
         titleSmall:
-            TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.bold),
-        titleMedium: const TextStyle(fontWeight: FontWeight.bold),
+            TextStyle(fontWeight: FontWeight.bold),
+        titleMedium: TextStyle(fontWeight: FontWeight.bold),
         titleLarge:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }

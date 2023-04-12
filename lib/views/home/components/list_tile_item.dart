@@ -33,11 +33,14 @@ class ListTileItem extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(defaultBorderRadius),
-                ),
+                borderRadius: BorderRadius.circular(defaultBorderRadius),
+              ),
               child: CachedNetworkImage(
                 imageUrl: image,
-                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/music_default.jpg',
+                  fit: BoxFit.cover,
+                ),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fit: BoxFit.cover,
               ),
@@ -74,17 +77,10 @@ class ListTileItem extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.only(bottom: defaultPadding / 1.5),
           child: ListTile(
-            leading: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,),
-              child: CachedNetworkImage(
-                imageUrl: image,
-                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
+            leading: CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(image),
+              radius: 30,
+              backgroundColor: Colors.black38,
             ),
             title: Row(
               children: [
