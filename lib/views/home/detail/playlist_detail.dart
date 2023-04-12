@@ -262,12 +262,11 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               width: 150,
               height: 150,
               margin: const EdgeInsets.only(top: 40),
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: CachedNetworkImageProvider(
-                      widget.playlist!.pictureMedium as String),
-                  fit: BoxFit.cover,
-                ),
+              child: CachedNetworkImage(
+                imageUrl: widget.playlist!.pictureMedium as String,
+                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
               ),
             ),
           ),

@@ -106,17 +106,12 @@ class _TrackPlayState extends State<TrackPlay> {
         }
         final metadata = state!.currentSource!.tag as MediaItem;
 
-        DecorationImage? image;
+        String? image;
         if (metadata.artist != null) {
           var value = metadata.artHeaders!['artArtist'];
-          image = DecorationImage(
-            image: CachedNetworkImageProvider(value.toString()),
-          );
+          image = value.toString();
         } else {
-          image = DecorationImage(
-            image: CachedNetworkImageProvider(
-                value.getAlbum.artist!.pictureSmall as String),
-          );
+          image = value.getAlbum.artist!.pictureSmall as String;
         }
         return Column(
           children: [
@@ -141,9 +136,14 @@ class _TrackPlayState extends State<TrackPlay> {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                        image: image,
                         borderRadius:
                             BorderRadius.circular(defaultBorderRadius / 2)),
+                    child: CachedNetworkImage(
+                      imageUrl: image,
+                      placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   const SizedBox(width: defaultPadding),
                   Expanded(
@@ -208,11 +208,12 @@ class _TrackPlayState extends State<TrackPlay> {
             Container(
               height: height,
               width: width,
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: CachedNetworkImageProvider(
-                          metadata.artUri.toString()))),
+              child: CachedNetworkImage(
+                imageUrl: metadata.artUri.toString(),
+                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
             )
           ],
         );

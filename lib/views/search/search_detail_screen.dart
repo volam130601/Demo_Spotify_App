@@ -292,11 +292,12 @@ class _BoxSearchState extends State<BoxSearch> {
                         Container(
                           width: 200,
                           height: 200,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: CachedNetworkImageProvider(
-                                      '${playlists[index].pictureMedium}'),
-                                  fit: BoxFit.cover)),
+                          child: CachedNetworkImage(
+                            imageUrl: playlists[index].pictureMedium as String,
+                            placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         paddingHeight(0.5),
                         Text(
@@ -378,14 +379,15 @@ class _BoxSearchState extends State<BoxSearch> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
+                        SizedBox(
                           width: 200,
                           height: 200,
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: CachedNetworkImageProvider(
-                                      '${albums[index].coverMedium}'),
-                                  fit: BoxFit.cover)),
+                          child: CachedNetworkImage(
+                            imageUrl: albums[index].coverMedium as String,
+                            placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         paddingHeight(0.5),
                         Text(
@@ -602,7 +604,7 @@ class _RecentSearchState extends State<RecentSearch> {
               ),
             ),
             SizedBox(
-              height: (data.length > 5)
+              height: (data.length > 9)
                   ? MediaQuery.of(context).size.height - 350
                   : ((data.length) * 60),
               child: ListView.builder(
@@ -644,6 +646,8 @@ class _RecentSearchState extends State<RecentSearch> {
           width: 50,
           child: CachedNetworkImage(
             imageUrl: item.image,
+            placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
             fit: BoxFit.cover,
           ),
         ),

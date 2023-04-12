@@ -92,11 +92,11 @@ class _TrackDetailState extends State<TrackDetail> {
             Container(
               height: 200,
               width: 200,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: CachedNetworkImageProvider(
-                        track.album!.coverMedium as String),
-                    fit: BoxFit.cover),
+              child: CachedNetworkImage(
+                imageUrl: track.album!.coverMedium as String,
+                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
               ),
             )
           ],

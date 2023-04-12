@@ -34,9 +34,13 @@ class ListTileItem extends StatelessWidget {
               height: 50,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(defaultBorderRadius),
-                  image: DecorationImage(
-                      image: CachedNetworkImageProvider(image),
-                      fit: BoxFit.cover)),
+                ),
+              child: CachedNetworkImage(
+                imageUrl: image,
+                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
             ),
             title: Text(
               title,
@@ -74,10 +78,13 @@ class ListTileItem extends StatelessWidget {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                      image: CachedNetworkImageProvider(image),
-                      fit: BoxFit.cover)),
+                  shape: BoxShape.circle,),
+              child: CachedNetworkImage(
+                imageUrl: image,
+                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
             ),
             title: Row(
               children: [

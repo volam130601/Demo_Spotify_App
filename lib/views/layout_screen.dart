@@ -102,12 +102,14 @@ class _LayoutScreenState extends State<LayoutScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: CachedNetworkImageProvider(
-                                  metadata.artUri.toString()),
-                              fit: BoxFit.cover),
                           borderRadius:
                               BorderRadius.circular(defaultBorderRadius / 2),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: metadata.artUri.toString(),
+                          placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(width: defaultPadding / 2),

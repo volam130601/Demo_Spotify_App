@@ -46,10 +46,12 @@ class _CardItemCustomState extends State<CardItemCustom> {
                   shape: widget.isCircle == true
                       ? BoxShape.circle
                       : BoxShape.rectangle,
-                  image: DecorationImage(
-                    image: CachedNetworkImageProvider(widget.image),
-                    fit: BoxFit.cover,
-                  ),
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: widget.image,
+                  placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  fit: BoxFit.cover,
                 ),
               ),
             ]),

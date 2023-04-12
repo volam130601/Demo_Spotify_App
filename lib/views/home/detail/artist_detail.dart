@@ -224,10 +224,13 @@ class _ArtistDetailState extends State<ArtistDetail> {
                     Container(
                       height: 40,
                       width: 40,
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: CachedNetworkImageProvider(
-                                  tracks[index].album!.coverSmall as String))),
+
+                      child: CachedNetworkImage(
+                        imageUrl: tracks[index].album!.coverSmall as String,
+                        placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                     const SizedBox(width: defaultPadding / 2),
                     Expanded(
@@ -293,11 +296,11 @@ class _ArtistDetailState extends State<ArtistDetail> {
                       Container(
                         width: 70,
                         height: double.infinity,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: CachedNetworkImageProvider(
-                                  albums[index].coverSmall as String),
-                              fit: BoxFit.cover),
+                        child: CachedNetworkImage(
+                          imageUrl: albums[index].coverSmall as String,
+                          placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(width: defaultPadding),
