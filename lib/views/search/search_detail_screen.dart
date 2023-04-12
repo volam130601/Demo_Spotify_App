@@ -557,7 +557,7 @@ class _RecentSearchState extends State<RecentSearch> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
           child: Text(
-            'Recent searches',
+            'Recent searches 123',
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall
