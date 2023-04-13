@@ -2,7 +2,6 @@ import 'package:demo_spotify_app/views/library/library_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../views/home/home_screen.dart';
-import '../views/layout_screen.dart';
 import '../views/search/search_screen.dart';
 
 class LayoutScreenViewModel with ChangeNotifier {
@@ -10,7 +9,7 @@ class LayoutScreenViewModel with ChangeNotifier {
     HomeScreen(),
     SearchScreen(),
     LibraryScreen(),
-    ProfileScreen(),
+    Placeholder(),
   ];
 
   bool _isShowBottomBar = true;

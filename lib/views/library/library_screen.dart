@@ -86,39 +86,37 @@ class _LibraryScreenState extends State<LibraryScreen>
                 physics: const BouncingScrollPhysics(
                     decelerationRate: ScrollDecelerationRate.fast),
                 children: [
-                  buildTabPlaylist(context),
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        paddingHeight(2),
-                        Image.asset(
-                          'assets/images/library/album_none.png',
-                          color: Colors.white,
+                  buildTabPlaylist(context), 
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      paddingHeight(2),
+                      Image.asset(
+                        'assets/images/library/album_none.png',
+                        color: Colors.white,
+                      ),
+                      paddingHeight(1.5),
+                      Text(
+                        'You haven\'t created any albums yet.',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      paddingHeight(0.5),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: defaultPadding * 4),
+                        child: Text(
+                          'Find and click the favorite button for the album to add it to the library.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w400,
+                              ),
+                          textAlign: TextAlign.center,
                         ),
-                        paddingHeight(1.5),
-                        Text(
-                          'You haven\'t created any albums yet.',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        paddingHeight(0.5),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: defaultPadding * 4),
-                          child: Text(
-                            'Find and click the favorite button for the album to add it to the library.',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),

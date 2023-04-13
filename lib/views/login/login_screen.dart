@@ -1,11 +1,13 @@
 import 'package:demo_spotify_app/res/colors.dart';
-import 'package:demo_spotify_app/res/components/button_common.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
-import 'package:demo_spotify_app/views/login/register_screen.dart';
-import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
+import 'package:demo_spotify_app/views/home/home_screen.dart';
+import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
+
+import '../../res/components/slide_animation_page_route.dart';
+import '../../res/constants/default_constant.dart';
+import '../../utils/routes/route_name.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -15,85 +17,105 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          buildBackButton(context),
-          buildBackground(context),
-          buildContent(context)
-        ],
-      ),
-    );
-  }
-
-  Positioned buildBackButton(BuildContext context) {
-    return Positioned(
-      top: 40,
-      left: 10,
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.pop(context);
-        },
-        style: ElevatedButton.styleFrom(
-            elevation: 0,
-            backgroundColor: const Color(0xFF232222),
-            padding: const EdgeInsets.all(defaultPadding / 1.5),
-            shape: const CircleBorder()),
-        child: const Icon(
-          Ionicons.chevron_back_outline,
-          size: 24,
-        ),
-      ),
-    );
-  }
-
-  Positioned buildContent(BuildContext context) {
-    return Positioned(
-      top: 200,
-      left: 0,
-      right: 0,
-      child: Column(
-        children: [
-          SvgPicture.asset(
-            'assets/images/logo_spotify_label.svg',
-            width: 300,
+          SizedBox(
+            height: double.infinity,
+            width: double.infinity,
+            child: Image.asset(
+              'assets/images/login/login_background.jpg',
+              fit: BoxFit.cover,
+            ),
           ),
-          const SizedBox(height: defaultPadding * 3),
-          Text(
-            'Enjoy Listening To Music',
-            style: Theme.of(context).textTheme.headlineSmall,
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: const Color.fromRGBO(0, 0, 0, 0.7),
           ),
-          const SizedBox(height: defaultPadding * 1.5),
-          Text(
-            'Spotify is a proprietary Swedish audio streaming and media services provider',
-            style: Theme.of(context).textTheme.titleSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: defaultPadding * 2),
-          Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: defaultPadding * 1.5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(
-                  child: ButtonCommon(
-                    title: 'Register',
+          SizedBox(
+            width: double.infinity,
+            height: double.infinity,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 350,
+                    child: SvgPicture.asset(
+                      'assets/images/logo_spotify_label.svg',
+                      width: 270,
+                      // ignore: deprecated_member_use
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'Millions of songs.',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineLarge
+                        ?.copyWith(color: Colors.white),
+                  ),
+                  Text(
+                    'Free on Spotify.',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineLarge
+                        ?.copyWith(color: Colors.white),
+                  ),
+                  paddingHeight(4),
+                  buildButtonCommon(
+                    context,
+                    title: 'Sign up free',
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const RegisterScreen()));
+                      Navigator.of(context)
+                          .push(SlideRightPageRoute(page: const SignUpFree()));
                     },
                   ),
-                ),
-                const SizedBox(width: defaultPadding),
-                Expanded(
-                  child: ButtonCommon(
-                    title: 'Sign in',
+                  buildButtonCommon(
+                    context,
+                    title: 'Continue with phone number',
+                    icon: const Icon(
+                      Ionicons.phone_portrait_outline,
+                      color: Colors.white,
+                    ),
+                    isOutline: true,
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const SignInScreen()));
+                      Navigator.of(context)
+                          .push(SlideRightPageRoute(page: const SignUpFree()));
                     },
-                    bgColor: ColorsConsts.gradientGrey,
                   ),
-                ),
-              ],
+                  buildButtonCommon(
+                    context,
+                    title: 'Continue with Google',
+                    icon: SvgPicture.network(
+                      'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                      width: 20,
+                    ),
+                    isOutline: true,
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(SlideRightPageRoute(page: const SignUpFree()));
+                    },
+                  ),
+                  buildButtonCommon(
+                    context,
+                    title: 'Continue with Facebook',
+                    icon: SvgPicture.network(
+                      'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg',
+                      width: 20,
+                    ),
+                    isOutline: true,
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(SlideRightPageRoute(page: const SignUpFree()));
+                    },
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Log in',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  )
+                ],
+              ),
             ),
           )
         ],
@@ -101,28 +123,58 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget buildBackground(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          top: 0,
-          right: -10,
-          child: SvgPicture.asset('assets/images/login_wave_1.svg'),
-        ),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: SvgPicture.asset('assets/images/login_wave_2.svg'),
-        ),
-        Positioned(
-          bottom: 0,
-          left: -50,
-          child: Image.asset(
-            'assets/images/login_person.png',
-            width: 300,
+  Container buildButtonCommon(BuildContext context,
+      {String? title,
+      Widget? icon,
+      VoidCallback? onPressed,
+      bool isOutline = false}) {
+    if (isOutline == true) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2),
+        margin: const EdgeInsets.only(bottom: defaultPadding / 2),
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            shape: const StadiumBorder(),
+            side: const BorderSide(color: Colors.grey, width: 1),
+            padding: const EdgeInsets.symmetric(
+              vertical: defaultPadding,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              paddingWidth(1),
+              icon!,
+              Expanded(
+                child: Text(
+                  title!,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      );
+    }
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2),
+      margin: const EdgeInsets.only(bottom: defaultPadding / 2),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(vertical: defaultPadding)),
+        child: Text(
+          title!,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.black,
+              ),
+        ),
+      ),
     );
   }
 }

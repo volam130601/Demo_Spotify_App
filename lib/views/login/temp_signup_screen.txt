@@ -1,0 +1,327 @@
+import 'package:demo_spotify_app/res/colors.dart';
+import 'package:demo_spotify_app/views/layout_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
+
+import '../../res/components/slide_animation_page_route.dart';
+import '../../res/constants/default_constant.dart';
+import '../../services/firebase/firebase_auth_service.dart';
+import '../../utils/routes/route_name.dart';
+import 'login_screen.dart';
+
+class SignUpFree extends StatefulWidget {
+  const SignUpFree({Key? key}) : super(key: key);
+
+  @override
+  State<SignUpFree> createState() => _SignUpFreeState();
+}
+
+class _SignUpFreeState extends State<SignUpFree> {
+  final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  late String _fullName = "";
+  late String _email = "";
+  late String _password = "";
+
+  final _scrollController = ScrollController();
+  bool _obscureText = true;
+  bool _isEnabledButton = false;
+
+  void checkNull() {
+    if (_fullName != "" && _email != "" && _password != "") {
+      setState(() {
+        _isEnabledButton = true;
+      });
+    } else {
+      setState(() {
+        _isEnabledButton = false;
+      });
+    }
+  }
+
+  void _showCustomDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: CustomDiaLog(),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'Create account',
+          textAlign: TextAlign.center,
+        ),
+        leading: IconButton(
+          onPressed: () async {
+            Navigator.of(context)
+                .push(SlideLeftPageRoute(page: const LoginScreen()));
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.only(
+              left: defaultPadding,
+              right: defaultPadding,
+              top: defaultPadding * 2),
+          child: Column(
+            children: [
+              buildBoxInput(
+                context,
+                label: 'Full Name',
+                controller: _fullNameController,
+                onChanged: (value) {
+                  if (_fullNameController.text.isNotEmpty) {
+                    setState(() {
+                      _fullName = _fullNameController.text;
+                    });
+                  } else {
+                    setState(() {
+                      _fullName = "";
+                    });
+                  }
+                },
+              ),
+              buildBoxInput(context,
+                  label: 'E-Mail',
+                  controller: _emailController, onChanged: (value) {
+                if (_emailController.text.isNotEmpty) {
+                  setState(() {
+                    _email = _emailController.text;
+                  });
+                } else {
+                  setState(() {
+                    _email = "";
+                  });
+                }
+              }),
+              buildBoxInput(
+                context,
+                label: 'Password',
+                isPassword: true,
+                controller: _passwordController,
+                onChanged: (value) {
+                  if (_passwordController.text.isNotEmpty) {
+                    setState(() {
+                      _password = _passwordController.text;
+                    });
+                  } else {
+                    setState(() {
+                      _password = "";
+                    });
+                  }
+                },
+              ),
+              paddingHeight(1.5),
+              Align(
+                alignment: Alignment.center,
+                child: ElevatedButton(
+                  onPressed: _isEnabledButton
+                      ? () {
+                            _showCustomDialog();
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: defaultPadding * 1.5),
+                    shape: const StadiumBorder(),
+                    backgroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    'Sign up',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(color: Colors.black),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildBoxInput(BuildContext context,
+      {String label = "",
+      Function(String)? onChanged,
+      TextEditingController? controller,
+      bool isPassword = false}) {
+    Widget textField = const TextField();
+    if (isPassword == true) {
+      textField = TextField(
+        controller: controller,
+        obscureText: _obscureText,
+        textAlignVertical: TextAlignVertical.center,
+        cursorColor: Colors.white,
+        cursorHeight: 24,
+        style: Theme.of(context).textTheme.titleMedium,
+        decoration: InputDecoration(
+          labelText: null,
+          border: InputBorder.none,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+              color: Colors.grey,
+            ),
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
+          ),
+        ),
+        onChanged: onChanged,
+        onTap: () {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        },
+      );
+    } else {
+      textField = TextField(
+        controller: controller,
+        textAlignVertical: TextAlignVertical.center,
+        cursorColor: Colors.white,
+        cursorHeight: 24,
+        style: Theme.of(context).textTheme.titleMedium,
+        decoration: const InputDecoration(
+          labelText: null,
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.only(bottom: defaultPadding),
+        ),
+        onChanged: onChanged,
+        onTap: () {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        },
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        paddingHeight(0.5),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade700,
+            borderRadius: BorderRadius.circular(defaultBorderRadius / 3),
+          ),
+          child: textField,
+        ),
+        paddingHeight(0.3),
+        Text('Value null' , style: Theme.of(context).textTheme.labelMedium?.copyWith(color: Colors.redAccent),),
+        paddingHeight(1),
+      ],
+    );
+  }
+}
+
+class CustomDiaLog extends StatelessWidget {
+  const CustomDiaLog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(defaultBorderRadius)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: ColorsConsts.primaryColorDark,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(defaultBorderRadius),
+                topRight: Radius.circular(defaultBorderRadius),
+              ),
+            ),
+            child: const Icon(
+              Ionicons.checkmark_circle_outline,
+              size: 100,
+              color: Colors.white,
+            ),
+          ),
+          paddingHeight(1),
+          Text(
+            'Congratulations! Your sign up was successful.',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(color: Colors.black),
+            textAlign: TextAlign.center,
+          ),
+          paddingHeight(1),
+          Text(
+            'Do you want to log in now.',
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(color: Colors.black, fontWeight: FontWeight.w400),
+            textAlign: TextAlign.center,
+          ),
+          paddingHeight(2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(shape: const StadiumBorder()),
+                child: Text(
+                  'Go to Login',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.black),
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    SlideRightPageRoute(
+                      page: const LayoutScreen(
+                        index: 0,
+                        screen: Placeholder(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Close',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+          paddingHeight(1),
+        ],
+      ),
+    );
+  }
+}

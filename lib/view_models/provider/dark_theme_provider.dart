@@ -1,4 +1,4 @@
-import 'package:demo_spotify_app/models/dark_theme/dark_theme_preferences.dart';
+import 'package:demo_spotify_app/models/preferences/dark_theme_preferences.dart';
 import 'package:flutter/material.dart';
 
 class DarkThemeProvider with ChangeNotifier {

@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/res/components/slider_top_page_route.dart';
+import 'package:demo_spotify_app/res/components/slide_animation_page_route.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +7,10 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:list_tile_switch/list_tile_switch.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../res/constants/default_constant.dart';
-import '../view_models/provider/dark_theme_provider.dart';
 import '../widgets/play_control/common.dart';
 import 'home/play_control/track_play.dart';
 
@@ -216,7 +214,6 @@ class BottomNavigatorBarCustom extends StatefulWidget {
 class _BottomNavigatorBarCustomState extends State<BottomNavigatorBarCustom> {
   @override
   Widget build(BuildContext context) {
-    final themeChange = Provider.of<DarkThemeProvider>(context);
     final mainScreenProvider = Provider.of<LayoutScreenViewModel>(context);
     return SizedBox(
       height: 80,
@@ -268,9 +265,6 @@ class _BottomNavigatorBarCustomState extends State<BottomNavigatorBarCustom> {
                 iconUnSelected: const Icon(IconlyLight.search),
                 label: 'Search',
                 onTap: () {
-                  setState(() {
-                    themeChange.darkTheme = true;
-                  });
                   mainScreenProvider.setPageIndex(1);
                   Navigator.push(
                     context,
@@ -404,23 +398,6 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    final themeChange = Provider.of<DarkThemeProvider>(context);
-    return Scaffold(
-      body: Center(
-        child: ListTileSwitch(
-          value: themeChange.darkTheme,
-          leading: const Icon(Ionicons.moon_outline),
-          onChanged: (value) {
-            setState(() {
-              themeChange.darkTheme = value;
-            });
-          },
-          visualDensity: VisualDensity.comfortable,
-          switchType: SwitchType.cupertino,
-          switchActiveColor: Colors.indigo,
-          title: const Text('Dark theme'),
-        ),
-      ),
-    );
+    return const Placeholder();
   }
 }
