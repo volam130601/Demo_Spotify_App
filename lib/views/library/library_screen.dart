@@ -3,8 +3,6 @@ import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:provider/single_child_widget.dart';
-
 import '../../models/category/category_library.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -35,123 +33,210 @@ class _LibraryScreenState extends State<LibraryScreen>
     return Scaffold(
       appBar: buildAppBar(context),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.vertical,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SelectionTitle(title: 'Library'),
-            buildListLibrary(),
-            paddingHeight(1),
             SizedBox(
-              height: 50,
-              width: 180,
-              child: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'Playlist'),
-                  Tab(text: 'Album'),
+              height: 200,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SelectionTitle(title: 'Library'),
+                  buildListLibrary(),
                 ],
-                labelColor: Colors.white,
-                indicatorSize: TabBarIndicatorSize.label,
-                padding: const EdgeInsets.only(
-                    top: defaultPadding / 2,
-                    bottom: defaultPadding / 2,
-                    right: defaultPadding),
-                indicatorPadding:
-                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               ),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  height: 50,
+                  width: 180,
+                  child: TabBar(
+                    controller: _tabController,
+                    tabs: const [
+                      Tab(text: 'Playlist'),
+                      Tab(text: 'Album'),
+                    ],
+                    labelColor: Colors.white,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    padding: const EdgeInsets.only(
+                        top: defaultPadding / 2,
+                        bottom: defaultPadding / 2,
+                        right: defaultPadding),
+                    indicatorPadding: const EdgeInsets.symmetric(
+                        horizontal: defaultPadding / 2),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: const Icon(
+                    Icons.more_vert,
+                    size: 20,
+                  ),
+                )
+              ],
+            ),
             SizedBox(
-              height: 500,
+              height: 200 + (70 * 8),
               child: TabBarView(
                 controller: _tabController,
-                physics: const BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(
+                    decelerationRate: ScrollDecelerationRate.fast),
                 children: [
+                  buildTabPlaylist(context),
                   Container(
-                    padding: const EdgeInsets.only(top: defaultPadding),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        InkWell(
-                          onTap: () {},
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: defaultPadding / 4,
-                                horizontal: defaultPadding),
-                            leading: Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade800,
-                                borderRadius: BorderRadius.circular(
-                                    defaultBorderRadius / 2),
-                              ),
-                              child: const Center(
-                                child: Icon(Ionicons.add, size: 30),
-                              ),
-                            ),
-                            title: Text(
-                              'Add playlist',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
+                        paddingHeight(2),
+                        Image.asset(
+                          'assets/images/library/album_none.png',
+                          color: Colors.white,
                         ),
                         paddingHeight(1.5),
+                        Text(
+                          'You haven\'t created any albums yet.',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        paddingHeight(0.5),
                         Padding(
-                          padding: const EdgeInsets.only(left: defaultPadding),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Playlist suggest',
-                                style: Theme.of(context).textTheme.titleSmall,
-                              ),
-                              Text(
-                                'Heard a lot',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleSmall
-                                    ?.copyWith(
-                                        fontSize: 14,
-                                        color: Colors.grey,
-                                        fontWeight: FontWeight.w400),
-                              ),
-                            ],
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: defaultPadding * 4),
+                          child: Text(
+                            'Find and click the favorite button for the album to add it to the library.',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                        paddingHeight(1),
-                        ListTile(
-                          leading: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade800,
-                              borderRadius: BorderRadius.circular(
-                                  defaultBorderRadius / 2),
-                            ),
-                            child: const Center(
-                              child: Icon(Ionicons.add, size: 30),
-                            ),
-                          ),
-                          title: Text(
-                            'Add playlist',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          subtitle: Text(
-                            'Add playlist',
-                            style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey, fontWeight: FontWeight.w400),
-                          ),
-                          trailing: IconButton(onPressed: () {} , icon: const Icon(Ionicons.heart_outline),),
-                        )
                       ],
                     ),
-                  ),
-                  Container(
-                    child: const Text('This is Tab 2'),
                   ),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Container buildTabPlaylist(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: defaultPadding),
+      child: SizedBox(
+        height: 70 * 8,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(
+              decelerationRate: ScrollDecelerationRate.fast),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              InkWell(
+                onTap: () {},
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: defaultPadding / 4, horizontal: defaultPadding),
+                  leading: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius:
+                          BorderRadius.circular(defaultBorderRadius / 2),
+                    ),
+                    child: const Center(
+                      child: Icon(Ionicons.add, size: 30),
+                    ),
+                  ),
+                  title: Text(
+                    'Add playlist',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ),
+              paddingHeight(1.5),
+              Padding(
+                padding: const EdgeInsets.only(left: defaultPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Playlist suggest',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                    Text(
+                      'Heard a lot',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontSize: 14,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ],
+                ),
+              ),
+              paddingHeight(1),
+              ...Iterable<int>.generate(5).map(
+                (e) => SizedBox(
+                  height: 70,
+                  child: InkWell(
+                    onTap: () {},
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: defaultPadding),
+                      leading: Stack(children: [
+                        Container(
+                          width: 50,
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(defaultBorderRadius / 2),
+                            image: const DecorationImage(
+                              image:
+                                  AssetImage('assets/images/music_default.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 50,
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(defaultBorderRadius / 2),
+                            image: const DecorationImage(
+                              image: CachedNetworkImageProvider(
+                                  'https://e-cdns-images.dzcdn.net/images/playlist/7ff3e69ac26739df33ff53cf31e7259b/250x250-000000-80-0-0.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ]),
+                      title: Text(
+                        'Giai điệu chữa lành',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      subtitle: Text(
+                        'Spotify',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Colors.grey, fontWeight: FontWeight.w400),
+                      ),
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Ionicons.heart_outline),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
