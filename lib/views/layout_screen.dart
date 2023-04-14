@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/res/components/slide_animation_page_route.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../res/constants/default_constant.dart';
 import '../widgets/play_control/common.dart';
+import '../widgets/slide_animation_page_route.dart';
 import 'home/play_control/track_play.dart';
 
 class LayoutScreen extends StatefulWidget {
@@ -52,9 +52,9 @@ class _LayoutScreenState extends State<LayoutScreen> {
                   left: 0,
                   right: 0,
                   child: Column(
-                    children: [
-                      showPlayMusicCard(context),
-                      const BottomNavigatorBarCustom(),
+                    children: const [
+                      PLayMusicCard(),
+                      BottomNavigatorBarCustom(),
                     ],
                   ),
                 )
@@ -63,11 +63,16 @@ class _LayoutScreenState extends State<LayoutScreen> {
       ),
     );
   }
+}
 
-  Widget showPlayMusicCard(BuildContext context) {
+class PLayMusicCard extends StatelessWidget {
+  const PLayMusicCard({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     double widthScreen = MediaQuery.of(context).size.width;
     final providerMultiPlayer =
-        Provider.of<MultiPlayerViewModel>(context, listen: true);
+    Provider.of<MultiPlayerViewModel>(context, listen: true);
     Widget? playMusicCard;
     if (providerMultiPlayer.isCheckPlayer) {
       playMusicCard = InkWell(
@@ -79,7 +84,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
           height: 60,
           width: widthScreen,
           decoration: BoxDecoration(
-              color: Colors.grey,
+              color: Colors.grey.shade800,
               borderRadius: BorderRadius.circular(defaultBorderRadius / 2)),
           margin: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
           padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
@@ -101,7 +106,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
                         height: 40,
                         decoration: BoxDecoration(
                           borderRadius:
-                              BorderRadius.circular(defaultBorderRadius / 2),
+                          BorderRadius.circular(defaultBorderRadius / 2),
                         ),
                         child: CachedNetworkImage(
                           imageUrl: metadata.artUri.toString(),
@@ -184,7 +189,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
                       duration: positionData?.duration ?? Duration.zero,
                       position: positionData?.position ?? Duration.zero,
                       bufferedPosition:
-                          positionData?.bufferedPosition ?? Duration.zero,
+                      positionData?.bufferedPosition ?? Duration.zero,
                       onChangeEnd: providerMultiPlayer.player.seek,
                       isShow: false,
                     );
@@ -201,6 +206,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
     return playMusicCard;
   }
 }
+
 
 class BottomNavigatorBarCustom extends StatefulWidget {
   const BottomNavigatorBarCustom({Key? key})
@@ -305,9 +311,9 @@ class _BottomNavigatorBarCustomState extends State<BottomNavigatorBarCustom> {
               ),
               BottomNavigatorItemChild(
                 index: 3,
-                iconSelected: const Icon(IconlyBold.profile),
-                iconUnSelected: const Icon(IconlyLight.profile),
-                label: 'Profile',
+                iconSelected: const Icon(Ionicons.settings_sharp),
+                iconUnSelected: const Icon(Ionicons.settings_outline),
+                label: 'Settings',
                 onTap: () {
                   mainScreenProvider.setPageIndex(3);
                   Navigator.push(
@@ -385,19 +391,5 @@ class _BottomNavigatorItemChildState extends State<BottomNavigatorItemChild> {
         ],
       ),
     );
-  }
-}
-
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }

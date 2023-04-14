@@ -1,13 +1,17 @@
-import 'package:demo_spotify_app/res/colors.dart';
-import 'package:demo_spotify_app/views/home/home_screen.dart';
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
 import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
 
-import '../../res/components/slide_animation_page_route.dart';
 import '../../res/constants/default_constant.dart';
+import '../../services/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
+import '../../widgets/slide_animation_page_route.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -84,21 +88,38 @@ class LoginScreen extends StatelessWidget {
                   buildButtonCommon(
                     context,
                     title: 'Continue with Google',
-                    icon: SvgPicture.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
+                    icon: SvgPicture.asset(
+                      'assets/icons/google_logo.svg',
                       width: 20,
                     ),
                     isOutline: true,
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push(SlideRightPageRoute(page: const SignUpFree()));
+                    onPressed: () async {
+                      try {
+                        UserCredential userCredential = await AuthGoogle().signInWithGoogle();
+                        // User signed in successfully
+                        final user = userCredential.user;
+                        final displayName = user!.displayName;
+                        final email = user.email;
+                        final photoUrl = user.photoURL;
+
+                        await FirebaseFirestore.instance.collection('user').doc(user.uid).set({
+                          'displayName': displayName,
+                          'email': email,
+                          'photoUrl': photoUrl,
+                        });
+                        Navigator.of(context).pushNamed(RoutesName.home);
+                        log('Login with google is success');
+                      } catch (e) {
+                        // Error signing in
+                        log('>>>>Login ERROR');
+                      }
                     },
                   ),
                   buildButtonCommon(
                     context,
                     title: 'Continue with Facebook',
-                    icon: SvgPicture.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg',
+                    icon: SvgPicture.asset(
+                      'assets/icons/facebook_logo.svg',
                       width: 20,
                     ),
                     isOutline: true,
@@ -108,16 +129,18 @@ class LoginScreen extends StatelessWidget {
                     },
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).push(SlideRightPageRoute(page: const SignInScreen()));
+                    },
                     child: Text(
                       'Log in',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -178,3 +201,4 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
+

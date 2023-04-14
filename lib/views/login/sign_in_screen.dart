@@ -1,43 +1,35 @@
-import 'package:demo_spotify_app/models/firebase/user.dart';
-import 'package:demo_spotify_app/services/firebase/user_service.dart';
+import 'package:demo_spotify_app/utils/routes/route_name.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../widgets/custom_dialog.dart';
 import '../../res/constants/default_constant.dart';
-import '../../widgets/slide_animation_page_route.dart';
+import '../../services/firebase/user_service.dart';
 import 'components/form_input.dart';
-import 'main_login_screen.dart';
 
-class SignUpFree extends StatefulWidget {
-  const SignUpFree({Key? key}) : super(key: key);
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignUpFree> createState() => _SignUpFreeState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignUpFreeState extends State<SignUpFree> {
-  final _fullNameController = TextEditingController();
+class _SignInScreenState extends State<SignInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  late String _fullName = '';
   late String _email = '';
   late String _password = '';
-  late String _validatorFullName = '';
   late String _validatorEmail = '';
   late String _validatorPassword = '';
 
   final _scrollController = ScrollController();
-  final _formSignUpKey = GlobalKey<FormState>();
+  final _formSignInKey = GlobalKey<FormState>();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  late bool _isCanSignUp = false;
-
+  late bool _isCanSignIn = false;
 
   void checkValidator() {
     int counter = 0;
-
     setState(() {
       if (_email.isEmpty) {
         _validatorEmail = 'Email is required';
@@ -57,17 +49,10 @@ class _SignUpFreeState extends State<SignUpFree> {
         counter++;
       }
 
-      if (_fullName.isEmpty) {
-        _validatorFullName = 'Full name is required';
+      if (counter > 1) {
+        _isCanSignIn = true;
       } else {
-        _validatorFullName = '';
-        counter++;
-      }
-
-      if (counter > 2) {
-        _isCanSignUp = true;
-      } else {
-        _isCanSignUp = false;
+        _isCanSignIn = false;
       }
     });
   }
@@ -79,20 +64,7 @@ class _SignUpFreeState extends State<SignUpFree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'Create account',
-          textAlign: TextAlign.center,
-        ),
-        leading: IconButton(
-          onPressed: () async {
-            Navigator.of(context)
-                .push(SlideLeftPageRoute(page: const LoginScreen()));
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
-      ),
+      appBar: AppBar(),
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Padding(
@@ -101,22 +73,11 @@ class _SignUpFreeState extends State<SignUpFree> {
               right: defaultPadding,
               top: defaultPadding * 2),
           child: Form(
-            key: _formSignUpKey,
+            key: _formSignInKey,
             child: Column(
               children: [
                 FormInput(
-                  title: 'Full name',
-                  controller: _fullNameController,
-                  validator: _validatorFullName,
-                  onChanged: (value) {
-                    setState(() {
-                      _fullName = value.trim();
-                    });
-                  },
-                  scrollController: _scrollController,
-                ),
-                FormInput(
-                  title: 'E-Mail',
+                  title: 'E-Mail or username',
                   controller: _emailController,
                   validator: _validatorEmail,
                   onChanged: (value) {
@@ -143,11 +104,23 @@ class _SignUpFreeState extends State<SignUpFree> {
                   child: ElevatedButton(
                     onPressed: () {
                       checkValidator();
-                      if (_isCanSignUp) {
-                        register();
+                      if (_isCanSignIn) {
+                        signIn(context, _email, _password);
                       }
                     },
-                    child: const Text('Submit'),
+                    style: ElevatedButton.styleFrom(
+                        shape: const StadiumBorder(),
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: defaultPadding * 2,
+                            vertical: defaultPadding)),
+                    child: Text(
+                      'Log in',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Colors.black),
+                    ),
                   ),
                 ),
               ],
@@ -158,51 +131,53 @@ class _SignUpFreeState extends State<SignUpFree> {
     );
   }
 
-  void _showCustomDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          content: CustomDiaLog(),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        );
-      },
-    );
-  }
-
-  void register() async {
+  Future<void> signIn(
+      BuildContext context, String email, String password) async {
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-      final UserService userService = UserService();
-      userService.addItem(
-        Users(
-          id: userCredential.user!.uid,
-          fullName: _fullName,
-          email: _email,
+      final UserService _userService = UserService();
+      _userService.getUserById(userCredential.user!.uid);
+      // ignore: use_build_context_synchronously
+      Navigator.pushNamed(context, RoutesName.home);
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Login success',
+            // ignore: use_build_context_synchronously
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(color: Colors.white),
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 1),
         ),
       );
-      _showCustomDialog();
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        setState(() {
-          _validatorEmail = 'The account already exists for that email.';
-          _isCanSignUp = false;
-        });
+      String errorMessage;
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        errorMessage = 'Invalid email or password.';
+        _isCanSignIn = false;
       } else if (e.code == 'invalid-email') {
-        setState(() {
-          _validatorEmail = 'This email isn\'t valid';
-          _isCanSignUp = false;
-        });
+        errorMessage = 'Invalid email address.';
+        _isCanSignIn = false;
+      } else if (e.code == 'too-many-requests') {
+        errorMessage = 'Too many requests. Try again later.';
+        _isCanSignIn = false;
       } else {
-        // General error
+        errorMessage = 'An error occurred. Please try again later.';
+        _isCanSignIn = false;
       }
-    } catch (e) {
-      // General error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 }

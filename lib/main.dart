@@ -6,10 +6,11 @@ import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dar
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
-import 'package:demo_spotify_app/views/login/login_screen.dart';
+import 'package:demo_spotify_app/views/login/main_login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,6 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
   runApp(const MyApp());
 }
 

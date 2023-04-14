@@ -14,7 +14,7 @@ class Playlist {
   String? creationDate;
   String? md5Image;
   String? pictureType;
-  User? user;
+  UserPlaylist? user;
   String? type;
 
   Playlist(
@@ -52,7 +52,7 @@ class Playlist {
     creationDate = json["creation_date"];
     md5Image = json["md5_image"];
     pictureType = json["picture_type"];
-    user = json["user"] == null ? null : User.fromJson(json["user"]);
+    user = json["user"] == null ? null : UserPlaylist.fromJson(json["user"]);
     type = json["type"];
   }
 
@@ -81,15 +81,15 @@ class Playlist {
   }
 }
 
-class User {
+class UserPlaylist {
   int? id;
   String? name;
   String? tracklist;
   String? type;
 
-  User({this.id, this.name, this.tracklist, this.type});
+  UserPlaylist({this.id, this.name, this.tracklist, this.type});
 
-  User.fromJson(Map<String, dynamic> json) {
+  UserPlaylist.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     name = json["name"];
     tracklist = json["tracklist"];

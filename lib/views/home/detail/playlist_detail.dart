@@ -9,8 +9,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/playlist.dart';
-import '../../../res/components/play_control/play_button.dart';
 import '../../../view_models/track_play_view_model.dart';
+import '../components/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
   const PlaylistDetail({Key? key, required this.playlist}) : super(key: key);

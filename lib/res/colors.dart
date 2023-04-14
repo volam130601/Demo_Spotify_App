@@ -7,7 +7,7 @@ class ColorsConsts {
   static Color darkTheme = const Color(0xFF0D0C0C);
   static Color lightTheme = const Color(0xFFF2F2F2);
 
-  static Color primaryColorLight = const Color(0xFF62CD5D);
+  static Color primaryColorLight = const Color(0xFF34F32D);
   static Color primaryColorDark = const Color(0xFF42C83C);
   static Color deepPrimaryColor = const Color(0xFF265424);
 

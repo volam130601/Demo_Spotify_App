@@ -1,15 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:demo_spotify_app/models/firebase/recent_search.dart';
+import 'package:demo_spotify_app/models/firebase/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class RecentSearchService {
+class UserService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  static const String collectionName = 'recent_search';
+  static const String collectionName = 'user';
 
-  Future<void> addItem(RecentSearchItem item) {
+  Future<void> addItem(Users item) {
     return _db.collection(collectionName).doc(item.id).set(item.toJson());
   }
 
-  Future<void> updateItem(RecentSearchItem item) {
+  Future<void> updateItem(Users item) {
     return _db.collection(collectionName).doc(item.id).update(item.toJson());
   }
 
@@ -25,11 +26,17 @@ class RecentSearchService {
     });
   }
 
-  Stream<List<RecentSearchItem>> getItems() {
+  Future<void> getUserById(String id) async {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    Users user = Users.fromJson(await _db.collection(collectionName).doc(id).get()) ;
+    currentUser!.updateDisplayName(user.fullName);
+  }
+
+  Stream<List<Users>> getItems() {
     return _db.collection(collectionName).snapshots().map(
           (snapshot) => snapshot.docs
-              .map((doc) => RecentSearchItem.fromJson(doc))
-              .toList(),
-        );
+          .map((doc) => Users.fromJson(doc))
+          .toList(),
+    );
   }
 }

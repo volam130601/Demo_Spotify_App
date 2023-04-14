@@ -10,10 +10,10 @@ import '../../../models/artist.dart';
 import '../../../models/playlist.dart';
 import '../../../models/track.dart';
 import '../../../res/colors.dart';
-import '../../../res/components/play_control/play_button.dart';
 import '../../../res/constants/default_constant.dart';
 import '../../../view_models/artist_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
+import '../components/play_control/play_button.dart';
 
 class ArtistDetail extends StatefulWidget {
   const ArtistDetail({Key? key, required this.artist}) : super(key: key);

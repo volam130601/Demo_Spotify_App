@@ -65,6 +65,7 @@ dependencies:
   cloud_firestore: ^4.4.5
   firebase_auth: ^4.2.2
   email_validator: ^2.1.17
+  google_sign_in: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -90,7 +91,10 @@ flutter:
 
   assets:
     - assets/icons/
-    - assets/images/    - assets/images/library/    - assets/images/login/
+    - assets/images/
+    - assets/images/library/
+    - assets/images/login/
+
 
 
 

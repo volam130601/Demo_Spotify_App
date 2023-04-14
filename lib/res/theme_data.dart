@@ -15,9 +15,7 @@ class Styles {
           : ColorsConsts.primaryColorLight,
       indicatorColor: ColorsConsts.primaryColorDark,
       buttonTheme: ButtonThemeData(
-        buttonColor: ColorsConsts.primaryColorDark,
-        /*   padding: const EdgeInsets.symmetric(
-            horizontal: defaultPadding * 2, vertical: defaultPadding * 2),*/
+        buttonColor: ColorsConsts.primaryColorLight,
       ),
       highlightColor: ColorsConsts.highlightColor,
       hoverColor: ColorsConsts.highlightColor,

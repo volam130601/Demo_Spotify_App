@@ -15,7 +15,7 @@ class RecentSearchItem {
     required this.type,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'itemId': itemId,
@@ -25,7 +25,7 @@ class RecentSearchItem {
     };
   }
 
-  RecentSearchItem.fromMap(DocumentSnapshot<Map<String, dynamic>> doc)
+  RecentSearchItem.fromJson(DocumentSnapshot<Map<String, dynamic>> doc)
       : id = doc.id,
         itemId = doc.data()!["itemId"],
         title = doc.data()!["title"],

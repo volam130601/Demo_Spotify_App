@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/res/colors.dart';
-import 'package:demo_spotify_app/res/components/play_control/play_button.dart';
 import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -10,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../../models/album.dart';
 import '../../../models/artist.dart';
 import '../../../view_models/track_play_view_model.dart';
+import '../components/play_control/play_button.dart';
 
 class AlbumDetail extends StatefulWidget {
   const AlbumDetail({Key? key, this.album, this.artist}) : super(key: key);

@@ -5,10 +5,10 @@ import 'package:just_audio/just_audio.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../../models/album.dart';
-import '../../../models/artist.dart';
-import '../../../models/track.dart';
-import '../../constants/default_constant.dart';
+import '../../../../models/album.dart';
+import '../../../../models/artist.dart';
+import '../../../../models/track.dart';
+import '../../../../res/constants/default_constant.dart';
 
 class PlayButton extends StatefulWidget {
   const PlayButton(

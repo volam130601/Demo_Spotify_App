@@ -9,8 +9,8 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/track.dart';
-import '../../res/components/slide_animation_page_route.dart';
 import '../../view_models/multi_control_player_view_model.dart';
+import '../../widgets/slide_animation_page_route.dart';
 import '../home/play_control/track_play.dart';
 
 class GenreDetail extends StatefulWidget {
