@@ -29,7 +29,7 @@ class ArtistListView extends StatelessWidget {
                   ),
                 );
               case Status.COMPLETED:
-                List<Artist>? artists = value.chartArtists.data?.cast<Artist>();
+                List<Artist>? artists = value.chartArtists.data;
                 artists = artists!.reversed.toList();
                 return SizedBox(
                   height: 200.0,
@@ -53,7 +53,7 @@ class ArtistListView extends StatelessWidget {
                                   return LayoutScreen(
                                     index: 4,
                                     screen:
-                                        ArtistDetail(artist: artists![index]),
+                                        ArtistDetail(artistId: artists![index].id as int),
                                   );
                                 },
                                 transitionDuration: Duration.zero,

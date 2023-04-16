@@ -3,8 +3,8 @@ import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:provider/provider.dart';
 
-import '../../../res/colors.dart';
-import '../../../res/constants/default_constant.dart';
+import '../../../utils/colors.dart';
+import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/multi_control_player_view_model.dart';
 import '../../../widgets/play_control/common.dart';
 

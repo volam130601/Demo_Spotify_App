@@ -4,12 +4,12 @@ import 'package:demo_spotify_app/views/home/widgets/artists_view.dart';
 import 'package:demo_spotify_app/views/home/widgets/playlists_view.dart';
 import 'package:demo_spotify_app/views/home/widgets/tracks_view.dart';
 import 'package:flutter/material.dart';
+import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
-import "package:flutter_feather_icons/flutter_feather_icons.dart";
-import '../../data/response/status.dart';
-import '../../res/constants/default_constant.dart';
+
+import '../../utils/constants/default_constant.dart';
 import '../../view_models/home_view_model.dart';
 
 class HomeScreen extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:demo_spotify_app/data/network/network_api_services.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
-import 'package:demo_spotify_app/res/app_url.dart';
+import 'package:demo_spotify_app/utils/app_url.dart';
 
 import '../models/album.dart';
 import '../models/artist.dart';

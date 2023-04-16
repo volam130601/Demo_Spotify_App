@@ -1,7 +1,7 @@
 import 'package:demo_spotify_app/data/network/network_api_services.dart';
 import 'package:demo_spotify_app/models/track.dart';
 
-import '../res/app_url.dart';
+import '../utils/app_url.dart';
 
 class TrackRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();
@@ -9,6 +9,7 @@ class TrackRepository {
   Future<Track> getTrackByID(int trackID) async {
     var url = Uri.https(AppUrl.baseURL, '/track/$trackID');
     final dynamic response = await _apiServices.getGetApiResponse(url);
+    print(response);
     return Track.fromJson(response);
   }
 

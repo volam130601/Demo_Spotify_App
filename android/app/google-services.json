@@ -22,7 +22,15 @@
           }
         },
         {
-          "client_id": "980091084490-3mgn1og70v56jitbso3ckl9ub9s184ng.apps.googleusercontent.com",
+          "client_id": "980091084490-m9jffejfgbfjk5nlhh9qh17juncd0bt1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.demo_spotify_app",
+            "certificate_hash": "851a180c5baa147a79b89ac1a4115b5aab7f1b9f"
+          }
+        },
+        {
+          "client_id": "980091084490-bu7tk2oem94v9sks6nintfapon9chg88.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

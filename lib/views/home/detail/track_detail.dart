@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/track.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
@@ -12,7 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/album.dart';
-import '../../../res/colors.dart';
+import '../../../utils/colors.dart';
+import '../../../utils/constants/default_constant.dart';
 import '../components/card_item_custom.dart';
 
 class TrackDetail extends StatefulWidget {

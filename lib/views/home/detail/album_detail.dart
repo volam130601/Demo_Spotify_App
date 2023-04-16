@@ -1,13 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
-import 'package:demo_spotify_app/res/colors.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/response/status.dart';
 import '../../../models/album.dart';
 import '../../../models/artist.dart';
+import '../../../utils/colors.dart';
+import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
 import '../components/play_control/play_button.dart';
 
@@ -122,52 +123,68 @@ class _AlbumDetailState extends State<AlbumDetail> {
     }
     return Consumer<TrackPlayViewModel>(
       builder: (context, value, _) {
-        List<Track>? tracks = value.tracks.data;
-        return CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            buildAppBar(value, context),
-            buildSelectionTitle(context),
-            SliverToBoxAdapter(
-              child: playlistActions(),
-            ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return playlistTile(context, tracks[index]);
-                },
-                childCount: tracks!.length,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: defaultPadding, vertical: defaultPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('March 2 ,2023',
-                        style: Theme.of(context).textTheme.titleMedium),
-                    paddingHeight(1.5),
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundImage:
-                              CachedNetworkImageProvider(artistAvatar),
-                          radius: 20,
-                        ),
-                        paddingWidth(1.5),
-                        Text(artistName,
-                            style: Theme.of(context).textTheme.titleMedium)
-                      ],
-                    ),
-                    paddingHeight(5),
-                  ],
+        switch (value.tracks.status) {
+          case Status.LOADING:
+            return Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 40,
                 ),
               ),
-            )
-          ],
-        );
+            );
+          case Status.COMPLETED:
+            List<Track>? tracks = value.tracks.data;
+            return CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                buildAppBar(value, context),
+                buildSelectionTitle(context),
+                SliverToBoxAdapter(
+                  child: playlistActions(),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return playlistTile(context, tracks[index]);
+                    },
+                    childCount: tracks!.length,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: defaultPadding, vertical: defaultPadding),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('March 2 ,2023',
+                            style: Theme.of(context).textTheme.titleMedium),
+                        paddingHeight(1.5),
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage:
+                                  CachedNetworkImageProvider(artistAvatar),
+                              radius: 20,
+                            ),
+                            paddingWidth(1.5),
+                            Text(artistName,
+                                style: Theme.of(context).textTheme.titleMedium)
+                          ],
+                        ),
+                        paddingHeight(5),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            );
+          case Status.ERROR:
+            return Text(value.tracks.toString());
+          default:
+            return const Text('Default Switch');
+        }
       },
     );
   }

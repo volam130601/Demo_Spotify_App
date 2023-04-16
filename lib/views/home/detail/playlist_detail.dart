@@ -1,14 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
-import 'package:demo_spotify_app/res/colors.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/response/status.dart';
 import '../../../models/playlist.dart';
+import '../../../utils/colors.dart';
+import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
 import '../components/play_control/play_button.dart';
 
@@ -40,7 +41,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   }
 
   Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 700));
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() {
       isLoading = false;
     });
@@ -107,61 +108,77 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
 
   Widget buildPlaylistBody(BuildContext context) {
     return Consumer<TrackPlayViewModel>(builder: (context, value, _) {
-      List<Track>? tracks = value.tracksPlayControl.data;//>>>
-      return CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          buildAppBar(value, context),
-          buildHeaderBody(context),
-          SliverToBoxAdapter(
-            child: playlistActions(),
-          ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return InkWell(
-                  child: playlistTile(context, tracks[index]),
-                  onTap: () {
-                    var value = Provider.of<MultiPlayerViewModel>(context,
-                        listen: false);
-                    int? currentPlaylistId = widget.playlist!.id as int;
-                    if (currentPlaylistId != value.getPlaylistId) {
-                      value.initState(
-                          tracks: tracks,
-                          playlistId: widget.playlist!.id as int,
-                          index: index);
-                    } else {
-                      value.player.seek(Duration.zero, index: index);
-                    }
+      switch (value.tracksPlayControl.status) {
+        case Status.LOADING:
+          return Scaffold(
+            body: Center(
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          );
+        case Status.COMPLETED:
+          List<Track>? tracks = value.tracksPlayControl.data;
+          return CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              buildAppBar(value, context),
+              buildHeaderBody(context),
+              SliverToBoxAdapter(
+                child: playlistActions(),
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    return InkWell(
+                      child: playlistTile(context, tracks[index]),
+                      onTap: () {
+                        var value = Provider.of<MultiPlayerViewModel>(context,
+                            listen: false);
+                        int? currentPlaylistId = widget.playlist!.id as int;
+                        if (currentPlaylistId != value.getPlaylistId) {
+                          value.initState(
+                              tracks: tracks,
+                              playlistId: widget.playlist!.id as int,
+                              index: index);
+                        } else {
+                          value.player.seek(Duration.zero, index: index);
+                        }
+                      },
+                    );
                   },
-                );
-              },
-              childCount: tracks!.length,
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                Center(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style:
-                        OutlinedButton.styleFrom(shape: const StadiumBorder()),
-                    child: Text(
-                      'See all tracks',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Colors.white),
-                    ),
-                  ),
+                  childCount: tracks!.length,
                 ),
-                const SizedBox(height: defaultPadding * 5),
-              ],
-            ),
-          ),
-        ],
-      );
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Center(
+                      child: OutlinedButton(
+                        onPressed: () {},
+                        style: OutlinedButton.styleFrom(
+                            shape: const StadiumBorder()),
+                        child: Text(
+                          'See all tracks',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: defaultPadding * 5),
+                  ],
+                ),
+              ),
+            ],
+          );
+        case Status.ERROR:
+          return Text(value.tracksPlayControl.toString());
+        default:
+          return const Text('Default Switch');
+      }
     });
   }
 
@@ -264,7 +281,10 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               margin: const EdgeInsets.only(top: 40),
               child: CachedNetworkImage(
                 imageUrl: widget.playlist!.pictureMedium as String,
-                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/music_default.jpg',
+                  fit: BoxFit.cover,
+                ),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fit: BoxFit.cover,
               ),

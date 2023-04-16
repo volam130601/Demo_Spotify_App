@@ -3,8 +3,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../res/constants/default_constant.dart';
 import '../../services/firebase/user_service.dart';
+import '../../utils/constants/default_constant.dart';
 import 'components/form_input.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -138,8 +138,7 @@ class _SignInScreenState extends State<SignInScreen> {
         email: email,
         password: password,
       );
-      final UserService _userService = UserService();
-      _userService.getUserById(userCredential.user!.uid);
+      UserService().getUserById(userCredential.user!.uid);
       // ignore: use_build_context_synchronously
       Navigator.pushNamed(context, RoutesName.home);
       // ignore: use_build_context_synchronously

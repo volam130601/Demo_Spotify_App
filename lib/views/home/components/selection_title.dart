@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../res/constants/default_constant.dart';
+import '../../../utils/constants/default_constant.dart';
 
 class SelectionTitle extends StatelessWidget {
   const SelectionTitle(

@@ -4,7 +4,7 @@ import 'package:demo_spotify_app/models/album.dart';
 import '../models/artist.dart';
 import '../models/playlist.dart';
 import '../models/track.dart';
-import '../res/app_url.dart';
+import '../utils/app_url.dart';
 
 class ArtistRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();
@@ -22,6 +22,9 @@ class ArtistRepository {
       'limit': '$limit',
     });
     final response = await _apiServices.getGetApiResponse(url);
+    if(response.containsKey('error')) {
+      return <Artist>[];
+    }
     final List<dynamic> items = response['data'];
     return items.map((item) => Artist.fromJson(item)).toList();
   }
@@ -33,6 +36,9 @@ class ArtistRepository {
       'limit': '$limit',
     });
     final response = await _apiServices.getGetApiResponse(url);
+    if(response.containsKey('error')) {
+      return <Track>[];
+    }
     final List<dynamic> items = response['data'];
     return items.map((item) => Track.fromJson(item)).toList();
   }
@@ -44,6 +50,9 @@ class ArtistRepository {
       'limit': '$limit',
     });
     final response = await _apiServices.getGetApiResponse(url);
+    if(response.containsKey('error')) {
+      return <Track>[];
+    }
     final List<dynamic> items = response['data'];
     return items.map((item) => Track.fromJson(item)).toList();
   }
@@ -55,6 +64,9 @@ class ArtistRepository {
       'limit': '$limit',
     });
     final response = await _apiServices.getGetApiResponse(url);
+    if(response.containsKey('error')) {
+      return <Album>[];
+    }
     final List<dynamic> items = response['data'];
     return items.map((item) => Album.fromJson(item)).toList();
   }
@@ -65,7 +77,10 @@ class ArtistRepository {
       'index': '$index',
       'limit': '$limit',
     });
-    final response = await _apiServices.getGetApiResponse(url);
+    final Map<String, dynamic> response = await _apiServices.getGetApiResponse(url);
+    if(response.containsKey('error')) {
+      return <Playlist>[];
+    }
     final List<dynamic> items = response['data'];
     return items.map((item) => Playlist.fromJson(item)).toList();
   }

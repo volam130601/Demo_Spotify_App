@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/views/home/play_control/play_control.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +6,8 @@ import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
+
+import '../../../utils/constants/default_constant.dart';
 
 class TrackPlay extends StatefulWidget {
   const TrackPlay({Key? key}) : super(key: key);

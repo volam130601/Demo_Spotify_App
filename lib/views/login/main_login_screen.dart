@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:demo_spotify_app/services/firebase/user_service.dart';
 import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
 import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
 
-import '../../res/constants/default_constant.dart';
+import '../../models/firebase/user.dart';
 import '../../services/firebase/auth_google_service.dart';
+import '../../utils/constants/default_constant.dart';
 import '../../utils/routes/route_name.dart';
 import '../../widgets/slide_animation_page_route.dart';
 
@@ -95,18 +96,17 @@ class LoginScreen extends StatelessWidget {
                     isOutline: true,
                     onPressed: () async {
                       try {
-                        UserCredential userCredential = await AuthGoogle().signInWithGoogle();
+                        UserCredential userCredential =
+                            await AuthGoogle().signInWithGoogle();
                         // User signed in successfully
                         final user = userCredential.user;
-                        final displayName = user!.displayName;
-                        final email = user.email;
-                        final photoUrl = user.photoURL;
 
-                        await FirebaseFirestore.instance.collection('user').doc(user.uid).set({
-                          'displayName': displayName,
-                          'email': email,
-                          'photoUrl': photoUrl,
-                        });
+                        await UserService().addItem(Users(
+                            id: user!.uid,
+                            displayName: user.displayName.toString(),
+                            email: user.email.toString(),
+                            photoUrl: user.photoURL.toString()));
+                        // ignore: use_build_context_synchronously
                         Navigator.of(context).pushNamed(RoutesName.home);
                         log('Login with google is success');
                       } catch (e) {
@@ -130,7 +130,8 @@ class LoginScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.of(context).push(SlideRightPageRoute(page: const SignInScreen()));
+                      Navigator.of(context).push(
+                          SlideRightPageRoute(page: const SignInScreen()));
                     },
                     child: Text(
                       'Log in',
@@ -201,4 +202,3 @@ class LoginScreen extends StatelessWidget {
     );
   }
 }
-

@@ -4,8 +4,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/constants/default_constant.dart';
 import '../../widgets/custom_dialog.dart';
-import '../../res/constants/default_constant.dart';
 import '../../widgets/slide_animation_page_route.dart';
 import 'components/form_input.dart';
 import 'main_login_screen.dart';
@@ -33,7 +33,6 @@ class _SignUpFreeState extends State<SignUpFree> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late bool _isCanSignUp = false;
-
 
   void checkValidator() {
     int counter = 0;
@@ -182,8 +181,9 @@ class _SignUpFreeState extends State<SignUpFree> {
       userService.addItem(
         Users(
           id: userCredential.user!.uid,
-          fullName: _fullName,
+          displayName: _fullName,
           email: _email,
+          photoUrl: '',
         ),
       );
       _showCustomDialog();

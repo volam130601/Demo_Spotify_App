@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RecentSearchItem {
-  final String id;
-  final String itemId;
-  final String title;
-  final String image;
-  final String type;
+   String? id;
+   String? itemId;
+   String? title;
+   String? image;
+   String? type;
 
   RecentSearchItem({
     required this.id,
@@ -14,6 +14,14 @@ class RecentSearchItem {
     required this.image,
     required this.type,
   });
+
+   RecentSearchItem.fromJson(DocumentSnapshot<Map<String, dynamic>> doc) {
+     id = doc.id;
+     itemId = doc.data()!["itemId"];
+     title = doc.data()!["title"];
+     image = doc.data()!["image"];
+     type = doc.data()!["type"];
+   }
 
   Map<String, dynamic> toJson() {
     return {
@@ -24,11 +32,8 @@ class RecentSearchItem {
       'type': type,
     };
   }
+}
 
-  RecentSearchItem.fromJson(DocumentSnapshot<Map<String, dynamic>> doc)
-      : id = doc.id,
-        itemId = doc.data()!["itemId"],
-        title = doc.data()!["title"],
-        image = doc.data()!["image"],
-        type = doc.data()!["type"];
+class ArtistSearch {
+
 }

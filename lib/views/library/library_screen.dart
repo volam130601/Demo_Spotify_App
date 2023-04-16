@@ -1,9 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import '../../models/category/category_library.dart';
+import '../../utils/constants/default_constant.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({Key? key}) : super(key: key);
@@ -15,11 +16,16 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final _auth = FirebaseAuth.instance;
+  late User user;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    if (_auth.currentUser != null) {
+      user = _auth.currentUser!;
+    }
   }
 
   @override
@@ -86,7 +92,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                 physics: const BouncingScrollPhysics(
                     decelerationRate: ScrollDecelerationRate.fast),
                 children: [
-                  buildTabPlaylist(context), 
+                  buildTabPlaylist(context),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -106,13 +112,11 @@ class _LibraryScreenState extends State<LibraryScreen>
                             horizontal: defaultPadding * 4),
                         child: Text(
                           'Find and click the favorite button for the album to add it to the library.',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w400,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w400,
+                                  ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -246,10 +250,11 @@ class _LibraryScreenState extends State<LibraryScreen>
       leadingWidth: 0,
       title: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 20,
-            backgroundImage: CachedNetworkImageProvider(
-                'https://e-cdns-images.dzcdn.net/images/artist/19cc38f9d69b352f718782e7a22f9c32/56x56-000000-80-0-0.jpg'),
+            backgroundImage: CachedNetworkImageProvider((user.photoURL != null)
+                ? '${user.photoURL}'
+                : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
             backgroundColor:
                 Colors.grey, // fallback color if the image is not available
           ),

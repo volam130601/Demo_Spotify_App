@@ -6,7 +6,7 @@ class UserService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'user';
 
-  Future<void> addItem(Users item) {
+   Future<void> addItem(Users item) {
     return _db.collection(collectionName).doc(item.id).set(item.toJson());
   }
 
@@ -29,7 +29,7 @@ class UserService {
   Future<void> getUserById(String id) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;
     Users user = Users.fromJson(await _db.collection(collectionName).doc(id).get()) ;
-    currentUser!.updateDisplayName(user.fullName);
+    currentUser!.updateDisplayName(user.displayName);
   }
 
   Stream<List<Users>> getItems() {

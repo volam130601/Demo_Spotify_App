@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../../res/constants/default_constant.dart';
+import '../../../utils/constants/default_constant.dart';
 
 class CardItemCustom extends StatefulWidget {
   const CardItemCustom({
@@ -28,6 +28,29 @@ class CardItemCustom extends StatefulWidget {
 class _CardItemCustomState extends State<CardItemCustom> {
   @override
   Widget build(BuildContext context) {
+    Widget? cardImage;
+    if(widget.isCircle == true) {
+      cardImage = SizedBox(
+        width: double.infinity,
+        height: 150,
+        child: CircleAvatar(
+          radius: 50,
+          foregroundImage: CachedNetworkImageProvider(widget.image),
+          backgroundImage: const AssetImage("assets/images/music_default.jpg") ,
+        ),
+      );
+    } else {
+      cardImage =  SizedBox(
+        width: double.infinity,
+        height: 150,
+        child: CachedNetworkImage(
+          imageUrl: widget.image,
+          placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+          fit: BoxFit.cover,
+        ),
+      );
+    }
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
@@ -38,23 +61,7 @@ class _CardItemCustomState extends State<CardItemCustom> {
               ? CrossAxisAlignment.center
               : CrossAxisAlignment.start,
           children: [
-            Stack(children: [
-              Container(
-                width: double.infinity,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: widget.isCircle == true
-                      ? BoxShape.circle
-                      : BoxShape.rectangle,
-                ),
-                child: CachedNetworkImage(
-                  imageUrl: widget.image,
-                  placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ]),
+            cardImage,
             paddingHeight(0.3),
             _cardName(widget.titleTop, widget.titleBottom)
           ],

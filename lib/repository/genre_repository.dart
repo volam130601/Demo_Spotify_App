@@ -4,7 +4,7 @@ import 'package:demo_spotify_app/models/artist.dart';
 import '../models/genre/genre.dart';
 import '../models/genre/genre_search.dart';
 import '../models/track.dart';
-import '../res/app_url.dart';
+import '../utils/app_url.dart';
 
 class GenreRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();

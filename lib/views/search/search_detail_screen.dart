@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/category/category_search.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
-import 'package:demo_spotify_app/res/colors.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +15,9 @@ import '../../models/album.dart';
 import '../../models/artist.dart';
 import '../../models/firebase/recent_search.dart';
 import '../../models/track.dart';
-import '../../res/constants/default_constant.dart';
 import '../../services/firebase/recent_search_service.dart';
+import '../../utils/colors.dart';
+import '../../utils/constants/default_constant.dart';
 import '../../view_models/multi_control_player_view_model.dart';
 import '../../view_models/track_play_view_model.dart';
 import '../home/components/list_tile_item.dart';
@@ -99,12 +99,6 @@ class _BoxSearchState extends State<BoxSearch> {
     }
   }
 
-  void showBottomBar() {
-    FocusManager.instance.primaryFocus?.unfocus();
-    Provider.of<LayoutScreenViewModel>(context, listen: false)
-        .setIsShotBottomBar(true);
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget searchBody;
@@ -135,7 +129,7 @@ class _BoxSearchState extends State<BoxSearch> {
                   subTitle: '${tracks[index].type}',
                   isTrack: true,
                   onTap: () async {
-                    showBottomBar();
+                    showBottomBar(context);
                     var trackPlayVM =
                         Provider.of<TrackPlayViewModel>(context, listen: false);
                     var multiPlayerVM = Provider.of<MultiPlayerViewModel>(
@@ -196,7 +190,7 @@ class _BoxSearchState extends State<BoxSearch> {
                     title: '${artists[index].name}',
                     isArtist: true,
                     onTap: () async {
-                      showBottomBar();
+                      showBottomBar(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -205,7 +199,8 @@ class _BoxSearchState extends State<BoxSearch> {
                               Animation<double> animation2) {
                             return LayoutScreen(
                               index: 4,
-                              screen: ArtistDetail(artist: artists[index]),
+                              screen: ArtistDetail(
+                                  artistId: artists[index].id as int),
                             );
                           },
                           transitionDuration: Duration.zero,
@@ -260,7 +255,7 @@ class _BoxSearchState extends State<BoxSearch> {
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     onTap: () async {
-                      showBottomBar();
+                      showBottomBar(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -294,8 +289,12 @@ class _BoxSearchState extends State<BoxSearch> {
                           height: 200,
                           child: CachedNetworkImage(
                             imageUrl: playlists[index].pictureMedium as String,
-                            placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            placeholder: (context, url) => Image.asset(
+                              'assets/images/music_default.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -349,7 +348,7 @@ class _BoxSearchState extends State<BoxSearch> {
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     onTap: () async {
-                      showBottomBar();
+                      showBottomBar(context);
                       Navigator.push(
                         context,
                         PageRouteBuilder(
@@ -384,8 +383,12 @@ class _BoxSearchState extends State<BoxSearch> {
                           height: 200,
                           child: CachedNetworkImage(
                             imageUrl: albums[index].coverMedium as String,
-                            placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-                            errorWidget: (context, url, error) => const Icon(Icons.error),
+                            placeholder: (context, url) => Image.asset(
+                              'assets/images/music_default.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -431,7 +434,7 @@ class _BoxSearchState extends State<BoxSearch> {
 
     return GestureDetector(
       onTap: () {
-        showBottomBar();
+        showBottomBar(context);
       },
       child: Scaffold(
         key: keyGlobal,
@@ -638,49 +641,102 @@ class _RecentSearchState extends State<RecentSearch> {
 
   Widget buildRecentSearchItem(
       BuildContext context, RecentSearchItem item, bool checkData) {
-    return SizedBox(
-      height: 60,
-      child: ListTile(
-        leading: SizedBox(
-          height: 50,
-          width: 50,
-          child: CachedNetworkImage(
-            imageUrl: item.image,
-            placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
-            fit: BoxFit.cover,
+    VoidCallback? onTap;
+    if (item.type == 'track') {
+      onTap = () async {
+        /*var trackPlayVM =
+            Provider.of<TrackPlayViewModel>(context, listen: false);
+        var multiPlayerVM =
+            Provider.of<MultiPlayerViewModel>(context, listen: false);
+        showBottomBar(context);
+        await trackPlayVM.fetchTracksPlayControl(
+          albumID: int.parse(item.itemId!),
+          index: 0,
+          limit: 20,
+        );
+
+        int? trackIndex = trackPlayVM.tracksPlayControl.data!
+            .indexWhere((track) => track.id == track.id);*/
+        /*await multiPlayerVM.initState(
+            tracks: trackPlayVM.tracksPlayControl.data!,
+            albumId: int.parse(item.itemId!),
+            artist: track.artist,
+            index: trackIndex);*/ // continue
+      };
+    } else if (item.type == 'artist') {
+      onTap = () {
+        showBottomBar(context);
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: ArtistDetail(artistId: int.parse(item.itemId!)),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
           ),
-        ),
-        title: Container(
-          margin: const EdgeInsets.only(bottom: defaultPadding / 2),
-          child: Text(
-            item.title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Colors.white),
+        );
+      };
+    }
+    return InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: 60,
+        child: ListTile(
+          leading: SizedBox(
+            height: 50,
+            width: 50,
+            child: CachedNetworkImage(
+              imageUrl: item.image!,
+              placeholder: (context, url) => Image.asset(
+                'assets/images/music_default.jpg',
+                fit: BoxFit.cover,
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              fit: BoxFit.cover,
+            ),
+          ),
+          title: Container(
+            margin: const EdgeInsets.only(bottom: defaultPadding / 2),
+            child: Text(
+              item.title!,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(color: Colors.white),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          subtitle: Text(
+            item.type!,
+            style: Theme.of(context).textTheme.titleSmall,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-        ),
-        subtitle: Text(
-          item.type,
-          style: Theme.of(context).textTheme.titleSmall,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: IconButton(
-          onPressed: () {
-            if (checkData) {
-              setState(() {
-                isClear = true;
-              });
-            }
-            _recentSearchService.deleteItem(item.id);
-          },
-          icon: const Icon(Ionicons.close),
+          trailing: IconButton(
+            onPressed: () {
+              if (checkData) {
+                setState(() {
+                  isClear = true;
+                });
+              }
+              _recentSearchService.deleteItem(item.id!);
+            },
+            icon: const Icon(Ionicons.close),
+          ),
         ),
       ),
     );
   }
+}
+
+void showBottomBar(BuildContext context) {
+  FocusManager.instance.primaryFocus?.unfocus();
+  Provider.of<LayoutScreenViewModel>(context, listen: false)
+      .setIsShotBottomBar(true);
 }

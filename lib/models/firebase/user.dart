@@ -2,24 +2,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Users {
   final String? id;
-  final String fullName;
+  final String displayName;
   final String email;
+  final String photoUrl;
 
-  Users({
-    required this.id,
-    required this.fullName,
-    required this.email,
-  });
+  Users(
+      {this.id,
+      required this.displayName,
+      required this.email,
+      required this.photoUrl});
 
   Map<String, dynamic> toJson() {
     return {
-      'fullName': fullName,
+      'displayName': displayName,
       'email': email,
+      'photoUrl': photoUrl,
     };
   }
 
   Users.fromJson(DocumentSnapshot<Map<String, dynamic>> doc)
       : id = doc.id,
-        fullName = doc.data()!["fullName"],
-        email = doc.data()!["email"];
+        displayName = doc.data()!["displayName"],
+        email = doc.data()!["email"],
+        photoUrl = doc.data()!["photoUrl"];
 }

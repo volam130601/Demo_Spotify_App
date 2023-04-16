@@ -4,7 +4,7 @@ import '../data/network/network_api_services.dart';
 import '../models/album.dart';
 import '../models/artist.dart';
 import '../models/track.dart';
-import '../res/app_url.dart';
+import '../utils/app_url.dart';
 
 class SearchRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();

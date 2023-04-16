@@ -3,8 +3,9 @@ import 'package:demo_spotify_app/widgets/slide_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
-import '../res/colors.dart';
-import '../res/constants/default_constant.dart';
+import '../utils/colors.dart';
+import '../utils/constants/default_constant.dart';
+
 
 class CustomDiaLog extends StatelessWidget {
   const CustomDiaLog({Key? key}) : super(key: key);

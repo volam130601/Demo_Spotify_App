@@ -9,7 +9,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../res/constants/default_constant.dart';
+import '../utils/constants/default_constant.dart';
 import '../widgets/play_control/common.dart';
 import '../widgets/slide_animation_page_route.dart';
 import 'home/play_control/track_play.dart';

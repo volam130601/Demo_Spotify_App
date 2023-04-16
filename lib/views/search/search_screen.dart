@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/genre/genre_search.dart';
-import 'package:demo_spotify_app/res/constants/default_constant.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
 import 'package:demo_spotify_app/views/search/genre_detail_screen.dart';
@@ -10,6 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../utils/constants/default_constant.dart';
 import 'search_detail_screen.dart';
 
 class SearchScreen extends StatefulWidget {
