@@ -28,8 +28,12 @@ class UserService {
 
   Future<void> getUserById(String id) async {
     final User? currentUser = FirebaseAuth.instance.currentUser;
-    Users user = Users.fromJson(await _db.collection(collectionName).doc(id).get()) ;
-    currentUser!.updateDisplayName(user.displayName);
+    return _db.collection(collectionName)
+      .doc(id)
+      .get().then((snapshot) {
+        Users user = Users.fromJson(snapshot);
+        currentUser!.updateDisplayName(user.displayName);
+      });
   }
 
   Stream<List<Users>> getItems() {

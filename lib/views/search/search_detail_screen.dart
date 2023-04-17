@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/category/category_search.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -148,14 +150,27 @@ class _BoxSearchState extends State<BoxSearch> {
                         albumId: tracks[index].album!.id as int,
                         artist: tracks[index].artist,
                         index: trackIndex);
-
-                    _recentSearchService.addItem(RecentSearchItem(
-                      id: DateTime.now().toString(),
-                      itemId: '${tracks[index].album!.id}',
-                      title: '${tracks[index].title}',
-                      image: '${tracks[index].album!.coverSmall}',
-                      type: '${tracks[index].type}',
-                    ));
+                    Album? album = tracks[index].album;
+                    Artist? artist = tracks[index].artist;
+                    if (await _recentSearchService
+                            .isCheckExists('${tracks[index].id}') ==
+                        false) {
+                      _recentSearchService.addItem(RecentSearchItem(
+                          id: DateTime.now().toString(),
+                          itemId: '${tracks[index].id}',
+                          title: '${tracks[index].title}',
+                          image: '${tracks[index].album!.coverSmall}',
+                          albumSearch: AlbumSearch(
+                              id: album!.id,
+                              title: album.title,
+                              coverXl: album.coverXl),
+                          artistSearch: ArtistSearch(
+                              id: artist!.id,
+                              name: artist.name,
+                              pictureSmall: artist.pictureSmall),
+                          type: '${tracks[index].type}',
+                          userId: FirebaseAuth.instance.currentUser!.uid));
+                    }
                   },
                 ),
                 itemCount: tracks!.length,
@@ -207,14 +222,18 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
-
-                      _recentSearchService.addItem(RecentSearchItem(
+                      if (await _recentSearchService
+                          .isCheckExists('${artists[index].id}') ==
+                          false) {
+                        _recentSearchService.addItem(RecentSearchItem(
                         id: DateTime.now().toString(),
                         itemId: '${artists[index].id}',
                         title: '${artists[index].name}',
                         image: '${artists[index].pictureSmall}',
                         type: '${artists[index].type}',
+                        userId: FirebaseAuth.instance.currentUser!.uid,
                       ));
+                      }
                     },
                   );
                 },
@@ -273,13 +292,25 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
-                      _recentSearchService.addItem(RecentSearchItem(
-                        id: DateTime.now().toString(),
-                        itemId: '${playlists[index].id}',
-                        title: '${playlists[index].title}',
-                        image: '${playlists[index].pictureSmall}',
-                        type: '${playlists[index].type}',
-                      ));
+                      Playlist? playlist = playlists[index];
+                      if (await _recentSearchService
+                          .isCheckExists('${playlist.id}') ==
+                          false) {
+                        _recentSearchService.addItem(RecentSearchItem(
+                          id: DateTime.now().toString(),
+                          itemId: '${playlist.id}',
+                          title: '${playlist.title}',
+                          image: '${playlist.pictureSmall}',
+                          type: '${playlist.type}',
+                          userId: FirebaseAuth.instance.currentUser!.uid,
+                          playlistSearch: PlaylistSearch(
+                              id: playlist.id,
+                              title: playlist.title,
+                              pictureSmall: playlist.pictureSmall,
+                              pictureMedium: playlist.pictureMedium,
+                              pictureXl: playlist.pictureXl,
+                              userName: playlist.user!.name)));
+                      }
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,6 +390,7 @@ class _BoxSearchState extends State<BoxSearch> {
                               index: 4,
                               screen: AlbumDetail(
                                 album: albums[index],
+                                artist: albums[index].artist,
                               ),
                             );
                           },
@@ -366,14 +398,31 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
-
-                      _recentSearchService.addItem(RecentSearchItem(
-                        id: DateTime.now().toString(),
-                        itemId: '${albums[index].id}',
-                        title: '${albums[index].title}',
-                        image: '${albums[index].coverSmall}',
-                        type: '${albums[index].type}',
-                      ));
+                      Album? album = albums[index];
+                      Artist? artist = album.artist;
+                      if (await _recentSearchService
+                          .isCheckExists('${album.id}') ==
+                          false) {
+                        _recentSearchService.addItem(
+                        RecentSearchItem(
+                          id: DateTime.now().toString(),
+                          itemId: '${album.id}',
+                          title: '${album.title}',
+                          image: '${album.coverSmall}',
+                          type: '${album.type}',
+                          userId: FirebaseAuth.instance.currentUser!.uid,
+                          albumSearch: AlbumSearch(
+                              id: album.id,
+                              title: album.title,
+                              coverXl: album.coverXl),
+                          artistSearch: ArtistSearch(
+                              id: artist!.id,
+                              name: artist.name,
+                              pictureSmall: artist.pictureSmall,
+                              pictureXl: artist.pictureXl),
+                        ),
+                      );
+                      }
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -551,7 +600,8 @@ class _RecentSearchState extends State<RecentSearch> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<RecentSearchItem>>(
-      stream: _recentSearchService.getItems(),
+      stream: _recentSearchService
+          .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -644,24 +694,29 @@ class _RecentSearchState extends State<RecentSearch> {
     VoidCallback? onTap;
     if (item.type == 'track') {
       onTap = () async {
-        /*var trackPlayVM =
+        var trackPlayVM =
             Provider.of<TrackPlayViewModel>(context, listen: false);
         var multiPlayerVM =
             Provider.of<MultiPlayerViewModel>(context, listen: false);
         showBottomBar(context);
         await trackPlayVM.fetchTracksPlayControl(
-          albumID: int.parse(item.itemId!),
+          albumID: item.albumSearch!.id as int,
           index: 0,
           limit: 20,
         );
 
         int? trackIndex = trackPlayVM.tracksPlayControl.data!
-            .indexWhere((track) => track.id == track.id);*/
-        /*await multiPlayerVM.initState(
+            .indexWhere((track) => (track.id == int.parse(item.itemId!)));
+        Artist? artist = Artist(
+            id: item.artistSearch!.id,
+            name: item.artistSearch!.name,
+            pictureSmall: item.artistSearch!.pictureSmall);
+
+        await multiPlayerVM.initState(
             tracks: trackPlayVM.tracksPlayControl.data!,
-            albumId: int.parse(item.itemId!),
-            artist: track.artist,
-            index: trackIndex);*/ // continue
+            albumId: item.albumSearch!.id as int,
+            artist: artist,
+            index: trackIndex); // continue
       };
     } else if (item.type == 'artist') {
       onTap = () {
@@ -674,6 +729,64 @@ class _RecentSearchState extends State<RecentSearch> {
               return LayoutScreen(
                 index: 4,
                 screen: ArtistDetail(artistId: int.parse(item.itemId!)),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      };
+    } else if (item.type == 'playlist') {
+      onTap = () {
+        showBottomBar(context);
+        Playlist? playlist = Playlist(
+          id: item.playlistSearch!.id,
+          title: item.playlistSearch!.title,
+          pictureMedium: item.playlistSearch!.pictureMedium,
+          pictureXl: item.playlistSearch!.pictureXl,
+        );
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: PlaylistDetail(
+                  playlist: playlist,
+                  userName: item.playlistSearch!.userName,
+                ),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      };
+    } else if (item.type == 'album') {
+      onTap = () {
+        showBottomBar(context);
+        Album? album = Album(
+            id: int.parse(item.itemId!),
+            title: item.title,
+            coverXl: item.albumSearch!.coverXl);
+        Artist? artist = Artist(
+          id: item.artistSearch!.id,
+          name: item.artistSearch!.name,
+          pictureSmall: item.artistSearch!.pictureSmall,
+          pictureXl: item.artistSearch!.pictureXl,
+        );
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: AlbumDetail(
+                  album: album,
+                  artist: artist,
+                ),
               );
             },
             transitionDuration: Duration.zero,

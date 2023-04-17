@@ -279,7 +279,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
               .tracksPlayControl
               .data!,
           album: widget.album,
-          artist: widget.album!.artist,
+          artist: (widget.artist != null) ? widget.artist: widget.album!.artist,
           albumId: widget.album!.id,
         ),
         const SizedBox(width: defaultPadding)

@@ -14,8 +14,10 @@ import '../../../view_models/track_play_view_model.dart';
 import '../components/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
-  const PlaylistDetail({Key? key, required this.playlist}) : super(key: key);
+  const PlaylistDetail({Key? key, required this.playlist, this.userName})
+      : super(key: key);
   final Playlist? playlist;
+  final String? userName;
 
   @override
   State<PlaylistDetail> createState() => _PlaylistDetailState();
@@ -205,7 +207,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                 ),
                 const SizedBox(width: defaultPadding / 2),
                 Text(
-                  widget.playlist!.user!.name as String,
+                  (widget.userName != null) ? '${widget.userName}': '${widget.playlist!.user!.name}',
                   style: Theme.of(context)
                       .textTheme
                       .titleSmall
@@ -306,7 +308,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               ),
               const SizedBox(width: defaultPadding / 2),
               Text(
-                widget.playlist!.user!.name as String,
+                (widget.userName != null)
+                    ? widget.userName as String
+                    : widget.playlist!.user!.name as String,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall

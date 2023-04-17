@@ -6,11 +6,11 @@ class RecentSearchService {
   static const String collectionName = 'recent_search';
 
   Future<void> addItem(RecentSearchItem item) {
-    return _db.collection(collectionName).doc(item.id).set(item.toJson());
+    return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
   Future<void> updateItem(RecentSearchItem item) {
-    return _db.collection(collectionName).doc(item.id).update(item.toJson());
+    return _db.collection(collectionName).doc(item.id).update(item.toMap());
   }
 
   Future<void> deleteItem(String id) {
@@ -25,11 +25,26 @@ class RecentSearchService {
     });
   }
 
-  Stream<List<RecentSearchItem>> getItems() {
-    return _db.collection(collectionName).snapshots().map(
-          (snapshot) => snapshot.docs
-              .map((doc) => RecentSearchItem.fromJson(doc))
-              .toList(),
-        );
+  Future<bool> isCheckExists(String itemId) async {
+    QuerySnapshot querySnapshot = await _db
+        .collection(collectionName)
+        .where('itemId', isEqualTo: itemId)
+        .get();
+
+    if(querySnapshot.docs.isEmpty){
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+
+  Stream<List<RecentSearchItem>> getItemsByUserId(String userId) {
+    return _db
+        .collection(collectionName)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) => RecentSearchItem.fromSnapshot(doc)).toList());
   }
 }

@@ -79,6 +79,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 if(isCheck) {
                   _auth.signOut();
                   AuthGoogle().signOut();
+                  Navigator.of(context).pushNamed(RoutesName.login);
                   setState(() {
                     isCheck = false;
                   });

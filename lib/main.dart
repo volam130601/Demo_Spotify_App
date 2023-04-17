@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               title: 'Demo Spotify App',
               theme: Styles.themeData(true, context),
-              initialRoute: RoutesName.home,
+              initialRoute: RoutesName.login,
               routes: {
                 RoutesName.home: (context) =>
                     const LayoutScreen(index: 0, screen: Placeholder()),

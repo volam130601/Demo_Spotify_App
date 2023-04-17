@@ -19,10 +19,13 @@ class Users {
       'photoUrl': photoUrl,
     };
   }
-
-  Users.fromJson(DocumentSnapshot<Map<String, dynamic>> doc)
-      : id = doc.id,
-        displayName = doc.data()!["displayName"],
-        email = doc.data()!["email"],
-        photoUrl = doc.data()!["photoUrl"];
+  factory Users.fromJson(DocumentSnapshot snapshot) {
+    Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+    return Users(
+      id: snapshot.id,
+      displayName: data['displayName'],
+      email: data['email'],
+      photoUrl: data['photoUrl'],
+    );
+  }
 }
