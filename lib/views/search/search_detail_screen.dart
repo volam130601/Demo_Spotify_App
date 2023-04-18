@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/category/category_search.dart';
@@ -223,16 +222,16 @@ class _BoxSearchState extends State<BoxSearch> {
                         ),
                       );
                       if (await _recentSearchService
-                          .isCheckExists('${artists[index].id}') ==
+                              .isCheckExists('${artists[index].id}') ==
                           false) {
                         _recentSearchService.addItem(RecentSearchItem(
-                        id: DateTime.now().toString(),
-                        itemId: '${artists[index].id}',
-                        title: '${artists[index].name}',
-                        image: '${artists[index].pictureSmall}',
-                        type: '${artists[index].type}',
-                        userId: FirebaseAuth.instance.currentUser!.uid,
-                      ));
+                          id: DateTime.now().toString(),
+                          itemId: '${artists[index].id}',
+                          title: '${artists[index].name}',
+                          image: '${artists[index].pictureSmall}',
+                          type: '${artists[index].type}',
+                          userId: FirebaseAuth.instance.currentUser!.uid,
+                        ));
                       }
                     },
                   );
@@ -294,22 +293,22 @@ class _BoxSearchState extends State<BoxSearch> {
                       );
                       Playlist? playlist = playlists[index];
                       if (await _recentSearchService
-                          .isCheckExists('${playlist.id}') ==
+                              .isCheckExists('${playlist.id}') ==
                           false) {
                         _recentSearchService.addItem(RecentSearchItem(
-                          id: DateTime.now().toString(),
-                          itemId: '${playlist.id}',
-                          title: '${playlist.title}',
-                          image: '${playlist.pictureSmall}',
-                          type: '${playlist.type}',
-                          userId: FirebaseAuth.instance.currentUser!.uid,
-                          playlistSearch: PlaylistSearch(
-                              id: playlist.id,
-                              title: playlist.title,
-                              pictureSmall: playlist.pictureSmall,
-                              pictureMedium: playlist.pictureMedium,
-                              pictureXl: playlist.pictureXl,
-                              userName: playlist.user!.name)));
+                            id: DateTime.now().toString(),
+                            itemId: '${playlist.id}',
+                            title: '${playlist.title}',
+                            image: '${playlist.pictureSmall}',
+                            type: '${playlist.type}',
+                            userId: FirebaseAuth.instance.currentUser!.uid,
+                            playlistSearch: PlaylistSearch(
+                                id: playlist.id,
+                                title: playlist.title,
+                                pictureSmall: playlist.pictureSmall,
+                                pictureMedium: playlist.pictureMedium,
+                                pictureXl: playlist.pictureXl,
+                                userName: playlist.user!.name)));
                       }
                     },
                     child: Column(
@@ -401,27 +400,27 @@ class _BoxSearchState extends State<BoxSearch> {
                       Album? album = albums[index];
                       Artist? artist = album.artist;
                       if (await _recentSearchService
-                          .isCheckExists('${album.id}') ==
+                              .isCheckExists('${album.id}') ==
                           false) {
                         _recentSearchService.addItem(
-                        RecentSearchItem(
-                          id: DateTime.now().toString(),
-                          itemId: '${album.id}',
-                          title: '${album.title}',
-                          image: '${album.coverSmall}',
-                          type: '${album.type}',
-                          userId: FirebaseAuth.instance.currentUser!.uid,
-                          albumSearch: AlbumSearch(
-                              id: album.id,
-                              title: album.title,
-                              coverXl: album.coverXl),
-                          artistSearch: ArtistSearch(
-                              id: artist!.id,
-                              name: artist.name,
-                              pictureSmall: artist.pictureSmall,
-                              pictureXl: artist.pictureXl),
-                        ),
-                      );
+                          RecentSearchItem(
+                            id: DateTime.now().toString(),
+                            itemId: '${album.id}',
+                            title: '${album.title}',
+                            image: '${album.coverSmall}',
+                            type: '${album.type}',
+                            userId: FirebaseAuth.instance.currentUser!.uid,
+                            albumSearch: AlbumSearch(
+                                id: album.id,
+                                title: album.title,
+                                coverXl: album.coverXl),
+                            artistSearch: ArtistSearch(
+                                id: artist!.id,
+                                name: artist.name,
+                                pictureSmall: artist.pictureSmall,
+                                pictureXl: artist.pictureXl),
+                          ),
+                        );
                       }
                     },
                     child: Column(

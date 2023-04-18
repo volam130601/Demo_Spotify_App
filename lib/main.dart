@@ -9,6 +9,7 @@ import 'package:demo_spotify_app/views/layout_screen.dart';
 import 'package:demo_spotify_app/views/login/main_login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'utils/routes/route_name.dart';
 
 Future<void> main() async {
+  //Config notification play music
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -23,6 +25,7 @@ Future<void> main() async {
   );
 
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(debug: true);
   await Firebase.initializeApp();
   runApp(const MyApp());
 }

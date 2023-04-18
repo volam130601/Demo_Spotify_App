@@ -81,10 +81,7 @@ class LoginScreen extends StatelessWidget {
                       color: Colors.white,
                     ),
                     isOutline: true,
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push(SlideRightPageRoute(page: const SignUpFree()));
-                    },
+                    onPressed: () {},
                   ),
                   buildButtonCommon(
                     context,
@@ -123,10 +120,7 @@ class LoginScreen extends StatelessWidget {
                       width: 20,
                     ),
                     isOutline: true,
-                    onPressed: () {
-                      Navigator.of(context)
-                          .push(SlideRightPageRoute(page: const SignUpFree()));
-                    },
+                    onPressed: () {},
                   ),
                   TextButton(
                     onPressed: () {

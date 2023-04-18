@@ -1,10 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+
 import '../../models/category/category_library.dart';
 import '../../utils/constants/default_constant.dart';
+import '../../view_models/downloader/download_provider.dart';
+import '../home/components/container_null_value.dart';
+import '../layout_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({Key? key}) : super(key: key);
@@ -91,43 +96,21 @@ class _LibraryScreenState extends State<LibraryScreen>
                 controller: _tabController,
                 physics: const BouncingScrollPhysics(
                     decelerationRate: ScrollDecelerationRate.fast),
-                children: [
-                  buildTabPlaylist(context),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      paddingHeight(2),
-                      Image.asset(
-                        'assets/images/library/album_none.png',
-                        color: Colors.white,
-                      ),
-                      paddingHeight(1.5),
-                      Text(
-                        'You haven\'t created any albums yet.',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      paddingHeight(0.5),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: defaultPadding * 4),
-                        child: Text(
-                          'Find and click the favorite button for the album to add it to the library.',
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                children: [buildTabPlaylist(context), buildTabAlbum(context)],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildTabAlbum(BuildContext context) {
+    return const ContainerNullValue(
+      image: 'assets/images/library/album_none.png',
+      title: 'You haven\'t created any albums yet.',
+      subtitle:
+          'Find and click the favorite button for the album to add it to the library.',
     );
   }
 
@@ -289,32 +272,243 @@ class _LibraryScreenState extends State<LibraryScreen>
         physics: const BouncingScrollPhysics(
             decelerationRate: ScrollDecelerationRate.fast),
         itemCount: categoryLibraries.length,
-        itemBuilder: (context, index) => Container(
-          width: 120,
-          margin: const EdgeInsets.only(left: defaultPadding),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade900,
-            borderRadius: BorderRadius.circular(defaultBorderRadius),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                categoryLibraries[index].image,
-                width: 40,
+        itemBuilder: (context, index) {
+          VoidCallback? onTap;
+          if (categoryLibraries[index].code == CategoryLibrary.downloaded) {
+            onTap = () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const LayoutScreen(
+                      index: 4,
+                      screen: DownloadScreen(),
+                    );
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            };
+          }
+          return GestureDetector(
+            onTap: onTap ?? () {},
+            child: Container(
+              width: 120,
+              margin: const EdgeInsets.only(left: defaultPadding),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade900,
+                borderRadius: BorderRadius.circular(defaultBorderRadius),
               ),
-              paddingHeight(1),
-              Text(
-                categoryLibraries[index].title,
-                style: Theme.of(context)
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    categoryLibraries[index].image,
+                    width: 40,
+                  ),
+                  paddingHeight(1),
+                  Text(
+                    categoryLibraries[index].title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(color: Colors.white),
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class DownloadScreen extends StatefulWidget {
+  const DownloadScreen({Key? key}) : super(key: key);
+
+  @override
+  State<DownloadScreen> createState() => _DownloadScreenState();
+}
+
+class _DownloadScreenState extends State<DownloadScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_sharp)),
+        ],
+      ),
+      body: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Downloaded',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              'Music has been downloaded or is on the device.',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w400, color: Colors.grey),
+              textAlign: TextAlign.center,
+            ),
+            paddingHeight(2),
+            Container(
+              height: 35,
+              margin:
+                  const EdgeInsets.symmetric(horizontal: defaultPadding * 2),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(defaultBorderRadius * 2),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Track'),
+                  Tab(text: 'Playlist'),
+                  Tab(text: 'Album'),
+                  Tab(text: 'Podcast'),
+                ],
+                unselectedLabelColor: Colors.grey,
+                labelColor: Colors.white,
+                labelStyle: Theme.of(context)
                     .textTheme
                     .titleSmall
-                    ?.copyWith(color: Colors.white),
-              )
-            ],
-          ),
+                    ?.copyWith(fontWeight: FontWeight.w500),
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(80.0),
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            paddingHeight(2),
+            SizedBox(
+              height: 300,
+              child: TabBarView(
+                controller: _tabController,
+                physics: const BouncingScrollPhysics(
+                    decelerationRate: ScrollDecelerationRate.fast),
+                children: const [
+                  TabTrack(),
+                  ContainerNullValue(
+                    image: 'assets/images/library/album_none.png',
+                    title: 'You haven\'t downloaded any playlist yet.',
+                    subtitle:
+                        'Download your favorite playlist so you can play it when there is no internet connection.',
+                  ),
+                  ContainerNullValue(
+                    image: 'assets/images/library/album_none.png',
+                    title: 'You haven\'t downloaded any albums yet.',
+                    subtitle:
+                        'Download your favorite albums so you can play it when there is no internet connection.',
+                  ),
+                  ContainerNullValue(
+                    image: 'assets/images/library/album_none.png',
+                    title: 'You haven\'t downloaded any podcast yet.',
+                    subtitle:
+                        'Download your favorite podcasts so you can play it when there is no internet connection.',
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
       ),
+    );
+  }
+
+  Widget buildTabTrack(BuildContext context) {
+    return const ContainerNullValue(
+      image: 'assets/images/library/album_none.png',
+      title: 'You haven\'t downloaded any tracks yet.',
+      subtitle:
+          'Download your favorite song so you can play it when there is no internet connection.',
+    );
+  }
+}
+
+class TabTrack extends StatefulWidget {
+  const TabTrack({Key? key}) : super(key: key);
+
+  @override
+  State<TabTrack> createState() => _TabTrackState();
+}
+
+class _TabTrackState extends State<TabTrack> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<TrackDownload>>(
+      future: DownloadProvider.instance.getAllTrackDownloads(),
+      builder:
+          (BuildContext context, AsyncSnapshot<List<TrackDownload>> snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemCount: snapshot.data!.length,
+            itemBuilder: (BuildContext context, int index) {
+              TrackDownload? item = snapshot.data![index];
+              return Dismissible(
+                key: UniqueKey(),
+                background: Container(color: Colors.red),
+                onDismissed: (direction) {
+                  DownloadProvider.instance.deleteTrackDownload(item.id!);
+                },
+                child: SizedBox(
+                  height: 60,
+                  child: ListTile(
+                      title: Text(item.title.toString()),
+                      subtitle: Text(item.artistName.toString()),
+                      leading: SizedBox(
+                        width: 60,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(defaultBorderRadius),
+                          child: CachedNetworkImage(
+                            imageUrl: '${item.coverSmall}',
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Image.asset(
+                              'assets/images/music_default.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                            errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                      trailing: const Icon(Icons.more_vert)),
+                ),
+              );
+            },
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }

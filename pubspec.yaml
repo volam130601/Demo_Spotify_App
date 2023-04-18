@@ -36,29 +36,28 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  #Main
   http: ^0.13.5
   provider: ^6.0.5
   shared_preferences: ^2.0.18
   rxdart: ^0.27.7
   just_audio: ^0.9.32
   just_audio_background: ^0.0.1-beta.9
-  google_fonts: ^4.0.3
-  cached_network_image: ^3.2.3
-  flutter_svg: ^2.0.3
-  list_tile_switch: ^1.0.0
-  loading_animation_widget: ^1.2.0+4
+  flutter_downloader: ^1.10.2
+  sqflite: ^2.2.6
+  path_provider: ^2.0.13
+  path: ^1.8.2
 
-  #Icon
+  #More
   flutter_iconly: ^1.0.2
   font_awesome_flutter: ^10.4.0
   ionicons: ^0.2.2
   flutter_feather_icons: ^2.0.0+1
   intl: ^0.18.0
-
-  #sqlite
-  sqflite: ^2.2.6
-  path_provider: ^2.0.13
-  path: ^1.8.2
+  google_fonts: ^4.0.3
+  cached_network_image: ^3.2.3
+  flutter_svg: ^2.0.3
+  loading_animation_widget: ^1.2.0+4
 
   #firebase
   firebase_core: ^2.8.0
@@ -66,6 +65,7 @@ dependencies:
   firebase_auth: ^4.2.2
   email_validator: ^2.1.17
   google_sign_in: ^6.1.0
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:

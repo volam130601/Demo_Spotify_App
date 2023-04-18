@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -6,7 +8,7 @@ class FirebaseAuthService {
 
   Future<void> register(String email, String password) async {
     try {
-      UserCredential userCredential =
+      // UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -14,19 +16,20 @@ class FirebaseAuthService {
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        log('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        log('The account already exists for that email.');
       }
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 
   Future<void> signIn(
       BuildContext context, String email, String password) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      // UserCredential userCredential =
+      await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -55,7 +58,7 @@ class FirebaseAuthService {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 

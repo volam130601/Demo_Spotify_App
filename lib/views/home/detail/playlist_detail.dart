@@ -11,6 +11,7 @@ import '../../../models/playlist.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
+import '../components/action/more_modal.dart';
 import '../components/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
@@ -380,147 +381,8 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
           ],
         ),
-        trailing: IconButton(
-          onPressed: () {
-            showCustomDialog(context);
-          },
-          icon: const Icon(Icons.more_vert),
-        ),
+        trailing: ActionMore(track: track),
       ),
     );
   }
-}
-
-void showCustomDialog(BuildContext context) {
-  showGeneralDialog(
-    context: context,
-    barrierLabel: "Barrier",
-    barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.939),
-    transitionDuration: const Duration(milliseconds: 400),
-    pageBuilder: (_, __, ___) {
-      final width = MediaQuery.of(context).size.width * .5;
-      return SizedBox(
-        height: double.infinity,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              paddingHeight(5),
-              SizedBox(
-                width: width,
-                height: width,
-                child: CachedNetworkImage(
-                  imageUrl:
-                      'https://e-cdns-images.dzcdn.net/images/cover/ec3c8ed67427064c70f67e5815b74cef/250x250-000000-80-0-0.jpg',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Image.asset(
-                    'assets/images/music_default.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
-              ),
-              paddingHeight(1),
-              SizedBox(
-                width: width,
-                child: Column(
-                  children: [
-                    Text(
-                      'FLOWER',
-                      style: Theme.of(context).textTheme.titleLarge,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                    Text(
-                      'JISOO',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Colors.grey),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              buildModalTileItem(context,
-                  title: 'Listen to music ad-free',
-                  icon: const Icon(Icons.diamond_outlined)),
-              buildModalTileItem(context,
-                  title: 'Like', icon: const Icon(Icons.favorite_border_sharp)),
-              buildModalTileItem(context,
-                  title: 'Download this song',
-                  icon: const Icon(Icons.download_outlined)),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: defaultPadding),
-                child: Divider(
-                  color: Colors.grey,
-                ),
-              ),
-              buildModalTileItem(context,
-                  title: 'Add to playlist',
-                  icon: Image.asset(
-                    'assets/icons/icons8-add-song-48.png',
-                    color: Colors.white,
-                    width: 20,
-                    height: 20,
-                  )),
-              buildModalTileItem(context,
-                  title: 'View Album',
-                  icon: Image.asset(
-                    'assets/icons/icons8-disk-24.png',
-                    color: Colors.white,
-                    width: 20,
-                    height: 20,
-                  )),
-              buildModalTileItem(context,
-                  title: 'View Artist',
-                  icon: Image.asset(
-                    'assets/icons/icons8-artist-25.png',
-                    color: Colors.white,
-                    width: 20,
-                    height: 20,
-                  )),
-            ],
-          ),
-        ),
-      );
-    },
-    transitionBuilder: (_, anim, __, child) {
-      Tween<Offset> tween;
-      if (anim.status == AnimationStatus.reverse) {
-        tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
-      } else {
-        tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
-      }
-      return SlideTransition(
-        position: tween.animate(anim),
-        child: FadeTransition(
-          opacity: anim,
-          child: child,
-        ),
-      );
-    },
-  );
-}
-
-Widget buildModalTileItem(BuildContext context,
-    {String title = '', Widget? icon, VoidCallback? onTap}) {
-  return InkWell(
-    onTap: onTap,
-    child: SizedBox(
-      height: 60,
-      child: Row(
-        children: [
-          SizedBox(width: 60, child: icon),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleMedium,
-          )
-        ],
-      ),
-    ),
-  );
 }
