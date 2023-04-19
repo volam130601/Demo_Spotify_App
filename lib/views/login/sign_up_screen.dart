@@ -1,9 +1,9 @@
 import 'package:demo_spotify_app/models/firebase/user.dart';
-import 'package:demo_spotify_app/services/firebase/user_service.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/network/firebase/user_service.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../widgets/custom_dialog.dart';
 import '../../widgets/slide_animation_page_route.dart';

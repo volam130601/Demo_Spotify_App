@@ -3,16 +3,16 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-class DownloadProvider {
+class DownloadDBService {
   static const _databaseName = "my_database.db";
   static const _databaseVersion = 1;
 
   static Database? _database;
 
-  DownloadProvider._privateConstructor();
+  DownloadDBService._privateConstructor();
 
-  static final DownloadProvider instance =
-      DownloadProvider._privateConstructor();
+  static final DownloadDBService instance =
+      DownloadDBService._privateConstructor();
 
   Future<Database> get database async {
     if (_database != null) {
@@ -37,6 +37,7 @@ class DownloadProvider {
   Future _onCreate(Database db, int version) async {
     await db.execute("CREATE TABLE TrackDownload ("
         "id INTEGER PRIMARY KEY,"
+        "track_id TEXT,"
         "task_id TEXT,"
         "title TEXT,"
         "artist_name TEXT,"
@@ -54,6 +55,7 @@ class DownloadProvider {
     return await db.rawInsert(
         "INSERT Into TrackDownload ("
         "id,"
+        "track_id,"
         "task_id,"
         "title,"
         "artist_name,"
@@ -62,9 +64,10 @@ class DownloadProvider {
         "cover_xl,"
         "preview"
         ")"
-        " VALUES (?,?,?,?,?,?,?,?)",
+        " VALUES (?,?,?,?,?,?,?,?,?)",
         [
           id,
+          trackDownload.trackId,
           trackDownload.taskId,
           trackDownload.title,
           trackDownload.artistName,
@@ -75,10 +78,10 @@ class DownloadProvider {
         ]);
   }
 
-  getTrackDownload(String taskId) async {
+  getTrackDownload(String trackId) async {
     final db = await database;
     var res = await db
-        .query("TrackDownload", where: "task_id = ?", whereArgs: [taskId]);
+        .query("TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
     return res.isNotEmpty ? TrackDownload.fromMap(res.first) : null;
   }
 
@@ -90,9 +93,9 @@ class DownloadProvider {
     return list;
   }
 
-  deleteTrackDownload(int id) async {
+  deleteTrackDownload(String trackId) async {
     final db = await database;
-    return db.delete("TrackDownload", where: "id = ?", whereArgs: [id]);
+    return db.delete("TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
   }
 
   deleteAll() async {

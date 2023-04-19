@@ -41,6 +41,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
 
     setIsLoading();
     _scrollController.addListener(_onScrollEvent);
+
   }
 
   Future<void> setIsLoading() async {
@@ -333,7 +334,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   }
 
   Widget playlistTile(BuildContext context, Track? track) {
-    return Container(
+     return Container(
       height: 60,
       margin: const EdgeInsets.only(bottom: defaultPadding),
       child: ListTile(
@@ -381,7 +382,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
           ],
         ),
-        trailing: ActionMore(track: track),
+        trailing: ActionMore(track: track,),
       ),
     );
   }

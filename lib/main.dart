@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import 'utils/routes/route_name.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   //Config notification play music
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
@@ -24,8 +25,7 @@ Future<void> main() async {
     androidNotificationOngoing: true,
   );
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(debug: true);
+  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               title: 'Demo Spotify App',
               theme: Styles.themeData(true, context),
-              initialRoute: RoutesName.login,
+              initialRoute: RoutesName.home,
               routes: {
                 RoutesName.home: (context) =>
                     const LayoutScreen(index: 0, screen: Placeholder()),

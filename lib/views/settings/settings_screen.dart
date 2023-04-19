@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/services/firebase/auth_google_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/network/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
 
 class SettingScreen extends StatefulWidget {

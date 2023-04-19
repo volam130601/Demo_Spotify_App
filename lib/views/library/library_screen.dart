@@ -3,11 +3,12 @@ import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:ionicons/ionicons.dart';
 
 import '../../models/category/category_library.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/downloader/download_provider.dart';
+import '../../data/local/download_database_service.dart';
 import '../home/components/container_null_value.dart';
 import '../layout_screen.dart';
 
@@ -465,7 +466,7 @@ class _TabTrackState extends State<TabTrack> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<TrackDownload>>(
-      future: DownloadProvider.instance.getAllTrackDownloads(),
+      future: DownloadDBService.instance.getAllTrackDownloads(),
       builder:
           (BuildContext context, AsyncSnapshot<List<TrackDownload>> snapshot) {
         if (snapshot.hasData) {
@@ -477,7 +478,10 @@ class _TabTrackState extends State<TabTrack> {
                 key: UniqueKey(),
                 background: Container(color: Colors.red),
                 onDismissed: (direction) {
-                  DownloadProvider.instance.deleteTrackDownload(item.id!);
+                  DownloadDBService.instance.deleteTrackDownload(item.trackId!);
+                  FlutterDownloader.remove(
+                      taskId: item.taskId!, shouldDeleteContent: true);
+                  print('remove taskId: ${item.taskId}');
                 },
                 child: SizedBox(
                   height: 60,
@@ -487,7 +491,8 @@ class _TabTrackState extends State<TabTrack> {
                       leading: SizedBox(
                         width: 60,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(defaultBorderRadius),
+                          borderRadius:
+                              BorderRadius.circular(defaultBorderRadius),
                           child: CachedNetworkImage(
                             imageUrl: '${item.coverSmall}',
                             fit: BoxFit.cover,
@@ -496,7 +501,7 @@ class _TabTrackState extends State<TabTrack> {
                               fit: BoxFit.cover,
                             ),
                             errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
+                                const Icon(Icons.error),
                           ),
                         ),
                       ),

@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:demo_spotify_app/services/firebase/user_service.dart';
 import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
 import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
 
+import '../../data/network/firebase/auth_google_service.dart';
+import '../../data/network/firebase/user_service.dart';
 import '../../models/firebase/user.dart';
-import '../../services/firebase/auth_google_service.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../utils/routes/route_name.dart';
 import '../../widgets/slide_animation_page_route.dart';

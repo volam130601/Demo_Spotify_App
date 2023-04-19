@@ -18,8 +18,8 @@ List<CategorySearch> categories= [
   CategorySearch(name: 'Artists', code: CategorySearch.artists),
   CategorySearch(name: 'Playlists', code: CategorySearch.playlists),
   CategorySearch(name: 'Albums', code: CategorySearch.albums),
-  CategorySearch(name: 'Genres & Moods', code: CategorySearch.genreMoods),
-  CategorySearch(name: 'Podcasts & Shows', code: CategorySearch.podcastsShows),
-  CategorySearch(name: 'Top', code: CategorySearch.top),
+  // CategorySearch(name: 'Genres & Moods', code: CategorySearch.genreMoods),
+  // CategorySearch(name: 'Podcasts & Shows', code: CategorySearch.podcastsShows),
+  // CategorySearch(name: 'Top', code: CategorySearch.top),
 ];
 

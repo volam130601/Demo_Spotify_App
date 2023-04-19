@@ -3,7 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../services/firebase/user_service.dart';
+import '../../data/network/firebase/user_service.dart';
 import '../../utils/constants/default_constant.dart';
 import 'components/form_input.dart';
 

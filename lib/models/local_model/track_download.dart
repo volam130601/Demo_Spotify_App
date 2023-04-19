@@ -1,5 +1,6 @@
 class TrackDownload {
   int? id;
+  String? trackId;
   String? taskId;
   String? title;
   String? artistName;
@@ -10,6 +11,7 @@ class TrackDownload {
 
   TrackDownload(
       {this.id,
+      this.trackId,
       this.taskId,
       this.title,
       this.artistName,
@@ -20,6 +22,7 @@ class TrackDownload {
 
   TrackDownload.fromMap(Map<String, dynamic> data) {
     id = data['id'];
+    trackId = data['track_id'];
     taskId = data['task_id'];
     title = data['title'];
     artistName = data['artist_name'];
@@ -32,6 +35,7 @@ class TrackDownload {
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
+    data['track_id'] = trackId;
     data['task_id'] = taskId;
     data['title'] = title;
     data['artist_name'] = artistName;
