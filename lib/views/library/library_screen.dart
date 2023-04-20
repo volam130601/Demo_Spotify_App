@@ -8,13 +8,14 @@ import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/local/download_database_service.dart';
 import '../../models/category/category_library.dart';
 import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../data/local/download_database_service.dart';
 import '../../view_models/multi_control_player_view_model.dart';
 import '../home/components/container_null_value.dart';
 import '../layout_screen.dart';
@@ -249,7 +250,8 @@ class _LibraryScreenState extends State<LibraryScreen>
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundImage: CachedNetworkImageProvider((isCheck && _auth.currentUser != null)
+            backgroundImage: CachedNetworkImageProvider((isCheck &&
+                    _auth.currentUser != null)
                 ? '${_auth.currentUser!.photoURL}'
                 : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
             backgroundColor:
@@ -477,21 +479,26 @@ class _TabTrackState extends State<TabTrack> {
           }
           List<Track> tracks = <Track>[];
           List<TrackDownload>? trackDownloads = snapshot.data;
-          for(var item in trackDownloads!) {
+          for (var item in trackDownloads!) {
             tracks.add(Track(
-              id: int.parse(item.trackId.toString()),
-              title: item.title,
-              album: Album(coverSmall: item.coverSmall, coverXl: item.coverXl),
-              artist: Artist(name: item.artistName , pictureSmall: item.artistPictureSmall),
-              preview: item.preview,
-              type: item.type
-            ));
+                id: int.parse(item.trackId.toString()),
+                title: item.title,
+                album:
+                    Album(coverSmall: item.coverSmall, coverXl: item.coverXl),
+                artist: Artist(
+                    name: item.artistName,
+                    pictureSmall: item.artistPictureSmall),
+                preview: item.preview,
+                type: item.type));
           }
           return ListView.separated(
             padding: const EdgeInsets.all(0),
             physics: const BouncingScrollPhysics(),
-            itemCount: snapshot.data!.length,
+            itemCount: snapshot.data!.length + 1,
             itemBuilder: (BuildContext context, int index) {
+              if (index == snapshot.data!.length) {
+                return paddingHeight(9);
+              }
               TrackDownload? item = snapshot.data![index];
               return Dismissible(
                 key: UniqueKey(),
@@ -500,22 +507,36 @@ class _TabTrackState extends State<TabTrack> {
                   DownloadDBService.instance.deleteTrackDownload(item.trackId!);
                   FlutterDownloader.remove(
                       taskId: item.taskId!, shouldDeleteContent: true);
-                  print('remove taskId: ${item.taskId}');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/spotify_logo.svg',
+                            width: 20,
+                            height: 20,
+                          ),
+                          paddingWidth(0.5),
+                          const Text('Deleted from memory'),
+                        ],
+                      ),
+                      duration: const Duration(milliseconds: 500),
+                    ),
+                  );
                 },
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     var value = Provider.of<MultiPlayerViewModel>(context,
                         listen: false);
-                      value.initState(
-                          tracks: tracks,
-                          index: index);
+                    value.initState(tracks: tracks, index: index);
                   },
-                  child: SizedBox(
+                  child: Container(
+                    padding: const EdgeInsets.only(left: defaultPadding),
                     height: 60,
-                    child: ListTile(
-                        title: Text(item.title.toString()),
-                        subtitle: Text(item.artistName.toString()),
-                        leading: SizedBox(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
                           width: 60,
                           child: ClipRRect(
                             borderRadius:
@@ -532,7 +553,33 @@ class _TabTrackState extends State<TabTrack> {
                             ),
                           ),
                         ),
-                        trailing: ElevatedButton(
+                        paddingWidth(1),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                item.title.toString(),
+                                style: Theme.of(context).textTheme.titleMedium,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                item.artistName.toString(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(color: Colors.grey),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 60,
+                          child: ElevatedButton(
                             onPressed: () async {
                               List<DownloadTask>? tasks =
                                   await FlutterDownloader.loadTasks();
@@ -540,7 +587,19 @@ class _TabTrackState extends State<TabTrack> {
                                 log('$item');
                               }
                             },
-                            child: const Icon(Icons.more_vert))),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: defaultPadding),
+                            ),
+                            child: const Center(
+                              child: Icon(Icons.more_vert),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

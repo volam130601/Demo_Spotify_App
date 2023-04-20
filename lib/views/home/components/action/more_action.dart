@@ -1,11 +1,10 @@
 import 'dart:developer';
-import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/data/local/download_database_service.dart';
+import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -52,10 +51,10 @@ class _ActionMoreState extends State<ActionMore> {
               artistPictureSmall: track.artist!.pictureSmall,
               coverSmall: track.album!.coverSmall,
               coverXl: track.album!.coverXl,
-              preview: '${externalDir!.path}/$taskId.mp3',
-              type: 'track_local'
-          ),
+              preview: '${externalDir!.path}/track-${track.id}.mp3',
+              type: 'track_local'),
         );
+        log('save to db');
       }
     });
     FlutterDownloader.registerCallback(downloadCallback);
@@ -80,7 +79,7 @@ class _ActionMoreState extends State<ActionMore> {
   Future<void> checkTrackExists() async {
     await FlutterDownloader.loadTasks().then((value) {
       for (var item in value!) {
-        if (item.filename == 'track-${widget.track!.id.toString()}') {
+        if (item.filename!.contains(widget.track!.id.toString())) {
           setState(() {
             isTrackExists = true;
             currentTaskId = item.taskId;
@@ -173,7 +172,7 @@ class _ActionMoreState extends State<ActionMore> {
                                   await FlutterDownloader.enqueue(
                                     url: '${track.preview}',
                                     savedDir: externalDir!.path,
-                                    fileName: 'track-${track.id}',
+                                    fileName: 'track-${track.id}.mp3',
                                     showNotification: false,
                                     openFileFromNotification: false,
                                   );
@@ -190,7 +189,8 @@ class _ActionMoreState extends State<ActionMore> {
                                             height: 20,
                                           ),
                                           paddingWidth(0.5),
-                                          const Text('Add track to downloaded list'),
+                                          const Text(
+                                              'Add track to downloaded list'),
                                         ],
                                       ),
                                       duration:

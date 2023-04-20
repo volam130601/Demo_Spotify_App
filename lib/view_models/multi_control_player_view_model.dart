@@ -73,17 +73,13 @@ class MultiPlayerViewModel with ChangeNotifier {
     for (var track in tracks) {
       if (track.type == 'track_local') {
         audioSources.add(AudioSource.file(
-          track.preview.toString(),
+          '${track.preview}',
           tag: MediaItem(
             id: track.id.toString(),
             title: track.title as String,
             album: track.album?.title,
             artist: track.artist?.name,
-            artHeaders: {
-              "artArtist": (_artist.id != null)
-                  ? "${_artist.pictureSmall}"
-                  : "${track.artist?.pictureSmall}"
-            },
+            artHeaders: {"artArtist": "${track.artist?.pictureSmall}"},
             artUri: Uri.parse(track.album?.coverXl as String),
           ),
         ));

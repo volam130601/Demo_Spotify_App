@@ -94,7 +94,8 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/images/library/
-    - assets/images/login/
+    - assets/images/login/    - assets/audios/
+
 
 
 
