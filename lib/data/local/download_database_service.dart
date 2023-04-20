@@ -33,6 +33,12 @@ class DownloadDBService {
       onCreate: _onCreate,
     );
   }
+  Future<void> deleteTable() async {
+    var databasesPath = await getDatabasesPath();
+    String path = join(databasesPath, _databaseName);
+    final Database db = await openDatabase(path);
+    await db.execute('DROP TABLE IF EXISTS TrackDownload');
+  }
 
   Future _onCreate(Database db, int version) async {
     await db.execute("CREATE TABLE TrackDownload ("
@@ -44,7 +50,8 @@ class DownloadDBService {
         "artist_picture_small TEXT,"
         "cover_small TEXT,"
         "cover_xl TEXT,"
-        "preview TEXT"
+        "preview TEXT,"
+        "type TEXT"
         ")");
   }
 
@@ -62,9 +69,10 @@ class DownloadDBService {
         "artist_picture_small,"
         "cover_small,"
         "cover_xl,"
-        "preview"
+        "preview,"
+        "type"
         ")"
-        " VALUES (?,?,?,?,?,?,?,?,?)",
+        " VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
           id,
           trackDownload.trackId,
@@ -74,7 +82,8 @@ class DownloadDBService {
           trackDownload.artistPictureSmall,
           trackDownload.coverSmall,
           trackDownload.coverXl,
-          trackDownload.preview
+          trackDownload.preview,
+          trackDownload.type
         ]);
   }
 

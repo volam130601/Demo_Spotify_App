@@ -8,6 +8,7 @@ class TrackDownload {
   String? coverSmall;
   String? coverXl;
   String? preview;
+  String? type;
 
   TrackDownload(
       {this.id,
@@ -18,7 +19,9 @@ class TrackDownload {
       this.artistPictureSmall,
       this.coverSmall,
       this.coverXl,
-      this.preview});
+      this.preview,
+      this.type,
+      });
 
   TrackDownload.fromMap(Map<String, dynamic> data) {
     id = data['id'];
@@ -30,6 +33,7 @@ class TrackDownload {
     coverSmall = data['cover_small'];
     coverXl = data['cover_xl'];
     preview = data['preview'];
+    type = data['type'];
   }
 
   Map<String, dynamic> toMap() {
@@ -43,6 +47,7 @@ class TrackDownload {
     data['cover_small'] = coverSmall;
     data['cover_xl'] = coverXl;
     data['preview'] = preview;
+    data['type'] = type;
     return data;
   }
 }

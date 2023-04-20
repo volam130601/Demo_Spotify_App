@@ -21,21 +21,26 @@ class MultiPlayerViewModel with ChangeNotifier {
   Artist _artist = Artist();
 
   int get getPlaylistId => _playlistId;
+
   int get getAlbumId => _albumId;
+
   int get getArtistId => _artistId;
+
   Album get getAlbum => _album;
+
   Artist get getArtist => _artist;
+
   AudioPlayer get player => _player;
 
-  Future<void> initState(
-      {required List<Track> tracks,
-      int? playlistId,
-      int? albumId,
-      int? artistId,
-      int? index,
-      Album? album,
-      Artist? artist,
-      }) async {
+  Future<void> initState({
+    required List<Track> tracks,
+    int? playlistId,
+    int? albumId,
+    int? artistId,
+    int? index,
+    Album? album,
+    Artist? artist,
+  }) async {
     _player.playbackEventStream.listen((event) {},
         onError: (Object e, StackTrace stackTrace) {
       log('A stream error occurred: $e');
@@ -66,19 +71,39 @@ class MultiPlayerViewModel with ChangeNotifier {
     List<AudioSource> audioSources = <AudioSource>[];
 
     for (var track in tracks) {
-      audioSources.add(AudioSource.uri(
-        Uri.parse(track.preview as String),
-        tag: MediaItem(
-          id: track.id.toString(),
-          title: track.title as String,
-          album: track.album?.title,
-          artist: track.artist?.name,
-          artHeaders: {
-            "artArtist": (_artist.id != null) ? "${_artist.pictureSmall}" :"${track.artist?.pictureSmall}"
-          },
-          artUri: Uri.parse(track.album?.coverXl as String),
-        ),
-      ));
+      if (track.type == 'track_local') {
+        audioSources.add(AudioSource.file(
+          track.preview.toString(),
+          tag: MediaItem(
+            id: track.id.toString(),
+            title: track.title as String,
+            album: track.album?.title,
+            artist: track.artist?.name,
+            artHeaders: {
+              "artArtist": (_artist.id != null)
+                  ? "${_artist.pictureSmall}"
+                  : "${track.artist?.pictureSmall}"
+            },
+            artUri: Uri.parse(track.album?.coverXl as String),
+          ),
+        ));
+      } else {
+        audioSources.add(AudioSource.uri(
+          Uri.parse(track.preview as String),
+          tag: MediaItem(
+            id: track.id.toString(),
+            title: track.title as String,
+            album: track.album?.title,
+            artist: track.artist?.name,
+            artHeaders: {
+              "artArtist": (_artist.id != null)
+                  ? "${_artist.pictureSmall}"
+                  : "${track.artist?.pictureSmall}"
+            },
+            artUri: Uri.parse(track.album?.coverXl as String),
+          ),
+        ));
+      }
     }
     _playlist = ConcatenatingAudioSource(children: audioSources);
     isCheckPlayer = true;

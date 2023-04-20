@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 
+import '../../models/track.dart';
+
 class DownloadViewModel with ChangeNotifier {
-  late String _trackId;
+  late Track _track;
 
-  String get trackId => _trackId;
+  Track get track => _track;
 
-  setIsLoading(String trackId) {
-    _trackId = trackId;
+  setTrack(Track track) {
+    _track = track;
     notifyListeners();
   }
+
 }

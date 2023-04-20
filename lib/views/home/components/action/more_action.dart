@@ -6,12 +6,14 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/data/local/download_database_service.dart';
+import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
@@ -38,7 +40,8 @@ class _ActionMoreState extends State<ActionMore> {
       final status = data[1];
       final progress = data[2];
       if (status == DownloadTaskStatus.complete.value) {
-        Track track = widget.track!;
+        Track? track =
+            Provider.of<DownloadViewModel>(context, listen: false).track;
         final externalDir = await getExternalStorageDirectory();
         await DownloadDBService.instance.newTrackDownload(
           TrackDownload(
@@ -49,7 +52,9 @@ class _ActionMoreState extends State<ActionMore> {
               artistPictureSmall: track.artist!.pictureSmall,
               coverSmall: track.album!.coverSmall,
               coverXl: track.album!.coverXl,
-              preview: '${externalDir!.path}/$taskId.mp3'),
+              preview: '${externalDir!.path}/$taskId.mp3',
+              type: 'track_local'
+          ),
         );
       }
     });
@@ -157,13 +162,16 @@ class _ActionMoreState extends State<ActionMore> {
                               title: 'Download this song',
                               icon: const Icon(Icons.download_outlined),
                               onTap: () async {
+                                Provider.of<DownloadViewModel>(context,
+                                        listen: false)
+                                    .setTrack(track!);
                                 final status =
                                     await Permission.storage.request();
                                 if (status.isGranted) {
                                   final externalDir =
                                       await getExternalStorageDirectory();
                                   await FlutterDownloader.enqueue(
-                                    url: '${track!.preview}',
+                                    url: '${track.preview}',
                                     savedDir: externalDir!.path,
                                     fileName: 'track-${track.id}',
                                     showNotification: false,
@@ -182,8 +190,7 @@ class _ActionMoreState extends State<ActionMore> {
                                             height: 20,
                                           ),
                                           paddingWidth(0.5),
-                                          const Text(
-                                              'Add track to downloaded list'),
+                                          const Text('Add track to downloaded list'),
                                         ],
                                       ),
                                       duration:
@@ -223,14 +230,7 @@ class _ActionMoreState extends State<ActionMore> {
                           width: 20,
                           height: 20,
                         ),
-                        onTap: () async {
-                          List<DownloadTask>? tasks =
-                              await FlutterDownloader.loadTasks();
-                          for (var item in tasks!) {
-                            print(item.taskId);
-                            // FlutterDownloader.remove(taskId: item.taskId, shouldDeleteContent: true);
-                          }
-                        },
+                        onTap: () {},
                       ),
                       paddingHeight(1),
                     ],

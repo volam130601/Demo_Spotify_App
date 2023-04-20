@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/local/download_database_service.dart';
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
 
@@ -20,7 +21,7 @@ class _SettingScreenState extends State<SettingScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    if(_auth.currentUser != null) {
+    if (_auth.currentUser != null) {
       setState(() {
         isCheck = true;
       });
@@ -51,7 +52,8 @@ class _SettingScreenState extends State<SettingScreen> {
             child: ListTile(
               leading: CircleAvatar(
                 radius: 30,
-                backgroundImage: CachedNetworkImageProvider((isCheck && user!.photoURL != null)
+                backgroundImage: CachedNetworkImageProvider((isCheck &&
+                        user!.photoURL != null)
                     ? '${user.photoURL}'
                     : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
               ),
@@ -75,8 +77,15 @@ class _SettingScreenState extends State<SettingScreen> {
           ),
           const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
           SettingItem(
+            title: 'Delete table',
+            subTitle: '1.0.0-beta',
+            onTap: () async {
+              await DownloadDBService.instance.deleteTable();
+            },
+          ),
+          SettingItem(
               onTap: () {
-                if(isCheck) {
+                if (isCheck) {
                   _auth.signOut();
                   AuthGoogle().signOut();
                   Navigator.of(context).pushNamed(RoutesName.login);
@@ -88,7 +97,9 @@ class _SettingScreenState extends State<SettingScreen> {
                 }
               },
               title: (isCheck) ? 'Log out' : 'Log in',
-              subTitle:(isCheck) ?  'You are logged in as Lam Vo' : 'You want to sign in spotify app.'),
+              subTitle: (isCheck)
+                  ? 'You are logged in as Lam Vo'
+                  : 'You want to sign in spotify app.'),
         ],
       ),
     );

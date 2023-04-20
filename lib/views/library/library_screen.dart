@@ -1,14 +1,21 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/models/album.dart';
+import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/category/category_library.dart';
+import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../data/local/download_database_service.dart';
+import '../../view_models/multi_control_player_view_model.dart';
 import '../home/components/container_null_value.dart';
 import '../layout_screen.dart';
 
@@ -23,14 +30,20 @@ class _LibraryScreenState extends State<LibraryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final _auth = FirebaseAuth.instance;
-  late User user;
+  bool isCheck = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     if (_auth.currentUser != null) {
-      user = _auth.currentUser!;
+      setState(() {
+        isCheck = true;
+      });
+    } else {
+      setState(() {
+        isCheck = false;
+      });
     }
   }
 
@@ -236,8 +249,8 @@ class _LibraryScreenState extends State<LibraryScreen>
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundImage: CachedNetworkImageProvider((user.photoURL != null)
-                ? '${user.photoURL}'
+            backgroundImage: CachedNetworkImageProvider((isCheck && _auth.currentUser != null)
+                ? '${_auth.currentUser!.photoURL}'
                 : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
             backgroundColor:
                 Colors.grey, // fallback color if the image is not available
@@ -342,7 +355,7 @@ class _DownloadScreenState extends State<DownloadScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -395,7 +408,6 @@ class _DownloadScreenState extends State<DownloadScreen>
                   Tab(text: 'Track'),
                   Tab(text: 'Playlist'),
                   Tab(text: 'Album'),
-                  Tab(text: 'Podcast'),
                 ],
                 unselectedLabelColor: Colors.grey,
                 labelColor: Colors.white,
@@ -410,8 +422,7 @@ class _DownloadScreenState extends State<DownloadScreen>
               ),
             ),
             paddingHeight(2),
-            SizedBox(
-              height: 300,
+            Expanded(
               child: TabBarView(
                 controller: _tabController,
                 physics: const BouncingScrollPhysics(
@@ -430,27 +441,13 @@ class _DownloadScreenState extends State<DownloadScreen>
                     subtitle:
                         'Download your favorite albums so you can play it when there is no internet connection.',
                   ),
-                  ContainerNullValue(
-                    image: 'assets/images/library/album_none.png',
-                    title: 'You haven\'t downloaded any podcast yet.',
-                    subtitle:
-                        'Download your favorite podcasts so you can play it when there is no internet connection.',
-                  ),
                 ],
               ),
-            )
+            ),
+            paddingHeight(5),
           ],
         ),
       ),
-    );
-  }
-
-  Widget buildTabTrack(BuildContext context) {
-    return const ContainerNullValue(
-      image: 'assets/images/library/album_none.png',
-      title: 'You haven\'t downloaded any tracks yet.',
-      subtitle:
-          'Download your favorite song so you can play it when there is no internet connection.',
     );
   }
 }
@@ -470,7 +467,29 @@ class _TabTrackState extends State<TabTrack> {
       builder:
           (BuildContext context, AsyncSnapshot<List<TrackDownload>> snapshot) {
         if (snapshot.hasData) {
-          return ListView.builder(
+          if (snapshot.data!.isEmpty) {
+            return const ContainerNullValue(
+              image: 'assets/images/library/album_none.png',
+              title: 'You haven\'t downloaded any track yet.',
+              subtitle:
+                  'Download your favorite track so you can play it when there is no internet connection.',
+            );
+          }
+          List<Track> tracks = <Track>[];
+          List<TrackDownload>? trackDownloads = snapshot.data;
+          for(var item in trackDownloads!) {
+            tracks.add(Track(
+              id: int.parse(item.trackId.toString()),
+              title: item.title,
+              album: Album(coverSmall: item.coverSmall, coverXl: item.coverXl),
+              artist: Artist(name: item.artistName , pictureSmall: item.artistPictureSmall),
+              preview: item.preview,
+              type: item.type
+            ));
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(0),
+            physics: const BouncingScrollPhysics(),
             itemCount: snapshot.data!.length,
             itemBuilder: (BuildContext context, int index) {
               TrackDownload? item = snapshot.data![index];
@@ -483,32 +502,50 @@ class _TabTrackState extends State<TabTrack> {
                       taskId: item.taskId!, shouldDeleteContent: true);
                   print('remove taskId: ${item.taskId}');
                 },
-                child: SizedBox(
-                  height: 60,
-                  child: ListTile(
-                      title: Text(item.title.toString()),
-                      subtitle: Text(item.artistName.toString()),
-                      leading: SizedBox(
-                        width: 60,
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(defaultBorderRadius),
-                          child: CachedNetworkImage(
-                            imageUrl: '${item.coverSmall}',
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Image.asset(
-                              'assets/images/music_default.jpg',
+                child: InkWell(
+                  onTap: () {
+                    var value = Provider.of<MultiPlayerViewModel>(context,
+                        listen: false);
+                      value.initState(
+                          tracks: tracks,
+                          index: index);
+                  },
+                  child: SizedBox(
+                    height: 60,
+                    child: ListTile(
+                        title: Text(item.title.toString()),
+                        subtitle: Text(item.artistName.toString()),
+                        leading: SizedBox(
+                          width: 60,
+                          child: ClipRRect(
+                            borderRadius:
+                                BorderRadius.circular(defaultBorderRadius),
+                            child: CachedNetworkImage(
+                              imageUrl: '${item.coverSmall}',
                               fit: BoxFit.cover,
+                              placeholder: (context, url) => Image.asset(
+                                'assets/images/music_default.jpg',
+                                fit: BoxFit.cover,
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
                             ),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
                           ),
                         ),
-                      ),
-                      trailing: const Icon(Icons.more_vert)),
+                        trailing: ElevatedButton(
+                            onPressed: () async {
+                              List<DownloadTask>? tasks =
+                                  await FlutterDownloader.loadTasks();
+                              for (var item in tasks!) {
+                                log('$item');
+                              }
+                            },
+                            child: const Icon(Icons.more_vert))),
+                  ),
                 ),
               );
             },
+            separatorBuilder: (context, index) => paddingHeight(1),
           );
         } else {
           return const Center(child: CircularProgressIndicator());
