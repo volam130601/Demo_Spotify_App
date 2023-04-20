@@ -99,6 +99,84 @@ class _ActionMoreState extends State<ActionMore> {
   @override
   Widget build(BuildContext context) {
     Track? track = widget.track;
+    Widget downloadTileItem = FutureBuilder<TrackDownload>(
+      future: DownloadDBService.instance.getTrackDownload(track!.id.toString()),
+      builder: (BuildContext context, AsyncSnapshot<TrackDownload> snapshot) {
+        if (snapshot.hasData && snapshot.data!.id != null) {
+          return buildModalTileItem(
+            context,
+            title: 'Delete downloaded track',
+            icon: const Icon(Ionicons.trash_outline),
+            onTap: () async {
+              DownloadDBService.instance
+                  .deleteTrackDownload(track.id.toString());
+              FlutterDownloader.remove(
+                  taskId: currentTaskId, shouldDeleteContent: true);
+              setIsTrackExits(false);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/spotify_logo.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                      paddingWidth(0.5),
+                      const Text('Deleted from memory'),
+                    ],
+                  ),
+                  duration: const Duration(milliseconds: 500),
+                ),
+              );
+            },
+          );
+        }
+        return buildModalTileItem(
+          context,
+          title: 'Download this song',
+          icon: const Icon(Icons.download_outlined),
+          onTap: () async {
+            Provider.of<DownloadViewModel>(context, listen: false)
+                .setTrack(track!);
+            final status = await Permission.storage.request();
+            if (status.isGranted) {
+              final externalDir = await getExternalStorageDirectory();
+              await FlutterDownloader.enqueue(
+                url: '${track.preview}',
+                savedDir: externalDir!.path,
+                fileName: 'track-${track.id}.mp3',
+                showNotification: false,
+                openFileFromNotification: false,
+              );
+              // ignore: use_build_context_synchronously
+              Navigator.pop(context);
+              // ignore: use_build_context_synchronously
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/spotify_logo.svg',
+                        width: 20,
+                        height: 20,
+                      ),
+                      paddingWidth(0.5),
+                      const Text('Add track to downloaded list'),
+                    ],
+                  ),
+                  duration: const Duration(milliseconds: 500),
+                ),
+              );
+            } else {
+              log("Permission denied");
+            }
+          },
+        );
+      },
+    );
+
     return SizedBox(
       width: 60,
       height: 60,
@@ -125,83 +203,7 @@ class _ActionMoreState extends State<ActionMore> {
                       paddingHeight(0.5),
                       buildHeaderModal(track, context),
                       buildDivider(),
-                      isTrackExists
-                          ? buildModalTileItem(
-                              context,
-                              title: 'Delete downloaded track',
-                              icon: const Icon(Ionicons.trash_outline),
-                              onTap: () async {
-                                DownloadDBService.instance
-                                    .deleteTrackDownload(track!.id.toString());
-                                FlutterDownloader.remove(
-                                    taskId: currentTaskId,
-                                    shouldDeleteContent: true);
-                                setIsTrackExits(false);
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/icons/spotify_logo.svg',
-                                          width: 20,
-                                          height: 20,
-                                        ),
-                                        paddingWidth(0.5),
-                                        const Text('Deleted from memory'),
-                                      ],
-                                    ),
-                                    duration: const Duration(milliseconds: 500),
-                                  ),
-                                );
-                              },
-                            )
-                          : buildModalTileItem(
-                              context,
-                              title: 'Download this song',
-                              icon: const Icon(Icons.download_outlined),
-                              onTap: () async {
-                                Provider.of<DownloadViewModel>(context,
-                                        listen: false)
-                                    .setTrack(track!);
-                                final status =
-                                    await Permission.storage.request();
-                                if (status.isGranted) {
-                                  final externalDir =
-                                      await getExternalStorageDirectory();
-                                  await FlutterDownloader.enqueue(
-                                    url: '${track.preview}',
-                                    savedDir: externalDir!.path,
-                                    fileName: 'track-${track.id}.mp3',
-                                    showNotification: false,
-                                    openFileFromNotification: false,
-                                  );
-                                  // ignore: use_build_context_synchronously
-                                  Navigator.pop(context);
-                                  // ignore: use_build_context_synchronously
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Row(
-                                        children: [
-                                          SvgPicture.asset(
-                                            'assets/icons/spotify_logo.svg',
-                                            width: 20,
-                                            height: 20,
-                                          ),
-                                          paddingWidth(0.5),
-                                          const Text(
-                                              'Add track to downloaded list'),
-                                        ],
-                                      ),
-                                      duration:
-                                          const Duration(milliseconds: 500),
-                                    ),
-                                  );
-                                } else {
-                                  log("Permission denied");
-                                }
-                              },
-                            ),
+                      downloadTileItem,
                       buildModalTileItem(context,
                           title: 'Like',
                           icon: const Icon(Icons.favorite_border_sharp)),

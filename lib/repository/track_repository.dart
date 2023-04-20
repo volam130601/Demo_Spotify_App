@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:demo_spotify_app/data/network/network_api_services.dart';
 import 'package:demo_spotify_app/models/track.dart';
 
@@ -19,6 +21,26 @@ class TrackRepository {
     final response = await _apiServices.getGetApiResponse(url);
     final List<dynamic> items = response['data'];
     return items.map((item) => Track.fromJson(item)).toList();
+  }
+
+  Future<int> getTotalTracksByPlaylistId(int playlistID) async {
+    var url = Uri.https(AppUrl.baseURL, '/playlist/$playlistID/tracks',
+        {'limit': '1', 'index': '0'});
+    final response = await _apiServices.getGetApiResponse(url);
+    final dynamic total = response['total'];
+    return total;
+  }
+
+  Future<int> getTotalDurationTracksByPlaylistId(int playlistID) async {
+    var url = Uri.https(AppUrl.baseURL, '/playlist/$playlistID/tracks',
+        {'limit': '1000', 'index': '0'});
+    final response = await _apiServices.getGetApiResponse(url);
+    final List<dynamic> items = response['data'];
+    int totalDuration = 0;
+    for (var item in items) {
+      totalDuration += Track.fromJson(item).duration!;
+    }
+    return totalDuration;
   }
 
   Future<List<Track>> getTracksByAlbumID(

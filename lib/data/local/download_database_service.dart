@@ -12,7 +12,7 @@ class DownloadDBService {
   DownloadDBService._privateConstructor();
 
   static final DownloadDBService instance =
-      DownloadDBService._privateConstructor();
+  DownloadDBService._privateConstructor();
 
   Future<Database> get database async {
     if (_database != null) {
@@ -33,6 +33,7 @@ class DownloadDBService {
       onCreate: _onCreate,
     );
   }
+
   Future<void> deleteTable() async {
     var databasesPath = await getDatabasesPath();
     String path = join(databasesPath, _databaseName);
@@ -61,18 +62,18 @@ class DownloadDBService {
     Object? id = table.first["id"];
     return await db.rawInsert(
         "INSERT Into TrackDownload ("
-        "id,"
-        "track_id,"
-        "task_id,"
-        "title,"
-        "artist_name,"
-        "artist_picture_small,"
-        "cover_small,"
-        "cover_xl,"
-        "preview,"
-        "type"
-        ")"
-        " VALUES (?,?,?,?,?,?,?,?,?,?)",
+            "id,"
+            "track_id,"
+            "task_id,"
+            "title,"
+            "artist_name,"
+            "artist_picture_small,"
+            "cover_small,"
+            "cover_xl,"
+            "preview,"
+            "type"
+            ")"
+            " VALUES (?,?,?,?,?,?,?,?,?,?)",
         [
           id,
           trackDownload.trackId,
@@ -87,24 +88,25 @@ class DownloadDBService {
         ]);
   }
 
-  getTrackDownload(String trackId) async {
+  Future<TrackDownload> getTrackDownload(String trackId) async {
     final db = await database;
     var res = await db
         .query("TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
-    return res.isNotEmpty ? TrackDownload.fromMap(res.first) : null;
+    return res.isNotEmpty ? TrackDownload.fromMap(res.first) : TrackDownload();
   }
 
   Future<List<TrackDownload>> getAllTrackDownloads() async {
     final db = await database;
     var res = await db.query("TrackDownload");
     List<TrackDownload> list =
-        res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
+    res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
     return list;
   }
 
   deleteTrackDownload(String trackId) async {
     final db = await database;
-    return db.delete("TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
+    return db.delete(
+        "TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
   }
 
   deleteAll() async {

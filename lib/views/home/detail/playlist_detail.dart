@@ -1,7 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/data/local/download_database_service.dart';
+import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
+import 'package:demo_spotify_app/views/home/components/action/action_download_playlist.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +15,7 @@ import '../../../models/playlist.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
-import '../components/action/more_action.dart';
+import '../components/action/action_more.dart';
 import '../components/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
@@ -41,7 +45,6 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
 
     setIsLoading();
     _scrollController.addListener(_onScrollEvent);
-
   }
 
   Future<void> setIsLoading() async {
@@ -128,7 +131,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             controller: _scrollController,
             slivers: [
               buildAppBar(value, context),
-              buildHeaderBody(context),
+              buildHeaderBody(context, value),
               SliverToBoxAdapter(
                 child: playlistActions(),
               ),
@@ -186,7 +189,8 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     });
   }
 
-  SliverToBoxAdapter buildHeaderBody(BuildContext context) {
+  SliverToBoxAdapter buildHeaderBody(
+      BuildContext context, TrackPlayViewModel value) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -220,7 +224,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               ],
             ),
             const SizedBox(height: defaultPadding / 2),
-            Text('33.856 likes - 2h 52min',
+            Text('${value.totalTracks.toString()} tracks - ${value.duration}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -258,7 +262,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
       children: [
         IconButton(
             onPressed: () {}, icon: const Icon(Icons.favorite_border_sharp)),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.downloading)),
+        ActionDownloadPlaylist(
+          playlistId: widget.playlist!.id,
+        ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),
         IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
@@ -334,7 +340,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   }
 
   Widget playlistTile(BuildContext context, Track? track) {
-     return Container(
+    return Container(
       height: 60,
       margin: const EdgeInsets.only(bottom: defaultPadding),
       child: ListTile(
@@ -356,6 +362,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
             Row(
               children: [
+                iconCheckDownloaded(context, track),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
@@ -382,8 +389,23 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
           ],
         ),
-        trailing: ActionMore(track: track,),
+        trailing: ActionMore(
+          track: track,
+        ),
       ),
+    ); 
+  }
+
+  Widget iconCheckDownloaded(BuildContext context, Track? track) {
+    return FutureBuilder<TrackDownload>(
+      future: DownloadDBService.instance.getTrackDownload(track!.id.toString()),
+      builder: (BuildContext context, AsyncSnapshot<TrackDownload> snapshot) {
+        if (snapshot.hasData && snapshot.data!.id != null) {
+          return const Icon(Icons.download_for_offline_outlined,
+              color: Colors.deepPurple);
+        }
+        return const SizedBox();
+      },
     );
   }
 }
