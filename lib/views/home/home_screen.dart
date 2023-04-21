@@ -54,33 +54,62 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
-      return Scaffold(
-        body: Consumer<HomeViewModel>(
-          builder: (context, value, child) {
-            return Container(
-              padding: const EdgeInsets.only(top: defaultPadding),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    paddingHeight(1),
-                    const HeaderBody(),
-                    paddingHeight(1),
-                    buildHomeRecentSearch(),
-                    const PlaylistView(),
-                    paddingHeight(2),
-                    const AlbumListView(),
-                    paddingHeight(2),
-                    const TrackListView(),
-                    paddingHeight(2),
-                    const ArtistListView(),
-                    paddingHeight(8),
-                  ],
+      return WillPopScope(
+        onWillPop: () async {
+          print('check pop');
+          bool confirmed = await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Xác nhận'),
+                content: Text('Bạn có muốn thoát ứng dụng không?'),
+                actions: [
+                  TextButton(
+                    child: Text('Không'),
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                  ),
+                  TextButton(
+                    child: Text('Có'),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+          return confirmed;
+        },
+        child: Scaffold(
+          body: Consumer<HomeViewModel>(
+            builder: (context, value, child) {
+              return Container(
+                padding: const EdgeInsets.only(top: defaultPadding),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      paddingHeight(1),
+                      const HeaderBody(),
+                      paddingHeight(1),
+                      buildHomeRecentSearch(),
+                      const PlaylistView(),
+                      paddingHeight(2),
+                      const AlbumListView(),
+                      paddingHeight(2),
+                      const TrackListView(),
+                      paddingHeight(2),
+                      const ArtistListView(),
+                      paddingHeight(8),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       );
     }

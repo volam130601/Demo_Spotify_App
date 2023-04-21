@@ -11,21 +11,26 @@ class TrackPlayViewModel with ChangeNotifier {
   final _tracks = TrackRepository();
   final _trackDetail = TrackRepository();
   final _tracksPlayControl = TrackRepository();
+  final _tracksDownload = TrackRepository();
   final _artists = ArtistRepository();
 
-  int _totalTracks = 0;
-  String _totalDuration = '';
   ApiResponse<Track> trackDetail = ApiResponse.loading();
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
   ApiResponse<List<Track>> tracksPlayControl = ApiResponse.loading();
+  ApiResponse<List<Track>> tracksDownload = ApiResponse.loading();
+
+  int _totalTracks = 0;
+  String _totalDuration = '';
 
   int get totalTracks => _totalTracks;
+
   String get duration => _totalDuration;
 
   setTotalTracks(int total) {
     _totalTracks = total;
     notifyListeners();
   }
+
   setTotalDuration(int duration) {
     int seconds = duration;
     int minutes = seconds ~/ 60;
@@ -48,6 +53,11 @@ class TrackPlayViewModel with ChangeNotifier {
 
   setTracksPlayControl(ApiResponse<List<Track>> response) {
     tracksPlayControl = response;
+    notifyListeners();
+  }
+
+  setTracksDownload(ApiResponse<List<Track>> response) {
+    tracksDownload = response;
     notifyListeners();
   }
 
@@ -109,5 +119,14 @@ class TrackPlayViewModel with ChangeNotifier {
         .getTotalDurationTracksByPlaylistId(playlistID)
         .then((value) => setTotalDuration(value))
         .onError((error, stackTrace) => log(error.toString()));
+  }
+
+  Future<void> fetchTracksDownloadByPlaylistID(
+      int playlistID, int index, int limit) async {
+    await _tracks
+        .getTracksByPlaylistID(playlistID, index, limit)
+        .then((value) => setTracksDownload(ApiResponse.completed(value)))
+        .onError((error, stackTrace) =>
+            setTracksDownload(ApiResponse.error(error.toString())));
   }
 }

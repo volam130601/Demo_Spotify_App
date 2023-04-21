@@ -375,6 +375,11 @@ class _DownloadScreenState extends State<DownloadScreen>
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_sharp)),
+          IconButton(
+              onPressed: () async {
+                await DownloadDBService.instance.deleteAll();
+              },
+              icon: const Icon(Icons.clear)),
         ],
       ),
       body: SizedBox(
@@ -491,13 +496,13 @@ class _TabTrackState extends State<TabTrack> {
                 preview: item.preview,
                 type: item.type));
           }
-          return ListView.separated(
+          return ListView.builder(
             padding: const EdgeInsets.all(0),
             physics: const BouncingScrollPhysics(),
             itemCount: snapshot.data!.length + 1,
             itemBuilder: (BuildContext context, int index) {
               if (index == snapshot.data!.length) {
-                return paddingHeight(9);
+                return paddingHeight(8);
               }
               TrackDownload? item = snapshot.data![index];
               return Dismissible(
@@ -532,7 +537,7 @@ class _TabTrackState extends State<TabTrack> {
                   },
                   child: Container(
                     padding: const EdgeInsets.only(left: defaultPadding),
-                    height: 60,
+                    height: 70,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -604,7 +609,6 @@ class _TabTrackState extends State<TabTrack> {
                 ),
               );
             },
-            separatorBuilder: (context, index) => paddingHeight(1),
           );
         } else {
           return const Center(child: CircularProgressIndicator());

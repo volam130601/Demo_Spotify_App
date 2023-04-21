@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -95,6 +97,13 @@ class DownloadDBService {
     return res.isNotEmpty ? TrackDownload.fromMap(res.first) : TrackDownload();
   }
 
+  Future<bool> trackDownloadExists(String trackId) async {
+    final db = await database;
+    var res = await db
+        .query("TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
+    return res.isNotEmpty;
+  }
+
   Future<List<TrackDownload>> getAllTrackDownloads() async {
     final db = await database;
     var res = await db.query("TrackDownload");
@@ -108,9 +117,19 @@ class DownloadDBService {
     return db.delete(
         "TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
   }
+  deleteTrackDownloadByTaskId(String taskId) async {
+    final db = await database;
+    return db.delete(
+        "TrackDownload", where: "task_id = ?", whereArgs: [taskId]);
+  }
 
   deleteAll() async {
     final db = await database;
-    db.rawDelete("Delete * from TrackDownload");
+    db.delete("TrackDownload");
+  }
+
+  Future<void> removeFileAsync(String filePath) async {
+    final file = File(filePath);
+    await file.delete();
   }
 }

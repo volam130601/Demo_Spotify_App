@@ -135,27 +135,32 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               SliverToBoxAdapter(
                 child: playlistActions(),
               ),
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return InkWell(
-                      child: playlistTile(context, tracks[index]),
-                      onTap: () {
-                        var value = Provider.of<MultiPlayerViewModel>(context,
-                            listen: false);
-                        int? currentPlaylistId = widget.playlist!.id as int;
-                        if (currentPlaylistId != value.getPlaylistId) {
-                          value.initState(
-                              tracks: tracks,
-                              playlistId: widget.playlist!.id as int,
-                              index: index);
-                        } else {
-                          value.player.seek(Duration.zero, index: index);
-                        }
-                      },
-                    );
-                  },
-                  childCount: tracks!.length,
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: tracks!.length * 60,
+                  child: ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(0),
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        child: playlistTile(context, tracks[index]),
+                        onTap: () {
+                          var value = Provider.of<MultiPlayerViewModel>(context,
+                              listen: false);
+                          int? currentPlaylistId = widget.playlist!.id as int;
+                          if (currentPlaylistId != value.getPlaylistId) {
+                            value.initState(
+                                tracks: tracks,
+                                playlistId: widget.playlist!.id as int,
+                                index: index);
+                          } else {
+                            value.player.seek(Duration.zero, index: index);
+                          }
+                        },
+                      );
+                    },
+                    itemCount: tracks.length,
+                  ),
                 ),
               ),
               SliverToBoxAdapter(
@@ -393,14 +398,15 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
           track: track,
         ),
       ),
-    ); 
+    );
   }
 
   Widget iconCheckDownloaded(BuildContext context, Track? track) {
-    return FutureBuilder<TrackDownload>(
-      future: DownloadDBService.instance.getTrackDownload(track!.id.toString()),
-      builder: (BuildContext context, AsyncSnapshot<TrackDownload> snapshot) {
-        if (snapshot.hasData && snapshot.data!.id != null) {
+    return FutureBuilder<bool>(
+      future:
+          DownloadDBService.instance.trackDownloadExists(track!.id.toString()),
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data!) {
           return const Icon(Icons.download_for_offline_outlined,
               color: Colors.deepPurple);
         }

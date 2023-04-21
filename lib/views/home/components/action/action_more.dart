@@ -15,6 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../models/track.dart';
+import '../../../../repository/track_repository.dart';
 import '../../../../utils/constants/default_constant.dart';
 
 class ActionMore extends StatefulWidget {
@@ -39,10 +40,13 @@ class _ActionMoreState extends State<ActionMore> {
       final status = data[1];
       final progress = data[2];
       if (status == DownloadTaskStatus.complete.value) {
-        Track? track =
-            Provider.of<DownloadViewModel>(context, listen: false).track;
-        final externalDir = await getExternalStorageDirectory();
-        await DownloadDBService.instance.newTrackDownload(
+        final tasks = await FlutterDownloader.loadTasks();
+        for(var item in tasks!) {
+          print(item.filename.toString());
+        }
+        final trackRepository = TrackRepository();
+        // Track? track = await trackRepository.getTrackByID(getTrackId(item.));
+      /*  await DownloadDBService.instance.newTrackDownload(
           TrackDownload(
               trackId: track.id.toString(),
               taskId: taskId,
@@ -53,12 +57,14 @@ class _ActionMoreState extends State<ActionMore> {
               coverXl: track.album!.coverXl,
               preview: '${externalDir!.path}/track-${track.id}.mp3',
               type: 'track_local'),
-        );
+        );*/
         log('save to db');
       }
     });
     FlutterDownloader.registerCallback(downloadCallback);
   }
+
+
 
   @pragma('vm:entry-point')
   static void downloadCallback(
@@ -101,7 +107,7 @@ class _ActionMoreState extends State<ActionMore> {
     Track? track = widget.track;
     Widget downloadTileItem = FutureBuilder<TrackDownload>(
       future: DownloadDBService.instance.getTrackDownload(track!.id.toString()),
-      builder: (BuildContext context, AsyncSnapshot<TrackDownload> snapshot) {
+      builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.id != null) {
           return buildModalTileItem(
             context,
@@ -110,8 +116,12 @@ class _ActionMoreState extends State<ActionMore> {
             onTap: () async {
               DownloadDBService.instance
                   .deleteTrackDownload(track.id.toString());
-              FlutterDownloader.remove(
-                  taskId: currentTaskId, shouldDeleteContent: true);
+              /*FlutterDownloader.remove(
+                  taskId: currentTaskId, shouldDeleteContent: true);*/
+
+              DownloadDBService.instance
+                  .removeFileAsync(snapshot.data!.preview.toString());
+              print('remove success');
               setIsTrackExits(false);
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -138,8 +148,6 @@ class _ActionMoreState extends State<ActionMore> {
           title: 'Download this song',
           icon: const Icon(Icons.download_outlined),
           onTap: () async {
-            Provider.of<DownloadViewModel>(context, listen: false)
-                .setTrack(track!);
             final status = await Permission.storage.request();
             if (status.isGranted) {
               final externalDir = await getExternalStorageDirectory();
@@ -232,7 +240,13 @@ class _ActionMoreState extends State<ActionMore> {
                           width: 20,
                           height: 20,
                         ),
-                        onTap: () {},
+                        onTap: () async {
+                          List<DownloadTask>? newTasks =
+                              await FlutterDownloader.loadTasks();
+                          for (int i = 0; i < newTasks!.length; i++) {
+                            log('${newTasks[i].filename} : ${newTasks[i].status} : ${newTasks[i].savedDir}');
+                          }
+                        },
                       ),
                       paddingHeight(1),
                     ],

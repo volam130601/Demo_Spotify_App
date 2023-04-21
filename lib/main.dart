@@ -8,6 +8,7 @@ import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
 import 'package:demo_spotify_app/views/login/main_login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -73,10 +74,13 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               title: 'Demo Spotify App',
               theme: Styles.themeData(true, context),
-              initialRoute: RoutesName.home,
+              initialRoute: (FirebaseAuth.instance.currentUser != null)
+                  ? RoutesName.home
+                  : RoutesName.login,
               routes: {
                 RoutesName.home: (context) =>
-                    const LayoutScreen(index: 0, screen: Placeholder()),
+                    const LayoutScreen(index: 0, screen: Placeholder()
+                    ),
                 RoutesName.login: (context) => const LoginScreen(),
               },
             ),
