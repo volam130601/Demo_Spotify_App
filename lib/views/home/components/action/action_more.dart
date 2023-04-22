@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/local/download/download_database_service.dart';
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
-import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,11 +16,18 @@ import 'package:provider/provider.dart';
 import '../../../../models/track.dart';
 import '../../../../repository/track_repository.dart';
 import '../../../../utils/constants/default_constant.dart';
+import '../../../../view_models/downloader/download_view_modal.dart';
 
 class ActionMore extends StatefulWidget {
-  const ActionMore({Key? key,required this.track, this.playlistId}) : super(key: key);
+  const ActionMore(
+      {Key? key,
+      required this.track,
+      this.playlistId,
+      this.isDownloaded = false})
+      : super(key: key);
   final Track track;
   final String? playlistId;
+  final bool? isDownloaded;
 
   @override
   State<ActionMore> createState() => _ActionMoreState();
@@ -35,16 +41,17 @@ class _ActionMoreState extends State<ActionMore> {
   void initState() {
     super.initState();
     IsolateNameServer.registerPortWithName(port.sendPort, 'downloader_track');
+    final downloadProvider =
+        Provider.of<DownloadViewModel>(context, listen: false);
     port.listen((data) async {
       final taskId = data[0];
       final status = data[1];
-      final progress = data[2];
       if (status == DownloadTaskStatus.complete.value) {
         final tasks = await FlutterDownloader.loadTasks();
         for (var item in tasks!) {
+          String trackId = subStringTrackId(item.filename.toString());
           if (item.taskId == taskId &&
               item.status == DownloadTaskStatus.complete) {
-            String trackId = subStringTrackId(item.filename.toString());
             Track? track =
                 await trackRepository.getTrackByID(int.parse(trackId));
             await DownloadDBService.instance.newTrackDownload(TrackDownload(
@@ -67,6 +74,7 @@ class _ActionMoreState extends State<ActionMore> {
             print('>>remove taskId : ${item.filename}');
           }
         }
+        await downloadProvider.loadTracksDownloaded();
       }
     });
     FlutterDownloader.registerCallback(downloadCallback);
@@ -96,83 +104,86 @@ class _ActionMoreState extends State<ActionMore> {
   @override
   Widget build(BuildContext context) {
     Track? track = widget.track;
-    Widget downloadTileItem = FutureBuilder<TrackDownload>(
-      future: DownloadDBService.instance.getTrackDownload(track.id.toString()),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data!.id != null) {
-          return buildModalTileItem(
-            context,
-            title: 'Delete downloaded track',
-            icon: const Icon(Ionicons.trash_outline),
-            onTap: () async {
-              DownloadDBService.instance
-                  .deleteTrackDownload(track.id.toString());
-              FlutterDownloader.remove(
-                  taskId: snapshot.data!.taskId.toString(),
-                  shouldDeleteContent: true);
-              print('remove success');
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/spotify_logo.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      paddingWidth(0.5),
-                      const Text('Deleted from memory'),
-                    ],
+    Widget downloadTileItem;
+    if (widget.isDownloaded == true) {
+      downloadTileItem = buildModalTileItem(
+        context,
+        title: 'Delete downloaded track',
+        icon: const Icon(Ionicons.trash_outline),
+        onTap: () async {
+          DownloadDBService.instance.deleteTrackDownload(track.id.toString());
+          final downloadProvider =
+              Provider.of<DownloadViewModel>(context, listen: false);
+          final trackDownload = await DownloadDBService.instance
+              .getTrackDownload(track.id.toString());
+          String taskId = downloadProvider.getTaskIdByTrackId(track.id.toString());
+          await FlutterDownloader.remove(
+            taskId: taskId,
+            shouldDeleteContent: true);
+          print('remove success : $taskId');
+          await downloadProvider.loadTracksDownloaded();
+          // ignore: use_build_context_synchronously
+          Navigator.pop(context);
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/spotify_logo.svg',
+                    width: 20,
+                    height: 20,
                   ),
-                  duration: const Duration(milliseconds: 500),
-                ),
-              );
-            },
+                  paddingWidth(0.5),
+                  const Text('Deleted from memory'),
+                ],
+              ),
+              duration: const Duration(milliseconds: 500),
+            ),
           );
-        }
-        return buildModalTileItem(
-          context,
-          title: 'Download this song',
-          icon: const Icon(Icons.download_outlined),
-          onTap: () async {
-            final status = await Permission.storage.request();
-            if (status.isGranted) {
-              final externalDir = await getExternalStorageDirectory();
-              await FlutterDownloader.enqueue(
-                url: '${track.preview}',
-                savedDir: externalDir!.path,
-                fileName: 'track-${track.id}.mp3',
-                showNotification: false,
-                openFileFromNotification: false,
-              );
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context);
-              // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/spotify_logo.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      paddingWidth(0.5),
-                      const Text('Add track to downloaded list'),
-                    ],
-                  ),
-                  duration: const Duration(milliseconds: 500),
+        },
+      );
+    } else {
+      downloadTileItem = buildModalTileItem(
+        context,
+        title: 'Download this song',
+        icon: const Icon(Icons.download_outlined),
+        onTap: () async {
+          final status = await Permission.storage.request();
+          if (status.isGranted) {
+            final externalDir = await getExternalStorageDirectory();
+            await FlutterDownloader.enqueue(
+              url: '${track.preview}',
+              savedDir: externalDir!.path,
+              fileName: 'track-${track.id}.mp3',
+              showNotification: false,
+              openFileFromNotification: false,
+            );
+            // ignore: use_build_context_synchronously
+            Navigator.pop(context);
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/spotify_logo.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    paddingWidth(0.5),
+                    const Text('Add track to downloaded list'),
+                  ],
                 ),
-              );
-            } else {
-              log("Permission denied");
-            }
-          },
-        );
-      },
-    );
-
+                duration: const Duration(milliseconds: 500),
+              ),
+            );
+          } else {
+            log("Permission denied");
+          }
+        },
+      );
+    }
     return SizedBox(
       width: 60,
       height: 60,

@@ -1,11 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/local/download/download_database_service.dart';
-import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/models/track.dart';
+import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/views/home/components/action/action_download_playlist.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -39,16 +37,15 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     super.initState();
 
     Provider.of<TrackPlayViewModel>(context, listen: false)
-      ..fetchTracksByPlaylistID(widget.playlist!.id as int, 0, 20)
-      ..fetchTracksPlayControl(
-          playlistID: widget.playlist!.id as int, index: 0, limit: 20);
+        .fetchTracksPlayControl(
+            playlistID: widget.playlist!.id as int, index: 0, limit: 20);
 
     setIsLoading();
     _scrollController.addListener(_onScrollEvent);
   }
 
   Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 700));
     setState(() {
       isLoading = false;
     });
@@ -57,6 +54,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   @override
   void dispose() {
     _scrollController.removeListener(_onScrollEvent);
+
     super.dispose();
   }
 
@@ -84,36 +82,6 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        body: Center(
-          child: LoadingAnimationWidget.staggeredDotsWave(
-            color: Colors.white,
-            size: 40,
-          ),
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: Stack(
-          children: [
-            buildPlaylistBody(context),
-            if (isShow) ...{
-              Positioned(
-                  top: 80,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                      color: ColorsConsts.scaffoldColorDark,
-                      child: playlistActions())),
-            }
-          ],
-        ),
-      );
-    }
-  }
-
-  Widget buildPlaylistBody(BuildContext context) {
     return Consumer<TrackPlayViewModel>(builder: (context, value, _) {
       switch (value.tracksPlayControl.status) {
         case Status.LOADING:
@@ -126,65 +94,21 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
           );
         case Status.COMPLETED:
-          List<Track>? tracks = value.tracksPlayControl.data;
-          return CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              buildAppBar(value, context),
-              buildHeaderBody(context, value),
-              SliverToBoxAdapter(
-                child: playlistActions(),
-              ),
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: tracks!.length * 60,
-                  child: ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(0),
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        child: playlistTile(context, tracks[index]),
-                        onTap: () {
-                          var value = Provider.of<MultiPlayerViewModel>(context,
-                              listen: false);
-                          int? currentPlaylistId = widget.playlist!.id as int;
-                          if (currentPlaylistId != value.getPlaylistId) {
-                            value.initState(
-                                tracks: tracks,
-                                playlistId: widget.playlist!.id as int,
-                                index: index);
-                          } else {
-                            value.player.seek(Duration.zero, index: index);
-                          }
-                        },
-                      );
-                    },
-                    itemCount: tracks.length,
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    Center(
-                      child: OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                            shape: const StadiumBorder()),
-                        child: Text(
-                          'See all tracks',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: defaultPadding * 5),
-                  ],
-                ),
-              ),
-            ],
+          return Scaffold(
+            body: Stack(
+              children: [
+                buildPlaylistBody(context, value),
+                if (isShow) ...{
+                  Positioned(
+                      top: 80,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                          color: ColorsConsts.scaffoldColorDark,
+                          child: playlistActions())),
+                }
+              ],
+            ),
           );
         case Status.ERROR:
           return Text(value.tracksPlayControl.toString());
@@ -192,6 +116,80 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
           return const Text('Default Switch');
       }
     });
+  }
+
+  Widget buildPlaylistBody(BuildContext context, TrackPlayViewModel value) {
+    List<Track>? tracks = value.tracks.data;
+    if (isLoading) {
+      return Scaffold(
+        body: Center(
+          child: LoadingAnimationWidget.staggeredDotsWave(
+            color: Colors.white,
+            size: 40,
+          ),
+        ),
+      );
+    } else {
+       return CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            buildAppBar(value, context),
+            buildHeaderBody(context, value),
+            SliverToBoxAdapter(
+              child: playlistActions(),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: tracks!.length < 50 ? tracks.length * 60 : 50 * 60,
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: defaultPadding * 2),
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      child: playlistTile(context, tracks![index]),
+                      onTap: () {
+                        var value = Provider.of<MultiPlayerViewModel>(context,
+                            listen: false);
+                        int? currentPlaylistId = widget.playlist!.id as int;
+                        if (currentPlaylistId != value.getPlaylistId) {
+                          value.initState(
+                              tracks: tracks!,
+                              playlistId: widget.playlist!.id as int,
+                              index: index);
+                        } else {
+                          value.player.seek(Duration.zero, index: index);
+                        }
+                      },
+                    );
+                  },
+                  itemCount: tracks.length < 50 ? tracks.length : 50,
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  Center(
+                    child: OutlinedButton(
+                      onPressed: () {},
+                      style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder()),
+                      child: Text(
+                        'See all tracks',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: defaultPadding * 5),
+                ],
+              ),
+            ),
+          ],
+        );
+    }
   }
 
   SliverToBoxAdapter buildHeaderBody(
@@ -344,7 +342,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     );
   }
 
-  Widget playlistTile(BuildContext context, Track? track) {
+  Widget playlistTile(BuildContext context, Track track) {
+    final isDownloaded = Provider.of<DownloadViewModel>(context, listen: true)
+        .checkExistTrackId(track.id!.toString());
     return Container(
       height: 60,
       margin: const EdgeInsets.only(bottom: defaultPadding),
@@ -352,7 +352,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         leading: CachedNetworkImage(
           width: 50,
           height: 50,
-          imageUrl: track!.album!.coverSmall as String,
+          imageUrl: track.album!.coverSmall as String,
           fit: BoxFit.cover,
         ),
         title: Column(
@@ -367,7 +367,10 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
             Row(
               children: [
-                iconCheckDownloaded(context, track),
+                isDownloaded
+                    ? const Icon(Icons.download_for_offline_outlined,
+                        color: Colors.deepPurple)
+                    : const SizedBox(),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
@@ -397,22 +400,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         trailing: ActionMore(
           track: track,
           playlistId: widget.playlist!.id.toString(),
+          isDownloaded: isDownloaded,
         ),
       ),
-    );
-  }
-
-  Widget iconCheckDownloaded(BuildContext context, Track? track) {
-    return FutureBuilder<bool>(
-      future:
-          DownloadDBService.instance.trackDownloadExists(track!.id.toString()),
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data!) {
-          return const Icon(Icons.download_for_offline_outlined,
-              color: Colors.deepPurple);
-        }
-        return const SizedBox();
-      },
     );
   }
 }

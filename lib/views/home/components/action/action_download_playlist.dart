@@ -3,17 +3,14 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:demo_spotify_app/data/local/download/download_service.dart';
-import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../data/local/download/download_database_service.dart';
 import '../../../../models/track.dart';
-import '../../../../repository/track_repository.dart';
+import '../../../../view_models/downloader/download_view_modal.dart';
 
 class ActionDownloadPlaylist extends StatefulWidget {
   const ActionDownloadPlaylist({Key? key, this.playlistId}) : super(key: key);
@@ -47,12 +44,6 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
   }
 
   @override
-  void dispose() {
-    IsolateNameServer.removePortNameMapping('downloader_track');
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Row(
       children: [
@@ -60,10 +51,15 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
           onPressed: () async {
             final value =
                 Provider.of<TrackPlayViewModel>(context, listen: false);
+            final downloadProvider =
+                Provider.of<DownloadViewModel>(context, listen: false);
             final status = await Permission.storage.request();
             if (status.isGranted) {
               List<Track>? tracks = value.tracksDownload.data;
               await DownloadService.instance.downloadFiles(tracks!);
+              print('down done 1');
+              await downloadProvider.loadTracksDownloaded();
+              print('down done 2');
             } else {
               log("Permission denied");
             }

@@ -1,7 +1,4 @@
-import 'dart:io';
-
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -15,7 +12,7 @@ class DownloadDBService {
   DownloadDBService._privateConstructor();
 
   static final DownloadDBService instance =
-  DownloadDBService._privateConstructor();
+      DownloadDBService._privateConstructor();
 
   Future<Database> get database async {
     if (_database != null) {
@@ -67,20 +64,20 @@ class DownloadDBService {
     Object? id = table.first["id"];
     return await db.rawInsert(
         "INSERT Into TrackDownload ("
-            "id,"
-            "track_id,"
-            "playlist_id,"
-            "album_id,"
-            "task_id,"
-            "title,"
-            "artist_name,"
-            "artist_picture_small,"
-            "cover_small,"
-            "cover_xl,"
-            "preview,"
-            "type"
-            ")"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        "id,"
+        "track_id,"
+        "playlist_id,"
+        "album_id,"
+        "task_id,"
+        "title,"
+        "artist_name,"
+        "artist_picture_small,"
+        "cover_small,"
+        "cover_xl,"
+        "preview,"
+        "type"
+        ")"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
         [
           id,
           trackDownload.trackId,
@@ -115,20 +112,20 @@ class DownloadDBService {
     final db = await database;
     var res = await db.query("TrackDownload");
     List<TrackDownload> list =
-    res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
+        res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
     return list;
   }
 
   deleteTrackDownload(String trackId) async {
     final db = await database;
-    return db.delete(
-        "TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
+    return db
+        .delete("TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
   }
 
   deleteTrackDownloadByTaskId(String taskId) async {
     final db = await database;
-    return db.delete(
-        "TrackDownload", where: "task_id = ?", whereArgs: [taskId]);
+    return db
+        .delete("TrackDownload", where: "task_id = ?", whereArgs: [taskId]);
   }
 
   deleteAll() async {

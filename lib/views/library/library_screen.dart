@@ -5,6 +5,7 @@ import 'package:demo_spotify_app/data/local/download/download_service.dart';
 import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
+import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -378,7 +379,9 @@ class _DownloadScreenState extends State<DownloadScreen>
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_sharp)),
           IconButton(
               onPressed: () async {
+                final downloadProvider = Provider.of<DownloadViewModel>(context , listen:  false);
                 await DownloadService.instance.removeAll();
+                await downloadProvider.loadTracksDownloaded();
               },
               icon: const Icon(Ionicons.trash_outline)),
         ],

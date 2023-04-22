@@ -79,8 +79,7 @@ class _MyAppState extends State<MyApp> {
                   : RoutesName.login,
               routes: {
                 RoutesName.home: (context) =>
-                    const LayoutScreen(index: 0, screen: Placeholder()
-                    ),
+                    const LayoutScreen(index: 0, screen: Placeholder()),
                 RoutesName.login: (context) => const LoginScreen(),
               },
             ),

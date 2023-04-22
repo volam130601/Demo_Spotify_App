@@ -25,6 +25,7 @@ class Track {
   Artist? artist;
   Album? album;
   String? type;
+  bool? isDownload;
 
   Track(
       {this.id,
@@ -49,7 +50,11 @@ class Track {
       this.md5Image,
       this.artist,
       this.album,
-      this.type});
+      this.type,
+      this.isDownload
+      });
+
+
 
   Track.fromJson(Map<String, dynamic> json) {
     id = json["id"];

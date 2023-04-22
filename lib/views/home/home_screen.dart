@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:demo_spotify_app/views/home/widgets/albums_view.dart';
 import 'package:demo_spotify_app/views/home/widgets/artists_view.dart';
 import 'package:demo_spotify_app/views/home/widgets/playlists_view.dart';
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     setIsLoading();
-
+    Provider.of<DownloadViewModel>(context, listen: false).loadTracksDownloaded();
     Provider.of<HomeViewModel>(context, listen: false)
       ..fetchChartPlaylistsApi()
       ..fetchChartAlbumsApi()
@@ -56,22 +57,21 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return WillPopScope(
         onWillPop: () async {
-          print('check pop');
           bool confirmed = await showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: Text('Xác nhận'),
-                content: Text('Bạn có muốn thoát ứng dụng không?'),
+                title: const Text('Xác nhận'),
+                content: const Text('Bạn có muốn thoát ứng dụng không?'),
                 actions: [
                   TextButton(
-                    child: Text('Không'),
+                    child: const Text('Không'),
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
                   ),
                   TextButton(
-                    child: Text('Có'),
+                    child: const Text('Có'),
                     onPressed: () {
                       Navigator.of(context).pop(true);
                     },

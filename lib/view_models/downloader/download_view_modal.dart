@@ -1,23 +1,35 @@
-import 'dart:developer';
-import 'dart:isolate';
-import 'dart:ui';
-
+import 'package:demo_spotify_app/data/local/download/download_database_service.dart';
+import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:path_provider/path_provider.dart';
-
-import '../../data/local/download/download_database_service.dart';
-import '../../models/local_model/track_download.dart';
-import '../../models/track.dart';
-import '../../repository/track_repository.dart';
 
 class DownloadViewModel with ChangeNotifier {
-  late List<Track> _tracksDownload;
+  late List<TrackDownload> _tracksDownload;
 
-  List<Track> get tracks => _tracksDownload;
+  List<TrackDownload> get tracks => _tracksDownload;
 
-  setTrack(List<Track> tracks) {
-    _tracksDownload = tracks;
-    notifyListeners();
+  loadTracksDownloaded() {
+    DownloadDBService.instance.getAllTrackDownloads().then((value) {
+      _tracksDownload = value;
+    });
+    print('>>set track download');
+  }
+
+  String getTaskIdByTrackId(String trackId) {
+    for(var item in _tracksDownload) {
+      if(item.trackId == trackId) {
+        return item.taskId.toString();
+      }
+    }
+    return '';
+  }
+
+
+  bool checkExistTrackId(String trackId) {
+    for (var item in _tracksDownload) {
+      if (item.trackId == trackId) {
+        return true;
+      }
+    }
+    return false;
   }
 }

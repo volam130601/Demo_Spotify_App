@@ -11,7 +11,6 @@ class TrackPlayViewModel with ChangeNotifier {
   final _tracks = TrackRepository();
   final _trackDetail = TrackRepository();
   final _tracksPlayControl = TrackRepository();
-  final _tracksDownload = TrackRepository();
   final _artists = ArtistRepository();
 
   ApiResponse<Track> trackDetail = ApiResponse.loading();
@@ -46,7 +45,7 @@ class TrackPlayViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  setTrackList(ApiResponse<List<Track>> response) {
+  setTrackList(ApiResponse<List<Track>> response) async {
     tracks = response;
     notifyListeners();
   }
@@ -74,10 +73,22 @@ class TrackPlayViewModel with ChangeNotifier {
           .onError((error, stackTrace) =>
               setTracksPlayControl(ApiResponse.error(error.toString())));
     } else if (playlistID != 0) {
+      await _tracks
+          .getTracksByPlaylistID(playlistID, index, 10000)
+          .then((value) {
+        List<Track> tracks = value;
+        int totalDuration = 0;
+        for (var item in tracks) {
+          totalDuration += item.duration!;
+        }
+        setTotalTracks(tracks.length);
+        return setTotalDuration(totalDuration);
+      });
       await _tracksPlayControl
           .getTracksByPlaylistID(playlistID, index, limit)
-          .then((value) => setTracksPlayControl(ApiResponse.completed(value)))
-          .onError((error, stackTrace) =>
+          .then((value) {
+        return setTracksPlayControl(ApiResponse.completed(value));
+      }).onError((error, stackTrace) =>
               setTracksPlayControl(ApiResponse.error(error.toString())));
     } else if (artistID != 0) {
       await _artists
@@ -102,23 +113,6 @@ class TrackPlayViewModel with ChangeNotifier {
         .then((value) => setTrackList(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
             setTrackList(ApiResponse.error(error.toString())));
-  }
-
-  Future<void> fetchTracksByPlaylistID(
-      int playlistID, int index, int limit) async {
-    await _tracks
-        .getTracksByPlaylistID(playlistID, index, limit)
-        .then((value) => setTrackList(ApiResponse.completed(value)))
-        .onError((error, stackTrace) =>
-            setTrackList(ApiResponse.error(error.toString())));
-    await _tracks
-        .getTotalTracksByPlaylistId(playlistID)
-        .then((value) => setTotalTracks(value))
-        .onError((error, stackTrace) => log(error.toString()));
-    await _tracks
-        .getTotalDurationTracksByPlaylistId(playlistID)
-        .then((value) => setTotalDuration(value))
-        .onError((error, stackTrace) => log(error.toString()));
   }
 
   Future<void> fetchTracksDownloadByPlaylistID(
