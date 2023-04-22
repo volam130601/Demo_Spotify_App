@@ -94,10 +94,7 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/images/library/
-    - assets/images/login/    - assets/audios/
-
-
-
+    - assets/images/login/
 
 
   # To add assets to your application, add an assets section, like this:

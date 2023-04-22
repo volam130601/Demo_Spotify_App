@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/data/local/download/download_service.dart';
 import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
@@ -12,7 +13,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/local/download_database_service.dart';
+import '../../data/local/download/download_database_service.dart';
 import '../../models/category/category_library.dart';
 import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
@@ -377,9 +378,9 @@ class _DownloadScreenState extends State<DownloadScreen>
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_sharp)),
           IconButton(
               onPressed: () async {
-                await DownloadDBService.instance.deleteAll();
+                await DownloadService.instance.removeAll();
               },
-              icon: const Icon(Icons.clear)),
+              icon: const Icon(Ionicons.trash_outline)),
         ],
       ),
       body: SizedBox(

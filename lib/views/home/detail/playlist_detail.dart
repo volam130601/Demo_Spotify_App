@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/local/download_database_service.dart';
+import 'package:demo_spotify_app/data/local/download/download_database_service.dart';
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
@@ -396,6 +396,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ),
         trailing: ActionMore(
           track: track,
+          playlistId: widget.playlist!.id.toString(),
         ),
       ),
     );

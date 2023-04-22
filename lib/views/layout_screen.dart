@@ -207,7 +207,6 @@ class PLayMusicCard extends StatelessWidget {
   }
 }
 
-
 class BottomNavigatorBarCustom extends StatefulWidget {
   const BottomNavigatorBarCustom({Key? key})
       : super(key: key);

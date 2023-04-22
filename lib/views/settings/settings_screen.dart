@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/local/download_database_service.dart';
+import '../../data/local/download/download_database_service.dart';
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
 

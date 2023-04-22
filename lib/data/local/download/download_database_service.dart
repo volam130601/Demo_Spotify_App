@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:demo_spotify_app/models/local_model/track_download.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DownloadDBService {
-  static const _databaseName = "my_database.db";
+  static const _databaseName = "spotify_app.db";
   static const _databaseVersion = 1;
 
   static Database? _database;
@@ -47,6 +48,8 @@ class DownloadDBService {
     await db.execute("CREATE TABLE TrackDownload ("
         "id INTEGER PRIMARY KEY,"
         "track_id TEXT,"
+        "playlist_id TEXT,"
+        "album_id TEXT,"
         "task_id TEXT,"
         "title TEXT,"
         "artist_name TEXT,"
@@ -66,6 +69,8 @@ class DownloadDBService {
         "INSERT Into TrackDownload ("
             "id,"
             "track_id,"
+            "playlist_id,"
+            "album_id,"
             "task_id,"
             "title,"
             "artist_name,"
@@ -75,10 +80,12 @@ class DownloadDBService {
             "preview,"
             "type"
             ")"
-            " VALUES (?,?,?,?,?,?,?,?,?,?)",
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
         [
           id,
           trackDownload.trackId,
+          trackDownload.playlistId,
+          trackDownload.albumId,
           trackDownload.taskId,
           trackDownload.title,
           trackDownload.artistName,
@@ -117,6 +124,7 @@ class DownloadDBService {
     return db.delete(
         "TrackDownload", where: "track_id = ?", whereArgs: [trackId]);
   }
+
   deleteTrackDownloadByTaskId(String taskId) async {
     final db = await database;
     return db.delete(
@@ -126,10 +134,5 @@ class DownloadDBService {
   deleteAll() async {
     final db = await database;
     db.delete("TrackDownload");
-  }
-
-  Future<void> removeFileAsync(String filePath) async {
-    final file = File(filePath);
-    await file.delete();
   }
 }
