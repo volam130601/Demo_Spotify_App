@@ -1,9 +1,7 @@
 import 'dart:developer';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
@@ -15,18 +13,15 @@ import 'package:provider/provider.dart';
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../view_models/downloader/download_view_modal.dart';
+import '../../models/playlist.dart';
 import '../../repository/local/download_repository.dart';
-import '../../repository/remote/track_repository.dart';
 
 class ActionMore extends StatefulWidget {
   const ActionMore(
-      {Key? key,
-      required this.track,
-      this.playlistId,
-      this.isDownloaded = false})
+      {Key? key, required this.track, this.playlist, this.isDownloaded = false})
       : super(key: key);
   final Track track;
-  final String? playlistId;
+  final Playlist? playlist;
   final bool? isDownloaded;
 
   @override
@@ -40,42 +35,6 @@ class _ActionMoreState extends State<ActionMore> {
   @override
   void initState() {
     super.initState();
-    // IsolateNameServer.registerPortWithName(port.sendPort, 'downloader_track');
-    // final downloadProvider =
-    //     Provider.of<DownloadViewModel>(context, listen: false);
-    // port.listen((data) async {
-    //   final taskId = data[0];
-    //   final status = data[1];
-    //   if (status == DownloadTaskStatus.complete.value) {
-    //     final tasks = await FlutterDownloader.loadTasks();
-    //     for (var item in tasks!) {
-    //       String trackId = subStringTrackId(item.filename.toString());
-    //       if (item.taskId == taskId &&
-    //           item.status == DownloadTaskStatus.complete) {
-    //         Track? track =
-    //             await trackRepository.getTrackByID(int.parse(trackId));
-    //         await DownloadDBService.instance.newTrackDownload(TrackDownload(
-    //             trackId: track.id.toString(),
-    //             playlistId: (widget.playlistId != null)
-    //                 ? widget.playlistId!.toString()
-    //                 : null,
-    //             albumId: track.album!.id.toString(),
-    //             taskId: taskId,
-    //             title: track.title,
-    //             artistName: track.artist!.name,
-    //             artistPictureSmall: track.artist!.pictureSmall,
-    //             coverSmall: track.album!.coverSmall,
-    //             coverXl: track.album!.coverXl,
-    //             preview: '${item.savedDir}/${item.filename}',
-    //             type: 'track_local'));
-    //         log('save to db');
-    //       } else if (item.status == DownloadTaskStatus.failed) {
-    //         FlutterDownloader.remove(taskId: item.taskId);
-    //       }
-    //     }
-    //     await downloadProvider.loadTracksDownloaded();
-    //   }
-    // });
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
@@ -88,11 +47,6 @@ class _ActionMoreState extends State<ActionMore> {
     IsolateNameServer.lookupPortByName('downloader_track')
         ?.send([id, status.value, progress]);
   }
- /*@override
-  void dispose() {
-    super.dispose();
-    IsolateNameServer.removePortNameMapping('downloader_track');
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -104,11 +58,10 @@ class _ActionMoreState extends State<ActionMore> {
         title: 'Delete downloaded track',
         icon: const Icon(Ionicons.trash_outline),
         onTap: () async {
-          DownloadRepository.instance.deleteTrackDownload(track.id.toString());
+          DownloadRepository.instance.deleteTrackDownload(track.id!);
           final downloadProvider =
               Provider.of<DownloadViewModel>(context, listen: false);
-          String taskId =
-              downloadProvider.getTaskIdByTrackId(track.id.toString());
+          String taskId = downloadProvider.getTaskIdByTrackId(track.id!);
           await FlutterDownloader.remove(
               taskId: taskId, shouldDeleteContent: true);
           await downloadProvider.loadTracksDownloaded();
@@ -145,10 +98,14 @@ class _ActionMoreState extends State<ActionMore> {
             await FlutterDownloader.enqueue(
               url: '${track.preview}',
               savedDir: externalDir!.path,
-              fileName: 'track-${track.id}.mp3',
+              fileName: (widget.playlist != null)
+                  ? 'playlist-${widget.playlist!.id}-${track.id}.mp3'
+                  : 'track-${track.id}.mp3',
               showNotification: false,
               openFileFromNotification: false,
             );
+            await DownloadRepository.instance
+                .insertPlaylistDownload(widget.playlist!);
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
             // ignore: use_build_context_synchronously

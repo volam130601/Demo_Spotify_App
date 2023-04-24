@@ -5,7 +5,6 @@ import '../../repository/local/download_repository.dart';
 
 class DownloadViewModel with ChangeNotifier {
   late List<TrackDownload> _tracksDownload;
-
   List<TrackDownload> get tracks => _tracksDownload;
 
   loadTracksDownloaded() {
@@ -14,18 +13,18 @@ class DownloadViewModel with ChangeNotifier {
     });
   }
 
-  String getTaskIdByTrackId(String trackId) {
+  String getTaskIdByTrackId(int trackId) {
     for(var item in _tracksDownload) {
-      if(item.trackId == trackId) {
+      if(item.id == trackId) {
         return item.taskId.toString();
       }
     }
     return '';
   }
 
-  bool checkExistTrackId(String trackId) {
+  bool checkExistTrackId(int trackId) {
     for (var item in _tracksDownload) {
-      if (item.trackId == trackId) {
+      if (item.id == trackId) {
         return true;
       }
     }

@@ -47,15 +47,15 @@ class _TabTrackState extends State<TabTrack> {
               if (index == snapshot.data!.length) {
                 return paddingHeight(8);
               }
-              TrackDownload? item = snapshot.data![index];
+              TrackDownload? trackDownload = snapshot.data![index];
               return Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.red),
                 onDismissed: (direction) {
                   DownloadRepository.instance
-                      .deleteTrackDownload(item.trackId!);
+                      .deleteTrackDownload(trackDownload.id!);
                   FlutterDownloader.remove(
-                      taskId: item.taskId!, shouldDeleteContent: true);
+                      taskId: trackDownload.taskId!, shouldDeleteContent: true);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Row(
@@ -91,7 +91,7 @@ class _TabTrackState extends State<TabTrack> {
                             borderRadius:
                                 BorderRadius.circular(defaultBorderRadius),
                             child: CachedNetworkImage(
-                              imageUrl: '${item.coverSmall}',
+                              imageUrl: '${trackDownload.coverSmall}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Image.asset(
                                 'assets/images/music_default.jpg',
@@ -109,13 +109,13 @@ class _TabTrackState extends State<TabTrack> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                item.title.toString(),
+                                trackDownload.title.toString(),
                                 style: Theme.of(context).textTheme.titleMedium,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                item.artistName.toString(),
+                                trackDownload.artistName.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall

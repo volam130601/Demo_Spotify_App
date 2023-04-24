@@ -12,31 +12,40 @@ class CommonUtils {
   List<Track> convertTrackDownloadsToTracks(
           List<TrackDownload> trackDownloads) =>
       trackDownloads
-          .map((item) => Track(
-              id: int.parse(item.trackId.toString()),
-              title: item.title,
-              album: Album(coverSmall: item.coverSmall, coverXl: item.coverXl),
+          .map((track) => Track(
+              id: track.id,
+              title: track.title,
+              album:
+                  Album(coverSmall: track.coverSmall, coverXl: track.coverXl),
               artist: Artist(
-                  name: item.artistName, pictureSmall: item.artistPictureSmall),
-              preview: item.preview,
-              duration: item.duration,
-              type: item.type))
+                  name: track.artistName,
+                  pictureSmall: track.artistPictureSmall),
+              preview: track.preview,
+              duration: track.duration,
+              type: track.type))
           .toList();
 
   String convertTotalDuration(List<Track> tracks) {
-    int totalDuration = 0;
-    for (var item in tracks) {
-      totalDuration += item.duration!;
-    }
+    int totalDuration = tracks.fold(0, (sum, item) => sum + item.duration!);
     int seconds = totalDuration;
     int minutes = seconds ~/ 60;
     int hours = minutes ~/ 60;
     int remainingMinutes = minutes % 60;
-    return '$hours h $remainingMinutes min';
+    return '${hours}h ${remainingMinutes}min';
   }
 
-   String subStringTrackId(String str) {
+  String subStringTrackId(String str) {
     int lastIndexOfDash = str.lastIndexOf('-');
     return str.substring(lastIndexOfDash + 1, str.length - 4);
+  }
+
+  int subStringPlaylistId(String str) {
+    if (str.contains('playlist')) {
+      final int startIndex = str.indexOf('-') + 1;
+      final int endIndex = str.lastIndexOf('-');
+      final String result = str.substring(startIndex, endIndex);
+      return int.parse(result);
+    }
+    return 0;
   }
 }

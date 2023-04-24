@@ -5,6 +5,8 @@ import 'package:sqflite/sqflite.dart';
 class DBHelper {
   static const _databaseName = "spotify_app.db";
   static const _databaseVersion = 1;
+  static const String trackTableName = 'TrackDownload';
+  static const String playlistTableName = 'PlaylistDownload';
 
   static Database? _database;
 
@@ -28,11 +30,10 @@ class DBHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    await db.execute("CREATE TABLE TrackDownload ("
+    await db.execute("CREATE TABLE ${DBHelper.trackTableName} ("
         "id INTEGER PRIMARY KEY,"
-        "track_id TEXT,"
-        "playlist_id TEXT,"
-        "album_id TEXT,"
+        "playlist_id INTEGER,"
+        "album_id INTEGER,"
         "task_id TEXT,"
         "title TEXT,"
         "artist_name TEXT,"
@@ -41,17 +42,18 @@ class DBHelper {
         "cover_xl TEXT,"
         "preview TEXT,"
         "duration INTEGER,"
-        "type TEXT"
+        "type TEXT,"
+        "create_time INTEGER"
         ")");
 
-    await db.execute("CREATE TABLE PlaylistDownload ("
+    await db.execute("CREATE TABLE ${DBHelper.playlistTableName} ("
         "id INTEGER PRIMARY KEY,"
-        "playlist_id TEXT,"
         "title TEXT,"
         "picture_medium TEXT,"
         "picture_xl TEXT,"
         "user_name TEXT,"
-        "type TEXT"
+        "type TEXT,"
+        "create_time INTEGER"
         ")");
   }
 }

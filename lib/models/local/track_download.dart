@@ -1,8 +1,7 @@
 class TrackDownload {
   int? id;
-  String? trackId;
-  String? playlistId;
-  String? albumId;
+  int? playlistId;
+  int? albumId;
   String? taskId;
   String? title;
   String? artistName;
@@ -12,26 +11,26 @@ class TrackDownload {
   String? preview;
   int? duration;
   String? type;
+  int? createTime;
 
-  TrackDownload(
-      {this.id,
-      this.trackId,
-      this.playlistId,
-      this.albumId,
-      this.taskId,
-      this.title,
-      this.artistName,
-      this.artistPictureSmall,
-      this.coverSmall,
-      this.coverXl,
-      this.preview,
-      this.duration,
-      this.type,
-      });
+  TrackDownload({
+    this.id,
+    this.playlistId,
+    this.albumId,
+    this.taskId,
+    this.title,
+    this.artistName,
+    this.artistPictureSmall,
+    this.coverSmall,
+    this.coverXl,
+    this.preview,
+    this.duration,
+    this.type,
+    this.createTime,
+  });
 
   TrackDownload.fromMap(Map<String, dynamic> data) {
     id = data['id'];
-    trackId = data['track_id'];
     playlistId = data['playlist_id'];
     albumId = data['album_id'];
     taskId = data['task_id'];
@@ -43,12 +42,12 @@ class TrackDownload {
     preview = data['preview'];
     duration = data['duration'];
     type = data['type'];
+    createTime = data['create_time'];
   }
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['track_id'] = trackId;
     data['playlist_id'] = playlistId;
     data['album_id'] = albumId;
     data['task_id'] = taskId;
@@ -60,6 +59,8 @@ class TrackDownload {
     data['preview'] = preview;
     data['duration'] = duration;
     data['type'] = type;
+    data['create_time'] =
+        (DateTime.now().millisecondsSinceEpoch / 1000).round();
     return data;
   }
 }

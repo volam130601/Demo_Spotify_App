@@ -12,7 +12,6 @@ import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../utils/common_utils.dart';
 import '../../view_models/multi_control_player_view_model.dart';
-import '../../view_models/track_play_view_model.dart';
 import '../../widgets/play_control/play_button.dart';
 import '../track.dart';
 
@@ -59,7 +58,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
   Widget build(BuildContext context) {
     return FutureBuilder<List<TrackDownload>>(
       future: DownloadRepository.instance
-          .getTracksByPlaylistId(widget.playlistDownload.playlistId.toString()),
+          .getTracksByPlaylistId(widget.playlistDownload.id!),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Track> tracks = CommonUtils.instance
@@ -77,10 +76,9 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
                   ),
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: tracks.length * 60,
+                      height: (tracks.length + 4) * 60,
                       child: ListView.builder(
-                        padding:
-                            const EdgeInsets.only(bottom: defaultPadding * 8),
+                        padding:  const EdgeInsets.all(0),
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return Container(
@@ -94,14 +92,13 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
                                 var value = Provider.of<MultiPlayerViewModel>(
                                     context,
                                     listen: false);
-                                int? currentPlaylistId = int.parse(widget
-                                    .playlistDownload.playlistId
-                                    .toString());
+                                int? currentPlaylistId = int.parse(
+                                    widget.playlistDownload.id.toString());
                                 if (currentPlaylistId != value.getPlaylistId) {
                                   value.initState(
                                       tracks: tracks,
                                       playlistId: int.parse(widget
-                                          .playlistDownload.playlistId
+                                          .playlistDownload.id
                                           .toString()),
                                       index: index);
                                 } else {
@@ -116,6 +113,9 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
                       ),
                     ),
                   ),
+                  SliverToBoxAdapter(
+                    child: paddingHeight(8),
+                  )
                 ],
               ),
               if (isShow) ...{
@@ -175,7 +175,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
             ),
             const SizedBox(height: defaultPadding / 2),
             Text(
-                '${tracks.length + 1} tracks - ${CommonUtils.instance.convertTotalDuration(tracks)}',
+                '${tracks.length} tracks - ${CommonUtils.instance.convertTotalDuration(tracks)}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -211,7 +211,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
         IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
         PlayButton(
           tracks: tracks,
-          playlistId: int.parse(widget.playlistDownload.playlistId.toString()),
+          playlistId: widget.playlistDownload.id,
         ),
         const SizedBox(width: defaultPadding)
       ],
@@ -278,7 +278,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
 
   Widget playlistTile(BuildContext context, TrackDownload track) {
     final isDownloaded = Provider.of<DownloadViewModel>(context, listen: true)
-        .checkExistTrackId(track.id!.toString());
+        .checkExistTrackId(track.id!);
     return ListTile(
       leading: CachedNetworkImage(
         width: 50,

@@ -344,7 +344,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
 
   Widget playlistTile(BuildContext context, Track track) {
     final isDownloaded = Provider.of<DownloadViewModel>(context, listen: true)
-        .checkExistTrackId(track.id!.toString());
+        .checkExistTrackId(track.id!);
     return Container(
       height: 60,
       margin: const EdgeInsets.only(bottom: defaultPadding),
@@ -389,7 +389,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ),
         trailing: ActionMore(
           track: track,
-          playlistId: widget.playlist!.id.toString(),
+          playlist: widget.playlist!,
           isDownloaded: isDownloaded,
         ),
       ),

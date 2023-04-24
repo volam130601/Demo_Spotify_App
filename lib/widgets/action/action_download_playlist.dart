@@ -29,7 +29,7 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
   void initState() {
     super.initState();
     Provider.of<TrackPlayViewModel>(context, listen: false)
-        .fetchTracksDownloadByPlaylistID(widget.playlist.id!, 0, 100);
+        .fetchTracksDownloadByPlaylistID(widget.playlist.id!, 0, 10);
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
@@ -56,9 +56,9 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
             final status = await Permission.storage.request();
             if (status.isGranted) {
               List<Track>? tracks = value.tracksDownload.data;
-              await DownloadRepository.instance.downloadTracks(tracks!);
+              await DownloadRepository.instance.downloadTracks(tracks!, widget.playlist.id);
               await DownloadRepository.instance
-                  .playlistDownloadInsert(widget.playlist);
+                  .insertPlaylistDownload(widget.playlist);
               await downloadProvider.loadTracksDownloaded();
             } else {
               log("Permission denied");

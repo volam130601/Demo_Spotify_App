@@ -1,16 +1,18 @@
 import 'dart:developer';
 
-import 'package:demo_spotify_app/data/local/util.dart';
 import 'package:demo_spotify_app/models/local/playlist_download.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../../data/local/DBHelper.dart';
+import '../../data/local/db_helper.dart';
 import '../../models/local/track_download.dart';
 import '../../models/playlist.dart';
 import '../../models/track.dart';
 
 class DownloadRepository {
+  static const String typeTrack = 'track_local';
+  static const String typePlaylist = 'playlist_local';
+
   DownloadRepository._privateConstructor();
 
   static final DownloadRepository instance =
@@ -18,19 +20,16 @@ class DownloadRepository {
 
   DBHelper dbHelper = DBHelper();
 
-  Future<void> trackDownloadInsert(
+  Future<void> insertTrackDownload(
       {required Track track,
       required String taskId,
       required DownloadTask task,
-      String? playlistId}) async {
+      int? playlistId}) async {
     final db = await dbHelper.database;
-    var table = await db.rawQuery("SELECT MAX(id)+1 as id FROM $trackTableName");
-    Object? id = table.first["id"];
     TrackDownload trackDownload = TrackDownload(
-        id: id as int,
-        trackId: track.id.toString(),
-        playlistId: (playlistId != null) ? playlistId.toString() : null,
-        albumId: track.album!.id.toString(),
+        id: track.id,
+        playlistId: (playlistId != 0) ? playlistId : 0,
+        albumId: track.album!.id,
         taskId: taskId,
         title: track.title,
         artistName: track.artist!.name,
@@ -39,108 +38,115 @@ class DownloadRepository {
         coverXl: track.album!.coverXl,
         preview: '${task.savedDir}/${task.filename}',
         duration: track.duration,
-        type: 'track_local');
-    await db.insert(trackTableName, trackDownload.toMap());
+        type: typeTrack);
+    await db.insert(DBHelper.trackTableName, trackDownload.toMap());
   }
 
-  Future<void> playlistDownloadInsert(Playlist playlist) async {
-    final db = await dbHelper.database;
-    var table =
-        await db.rawQuery("SELECT MAX(id)+1 as id FROM $playlistTableName");
-    Object? id = table.first["id"];
-    PlaylistDownload playlistDownload = PlaylistDownload(
-        id: int.parse(id.toString()),
-        playlistId: playlist.id.toString(),
-        title: playlist.title,
-        pictureMedium: playlist.pictureMedium,
-        pictureXl: playlist.pictureXl,
-        userName: playlist.user!.name,
-        type: 'playlist_local');
-    await db.insert(playlistTableName, playlistDownload.toMap());
-  }
-
-  Future<TrackDownload> getTrackDownload(String trackId) async {
+  Future<TrackDownload> getTrackByTrackId(String trackId) async {
     final db = await dbHelper.database;
     var res = await db
-        .query(trackTableName, where: "track_id = ?", whereArgs: [trackId]);
+        .query(DBHelper.trackTableName, where: "id = ?", whereArgs: [trackId]);
     return res.isNotEmpty ? TrackDownload.fromMap(res.first) : TrackDownload();
   }
 
-  Future<bool> trackDownloadExists(String trackId) async {
+  Future<bool> trackDownloadExists(int trackId) async {
     final db = await dbHelper.database;
     var res = await db
-        .query(trackTableName, where: "track_id = ?", whereArgs: [trackId]);
+        .query(DBHelper.trackTableName, where: "id = ?", whereArgs: [trackId]);
     return res.isNotEmpty;
   }
 
   Future<List<TrackDownload>> getAllTrackDownloads() async {
     final db = await dbHelper.database;
-    var res = await db.query(trackTableName);
+    var res =
+        await db.query(DBHelper.trackTableName, orderBy: 'create_time DESC');
     List<TrackDownload> list =
         res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
     return list;
   }
 
-  Future<List<TrackDownload>> getTracksByPlaylistId(String playlistId) async {
+  Future<List<TrackDownload>> getTracksByPlaylistId(int playlistId) async {
     final db = await dbHelper.database;
-    var res = await db.query(trackTableName,
-        where: 'playlist_id = ?', whereArgs: [playlistId]);
+    var res = await db.query(DBHelper.trackTableName,
+        where: 'playlist_id = ?',
+        whereArgs: [playlistId],
+        orderBy: 'create_time DESC');
     List<TrackDownload> list =
         res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
     return list;
   }
 
-  Future<void> deleteTrackDownload(String trackId) async {
+  Future<void> deleteTrackDownload(int trackId) async {
     var db = await dbHelper.database;
     await db
-        .delete(trackTableName, where: "track_id = ?", whereArgs: [trackId]);
+        .delete(DBHelper.trackTableName, where: "id = ?", whereArgs: [trackId]);
   }
 
   Future<void> deleteTrackDownloadByTaskId(String taskId) async {
     final db = await dbHelper.database;
-    await db.delete(trackTableName, where: "task_id = ?", whereArgs: [taskId]);
+    await db.delete(DBHelper.trackTableName,
+        where: "task_id = ?", whereArgs: [taskId]);
   }
 
   Future<void> deleteAllTrack() async {
     final db = await dbHelper.database;
-    await db.delete(trackTableName);
+    await db.delete(DBHelper.trackTableName);
   }
 
   //Playlist DB
-  Future<PlaylistDownload> getPlaylistDownload(String playlistId) async {
+  Future<void> insertPlaylistDownload(Playlist playlist) async {
     final db = await dbHelper.database;
-    var res = await db.query(playlistTableName,
-        where: "playlist_id = ?", whereArgs: [playlistId]);
-    return res.isNotEmpty
-        ? PlaylistDownload.fromMap(res.first)
-        : PlaylistDownload();
-  }
-
-  Future<bool> playlistDownloadExists(String playlistId) async {
-    final db = await dbHelper.database;
-    var res = await db.query(playlistTableName,
-        where: "playlist = ?", whereArgs: [playlistId]);
-    return res.isNotEmpty;
+    bool isExists = await playlistDownloadExists(playlist.id!);
+    if (!isExists) {
+      PlaylistDownload playlistDownload = PlaylistDownload(
+          id: playlist.id,
+          title: playlist.title,
+          pictureMedium: playlist.pictureMedium,
+          pictureXl: playlist.pictureXl,
+          userName: playlist.user!.name,
+          type: typePlaylist);
+      await db.insert(DBHelper.playlistTableName, playlistDownload.toMap());
+    } else {
+      log('Playlist ${playlist.id} exists!');
+    }
   }
 
   Future<List<PlaylistDownload>> getAllPlaylistDownloads() async {
     final db = await dbHelper.database;
-    var res = await db.query(playlistTableName);
+    var res =
+        await db.query(DBHelper.playlistTableName, orderBy: 'create_time DESC');
     List<PlaylistDownload> list = res.isNotEmpty
         ? res.map((c) => PlaylistDownload.fromMap(c)).toList()
         : [];
     return list;
   }
 
-  Future<void> deletePlaylistDownload(String playlistId) async {
+  Future<PlaylistDownload> getPlaylistDownloadByPlaylistId(
+      int playlistId) async {
     final db = await dbHelper.database;
-    await db.delete(playlistTableName,
-        where: "playlist_id = ?", whereArgs: [playlistId]);
+    var res = await db.query(DBHelper.playlistTableName,
+        where: "id = ?", whereArgs: [playlistId]);
+    return res.isNotEmpty
+        ? PlaylistDownload.fromMap(res.first)
+        : PlaylistDownload();
+  }
+
+  Future<bool> playlistDownloadExists(int playlistId) async {
+    final db = await dbHelper.database;
+    var res = await db.query(DBHelper.playlistTableName,
+        where: "id = ?", whereArgs: [playlistId]);
+    return res.isNotEmpty;
+  }
+
+  Future<void> deletePlaylistDownload(int playlistId) async {
+    final db = await dbHelper.database;
+    await db.delete(DBHelper.playlistTableName,
+        where: "id = ?", whereArgs: [playlistId]);
   }
 
   Future<void> deleteAllPlaylist() async {
     final db = await dbHelper.database;
-    await db.delete(playlistTableName);
+    await db.delete(DBHelper.playlistTableName);
   }
 
   Future<void> removeAll() async {
@@ -152,20 +158,22 @@ class DownloadRepository {
     await deleteAllPlaylist();
   }
 
-  Future<void> downloadTracks(List<Track> tracks) async {
+  Future<void> downloadTracks(List<Track> tracks, int? playlistId) async {
     final externalDir = await getExternalStorageDirectory();
-    for (int index = 0; index < tracks.length; index++) {
-      final isBool = await trackDownloadExists(tracks[index].id.toString());
+    for (var track in tracks) {
+      final isBool = await trackDownloadExists(track.id!);
       if (!isBool) {
         await FlutterDownloader.enqueue(
-          url: '${tracks[index].preview}',
+          url: '${track.preview}',
           savedDir: externalDir!.path,
-          fileName: 'track-${tracks[index].id}.mp3',
+          fileName: (playlistId != null)
+              ? 'playlist-$playlistId-${track.id}.mp3'
+              : 'track-${track.id}.mp3',
           showNotification: false,
           openFileFromNotification: false,
         );
       } else {
-        log('Track ${tracks[index].id} downloaded');
+        log('Track ${track.id} downloaded');
       }
     }
   }

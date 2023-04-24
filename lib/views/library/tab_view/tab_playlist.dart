@@ -40,13 +40,13 @@ class _TabPlaylistState extends State<TabPlaylist> {
               if (index == snapshot.data!.length) {
                 return paddingHeight(8);
               }
-              PlaylistDownload item = playlistDownloads[index];
+              PlaylistDownload playlistDownload = playlistDownloads[index];
               return Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.red),
                 onDismissed: (direction) {
                   DownloadRepository.instance
-                      .deletePlaylistDownload(item.playlistId!);
+                      .deletePlaylistDownload(playlistDownload.id!);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Row(
@@ -57,7 +57,7 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             height: 20,
                           ),
                           paddingWidth(0.5),
-                          Text('Deleted playlistId ${item.playlistId} '),
+                          Text('Deleted playlistId ${playlistDownload.id} '),
                         ],
                       ),
                       duration: const Duration(milliseconds: 500),
@@ -75,7 +75,7 @@ class _TabPlaylistState extends State<TabPlaylist> {
                           return LayoutScreen(
                             index: 4,
                             screen: PlaylistDetailDownload(
-                              playlistDownload: item,
+                              playlistDownload: playlistDownload,
                             ),
                           );
                         },
@@ -96,7 +96,7 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             borderRadius:
                                 BorderRadius.circular(defaultBorderRadius),
                             child: CachedNetworkImage(
-                              imageUrl: '${item.pictureMedium}',
+                              imageUrl: '${playlistDownload.pictureMedium}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Image.asset(
                                 'assets/images/music_default.jpg',
@@ -114,13 +114,13 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                item.title.toString(),
+                                playlistDownload.title.toString(),
                                 style: Theme.of(context).textTheme.titleMedium,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                item.userName.toString(),
+                                playlistDownload.userName.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall
