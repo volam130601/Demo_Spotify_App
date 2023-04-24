@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:demo_spotify_app/data/response/api_response.dart';
 import 'package:demo_spotify_app/models/track.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/material.dart';
 
-import '../repository/artist_repository.dart';
-import '../repository/track_repository.dart';
+import '../repository/remote/artist_repository.dart';
+import '../repository/remote/track_repository.dart';
 
 class TrackPlayViewModel with ChangeNotifier {
   final _tracks = TrackRepository();
@@ -13,26 +12,17 @@ class TrackPlayViewModel with ChangeNotifier {
   final _tracksPlayControl = TrackRepository();
   final _artists = ArtistRepository();
 
-  int _totalTracks = 0;
-  String _totalDuration = '';
   ApiResponse<Track> trackDetail = ApiResponse.loading();
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
   ApiResponse<List<Track>> tracksPlayControl = ApiResponse.loading();
+  ApiResponse<List<Track>> tracksDownload = ApiResponse.loading();
 
-  int get totalTracks => _totalTracks;
-  String get duration => _totalDuration;
+  String _totalDuration = '';
 
-  setTotalTracks(int total) {
-    _totalTracks = total;
-    notifyListeners();
-  }
-  setTotalDuration(int duration) {
-    int seconds = duration;
-    int minutes = seconds ~/ 60;
-    int hours = minutes ~/ 60;
-    int remainingMinutes = minutes % 60;
-    String totalDuration = '$hours h $remainingMinutes min';
-    _totalDuration = totalDuration;
+  String get totalDuration => _totalDuration;
+
+  setTotalDuration(String duration) {
+    _totalDuration = duration;
     notifyListeners();
   }
 
@@ -41,13 +31,18 @@ class TrackPlayViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  setTrackList(ApiResponse<List<Track>> response) {
+  setTrackList(ApiResponse<List<Track>> response) async {
     tracks = response;
     notifyListeners();
   }
 
   setTracksPlayControl(ApiResponse<List<Track>> response) {
     tracksPlayControl = response;
+    notifyListeners();
+  }
+
+  setTracksDownload(ApiResponse<List<Track>> response) {
+    tracksDownload = response;
     notifyListeners();
   }
 
@@ -64,10 +59,16 @@ class TrackPlayViewModel with ChangeNotifier {
           .onError((error, stackTrace) =>
               setTracksPlayControl(ApiResponse.error(error.toString())));
     } else if (playlistID != 0) {
+      await _tracks
+          .getTracksByPlaylistID(playlistID, index, 10000)
+          .then((value) {
+        return setTotalDuration(CommonUtils.instance.convertTotalDuration(value));
+      });
       await _tracksPlayControl
           .getTracksByPlaylistID(playlistID, index, limit)
-          .then((value) => setTracksPlayControl(ApiResponse.completed(value)))
-          .onError((error, stackTrace) =>
+          .then((value) {
+        return setTracksPlayControl(ApiResponse.completed(value));
+      }).onError((error, stackTrace) =>
               setTracksPlayControl(ApiResponse.error(error.toString())));
     } else if (artistID != 0) {
       await _artists
@@ -94,20 +95,12 @@ class TrackPlayViewModel with ChangeNotifier {
             setTrackList(ApiResponse.error(error.toString())));
   }
 
-  Future<void> fetchTracksByPlaylistID(
+  Future<void> fetchTracksDownloadByPlaylistID(
       int playlistID, int index, int limit) async {
     await _tracks
         .getTracksByPlaylistID(playlistID, index, limit)
-        .then((value) => setTrackList(ApiResponse.completed(value)))
+        .then((value) => setTracksDownload(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
-            setTrackList(ApiResponse.error(error.toString())));
-    await _tracks
-        .getTotalTracksByPlaylistId(playlistID)
-        .then((value) => setTotalTracks(value))
-        .onError((error, stackTrace) => log(error.toString()));
-    await _tracks
-        .getTotalDurationTracksByPlaylistId(playlistID)
-        .then((value) => setTotalDuration(value))
-        .onError((error, stackTrace) => log(error.toString()));
+            setTracksDownload(ApiResponse.error(error.toString())));
   }
 }

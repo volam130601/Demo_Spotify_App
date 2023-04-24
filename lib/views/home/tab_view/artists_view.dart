@@ -1,5 +1,5 @@
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
-import 'package:demo_spotify_app/views/home/components/card_item_custom.dart';
+import 'package:demo_spotify_app/widgets/card_item_custom.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/response/status.dart';
 import '../../../models/artist.dart';
-import '../components/selection_title.dart';
+import '../../../widgets/selection_title.dart';
 import '../detail/artist_detail.dart';
 
 class ArtistListView extends StatelessWidget {

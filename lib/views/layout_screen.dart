@@ -1,7 +1,11 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
@@ -9,8 +13,13 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../models/track.dart';
+import '../repository/local/download_repository.dart';
+import '../repository/remote/track_repository.dart';
+import '../utils/common_utils.dart';
 import '../utils/constants/default_constant.dart';
-import '../widgets/play_control/common.dart';
+import '../view_models/downloader/download_view_modal.dart';
+import '../widgets/play_control/seekbar.dart';
 import '../widgets/slide_animation_page_route.dart';
 import 'home/play_control/track_play.dart';
 
@@ -25,11 +34,63 @@ class LayoutScreen extends StatefulWidget {
 }
 
 class _LayoutScreenState extends State<LayoutScreen> {
+  final ReceivePort port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
-    Provider.of<LayoutScreenViewModel>(context, listen: false).setScreenWidget();
+    Provider.of<LayoutScreenViewModel>(context, listen: false)
+        .setScreenWidget();
+
+    //Isolate download track
+    IsolateNameServer.registerPortWithName(port.sendPort, 'downloader_track');
+    final downloadProvider =
+        Provider.of<DownloadViewModel>(context, listen: false);
+    final trackRepository = TrackRepository();
+    port.listen((data) async {
+      final taskId = data[0];
+      final status = data[1];
+      if (status == DownloadTaskStatus.complete.value) {
+        final tasks = await FlutterDownloader.loadTasks();
+        for (var task in tasks!) {
+          String trackId =
+              CommonUtils.instance.subStringTrackId(task.filename.toString());
+          int playlistId = CommonUtils.instance
+              .subStringPlaylistId(task.filename.toString());
+          if (task.taskId == taskId &&
+              task.status == DownloadTaskStatus.complete) {
+            Track? track =
+                await trackRepository.getTrackByID(int.parse(trackId));
+            await DownloadRepository.instance.insertTrackDownload(
+                track: track,
+                taskId: taskId,
+                task: task,
+                playlistId: playlistId);
+            await downloadProvider.loadTracksDownloaded();
+            print("save to db");
+          } else if (task.status == DownloadTaskStatus.failed) {
+            FlutterDownloader.remove(taskId: task.taskId);
+          }
+        }
+      }
+    });
+    FlutterDownloader.registerCallback(downloadCallback);
+  }
+
+  @pragma('vm:entry-point')
+  static void downloadCallback(
+    String id,
+    DownloadTaskStatus status,
+    int progress,
+  ) {
+    IsolateNameServer.lookupPortByName('downloader_track')
+        ?.send([id, status.value, progress]);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    IsolateNameServer.removePortNameMapping('downloader_track');
   }
 
   @override
@@ -41,7 +102,8 @@ class _LayoutScreenState extends State<LayoutScreen> {
       screen = Provider.of<LayoutScreenViewModel>(context, listen: true).screen;
     }
     bool isShowBottomNavigatorBar =
-        Provider.of<LayoutScreenViewModel>(context, listen: true).isShowBottomBar;
+        Provider.of<LayoutScreenViewModel>(context, listen: true)
+            .isShowBottomBar;
     return Scaffold(
       body: Stack(
         children: [
@@ -72,7 +134,7 @@ class PLayMusicCard extends StatelessWidget {
   Widget build(BuildContext context) {
     double widthScreen = MediaQuery.of(context).size.width;
     final providerMultiPlayer =
-    Provider.of<MultiPlayerViewModel>(context, listen: true);
+        Provider.of<MultiPlayerViewModel>(context, listen: true);
     Widget? playMusicCard;
     if (providerMultiPlayer.isCheckPlayer) {
       playMusicCard = InkWell(
@@ -106,12 +168,16 @@ class PLayMusicCard extends StatelessWidget {
                         height: 40,
                         decoration: BoxDecoration(
                           borderRadius:
-                          BorderRadius.circular(defaultBorderRadius / 2),
+                              BorderRadius.circular(defaultBorderRadius / 2),
                         ),
                         child: CachedNetworkImage(
                           imageUrl: metadata.artUri.toString(),
-                          placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-                          errorWidget: (context, url, error) => const Icon(Icons.error),
+                          placeholder: (context, url) => Image.asset(
+                            'assets/images/music_default.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -189,7 +255,7 @@ class PLayMusicCard extends StatelessWidget {
                       duration: positionData?.duration ?? Duration.zero,
                       position: positionData?.position ?? Duration.zero,
                       bufferedPosition:
-                      positionData?.bufferedPosition ?? Duration.zero,
+                          positionData?.bufferedPosition ?? Duration.zero,
                       onChangeEnd: providerMultiPlayer.player.seek,
                       isShow: false,
                     );
@@ -207,10 +273,8 @@ class PLayMusicCard extends StatelessWidget {
   }
 }
 
-
 class BottomNavigatorBarCustom extends StatefulWidget {
-  const BottomNavigatorBarCustom({Key? key})
-      : super(key: key);
+  const BottomNavigatorBarCustom({Key? key}) : super(key: key);
 
   @override
   State<BottomNavigatorBarCustom> createState() =>
@@ -231,8 +295,8 @@ class _BottomNavigatorBarCustomState extends State<BottomNavigatorBarCustom> {
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color.fromRGBO(0, 0, 0, 0.8), // red with 50% opacity
-                  Color.fromRGBO(0, 0, 0, 1), // green with 50% opacity
+                  Color.fromRGBO(0, 0, 0, 0.8),
+                  Color.fromRGBO(0, 0, 0, 1),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,

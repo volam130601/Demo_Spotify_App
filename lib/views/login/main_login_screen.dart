@@ -104,7 +104,7 @@ class LoginScreen extends StatelessWidget {
                             email: user.email.toString(),
                             photoUrl: user.photoURL.toString()));
                         // ignore: use_build_context_synchronously
-                        Navigator.of(context).pushNamed(RoutesName.home);
+                        Navigator.of(context).pushReplacementNamed(RoutesName.home);
                         log('Login with google is success');
                       } catch (e) {
                         // Error signing in

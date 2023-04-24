@@ -1,11 +1,7 @@
 import 'dart:developer';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/local/download_database_service.dart';
-import 'package:demo_spotify_app/models/local_model/track_download.dart';
-import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
@@ -16,47 +12,29 @@ import 'package:provider/provider.dart';
 
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
+import '../../../../view_models/downloader/download_view_modal.dart';
+import '../../models/playlist.dart';
+import '../../repository/local/download_repository.dart';
 
 class ActionMore extends StatefulWidget {
-  const ActionMore({Key? key, this.track}) : super(key: key);
-  final Track? track;
+  const ActionMore(
+      {Key? key, required this.track, this.playlist, this.isDownloaded = false})
+      : super(key: key);
+  final Track track;
+  final Playlist? playlist;
+  final bool? isDownloaded;
 
   @override
   State<ActionMore> createState() => _ActionMoreState();
 }
 
 class _ActionMoreState extends State<ActionMore> {
-  final ReceivePort port = ReceivePort();
-  bool isTrackExists = false;
-  late String currentTaskId;
+  // final ReceivePort port = ReceivePort();
+  // final trackRepository = TrackRepository();
 
   @override
   void initState() {
     super.initState();
-    IsolateNameServer.registerPortWithName(port.sendPort, 'downloader_track');
-    port.listen((data) async {
-      final taskId = data[0];
-      final status = data[1];
-      final progress = data[2];
-      if (status == DownloadTaskStatus.complete.value) {
-        Track? track =
-            Provider.of<DownloadViewModel>(context, listen: false).track;
-        final externalDir = await getExternalStorageDirectory();
-        await DownloadDBService.instance.newTrackDownload(
-          TrackDownload(
-              trackId: track.id.toString(),
-              taskId: taskId,
-              title: track.title,
-              artistName: track.artist!.name,
-              artistPictureSmall: track.artist!.pictureSmall,
-              coverSmall: track.album!.coverSmall,
-              coverXl: track.album!.coverXl,
-              preview: '${externalDir!.path}/track-${track.id}.mp3',
-              type: 'track_local'),
-        );
-        log('save to db');
-      }
-    });
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
@@ -71,118 +49,93 @@ class _ActionMoreState extends State<ActionMore> {
   }
 
   @override
-  void dispose() {
-    IsolateNameServer.removePortNameMapping('downloader_track');
-    super.dispose();
-  }
-
-  Future<void> checkTrackExists() async {
-    await FlutterDownloader.loadTasks().then((value) {
-      for (var item in value!) {
-        if (item.filename!.contains(widget.track!.id.toString())) {
-          setState(() {
-            isTrackExists = true;
-            currentTaskId = item.taskId;
-            return;
-          });
-        }
-      }
-    });
-  }
-
-  void setIsTrackExits(newValue) {
-    setState(() {
-      isTrackExists = newValue;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     Track? track = widget.track;
-    Widget downloadTileItem = FutureBuilder<TrackDownload>(
-      future: DownloadDBService.instance.getTrackDownload(track!.id.toString()),
-      builder: (BuildContext context, AsyncSnapshot<TrackDownload> snapshot) {
-        if (snapshot.hasData && snapshot.data!.id != null) {
-          return buildModalTileItem(
-            context,
-            title: 'Delete downloaded track',
-            icon: const Icon(Ionicons.trash_outline),
-            onTap: () async {
-              DownloadDBService.instance
-                  .deleteTrackDownload(track.id.toString());
-              FlutterDownloader.remove(
-                  taskId: currentTaskId, shouldDeleteContent: true);
-              setIsTrackExits(false);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/spotify_logo.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      paddingWidth(0.5),
-                      const Text('Deleted from memory'),
-                    ],
+    Widget downloadTileItem;
+    if (widget.isDownloaded == true) {
+      downloadTileItem = buildModalTileItem(
+        context,
+        title: 'Delete downloaded track',
+        icon: const Icon(Ionicons.trash_outline),
+        onTap: () async {
+          DownloadRepository.instance.deleteTrackDownload(track.id!);
+          final downloadProvider =
+              Provider.of<DownloadViewModel>(context, listen: false);
+          String taskId = downloadProvider.getTaskIdByTrackId(track.id!);
+          await FlutterDownloader.remove(
+              taskId: taskId, shouldDeleteContent: true);
+          await downloadProvider.loadTracksDownloaded();
+          // ignore: use_build_context_synchronously
+          Navigator.pop(context);
+          // ignore: use_build_context_synchronously
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  SvgPicture.asset(
+                    'assets/icons/spotify_logo.svg',
+                    width: 20,
+                    height: 20,
                   ),
-                  duration: const Duration(milliseconds: 500),
-                ),
-              );
-            },
+                  paddingWidth(0.5),
+                  const Text('Deleted from memory'),
+                ],
+              ),
+              duration: const Duration(milliseconds: 500),
+            ),
           );
-        }
-        return buildModalTileItem(
-          context,
-          title: 'Download this song',
-          icon: const Icon(Icons.download_outlined),
-          onTap: () async {
-            Provider.of<DownloadViewModel>(context, listen: false)
-                .setTrack(track!);
-            final status = await Permission.storage.request();
-            if (status.isGranted) {
-              final externalDir = await getExternalStorageDirectory();
-              await FlutterDownloader.enqueue(
-                url: '${track.preview}',
-                savedDir: externalDir!.path,
-                fileName: 'track-${track.id}.mp3',
-                showNotification: false,
-                openFileFromNotification: false,
-              );
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context);
-              // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/spotify_logo.svg',
-                        width: 20,
-                        height: 20,
-                      ),
-                      paddingWidth(0.5),
-                      const Text('Add track to downloaded list'),
-                    ],
-                  ),
-                  duration: const Duration(milliseconds: 500),
+        },
+      );
+    } else {
+      downloadTileItem = buildModalTileItem(
+        context,
+        title: 'Download this song',
+        icon: const Icon(Icons.download_outlined),
+        onTap: () async {
+          final status = await Permission.storage.request();
+          if (status.isGranted) {
+            final externalDir = await getExternalStorageDirectory();
+            await FlutterDownloader.enqueue(
+              url: '${track.preview}',
+              savedDir: externalDir!.path,
+              fileName: (widget.playlist != null)
+                  ? 'playlist-${widget.playlist!.id}-${track.id}.mp3'
+                  : 'track-${track.id}.mp3',
+              showNotification: false,
+              openFileFromNotification: false,
+            );
+            await DownloadRepository.instance
+                .insertPlaylistDownload(widget.playlist!);
+            // ignore: use_build_context_synchronously
+            Navigator.pop(context);
+            // ignore: use_build_context_synchronously
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/spotify_logo.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    paddingWidth(0.5),
+                    const Text('Add track to downloaded list'),
+                  ],
                 ),
-              );
-            } else {
-              log("Permission denied");
-            }
-          },
-        );
-      },
-    );
-
+                duration: const Duration(milliseconds: 500),
+              ),
+            );
+          } else {
+            log("Permission denied");
+          }
+        },
+      );
+    }
     return SizedBox(
       width: 60,
       height: 60,
       child: ElevatedButton(
         onPressed: () {
-          checkTrackExists();
           showModalBottomSheet(
             backgroundColor: Colors.transparent,
             context: context,
@@ -232,7 +185,13 @@ class _ActionMoreState extends State<ActionMore> {
                           width: 20,
                           height: 20,
                         ),
-                        onTap: () {},
+                        onTap: () async {
+                          List<DownloadTask>? newTasks =
+                              await FlutterDownloader.loadTasks();
+                          for (int i = 0; i < newTasks!.length; i++) {
+                            log('${newTasks[i].filename} : ${newTasks[i].status} : ${newTasks[i].savedDir}');
+                          }
+                        },
                       ),
                       paddingHeight(1),
                     ],

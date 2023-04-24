@@ -140,7 +140,7 @@ class _SignInScreenState extends State<SignInScreen> {
       );
       UserService().getUserById(userCredential.user!.uid);
       // ignore: use_build_context_synchronously
-      Navigator.pushNamed(context, RoutesName.home);
+      Navigator.of(context).pushReplacementNamed(RoutesName.home);
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

@@ -87,7 +87,7 @@ class _SignUpFreeState extends State<SignUpFree> {
         leading: IconButton(
           onPressed: () async {
             Navigator.of(context)
-                .push(SlideLeftPageRoute(page: const LoginScreen()));
+                .pushReplacement(SlideLeftPageRoute(page: const LoginScreen()));
           },
           icon: const Icon(Icons.arrow_back),
         ),

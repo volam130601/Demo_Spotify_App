@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../../utils/constants/default_constant.dart';
+import '../utils/constants/default_constant.dart';
 
 class CardItemCustom extends StatefulWidget {
   const CardItemCustom({

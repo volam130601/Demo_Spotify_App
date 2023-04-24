@@ -1,5 +1,5 @@
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
-import 'package:demo_spotify_app/views/home/components/card_item_custom.dart';
+import 'package:demo_spotify_app/widgets/card_item_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +8,7 @@ import '../../../data/response/status.dart';
 import '../../../models/track.dart';
 import '../../../view_models/multi_control_player_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
-import '../components/selection_title.dart';
+import '../../../widgets/selection_title.dart';
 
 class TrackListView extends StatelessWidget {
   const TrackListView({Key? key}) : super(key: key);

@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/views/home/widgets/albums_view.dart';
-import 'package:demo_spotify_app/views/home/widgets/artists_view.dart';
-import 'package:demo_spotify_app/views/home/widgets/playlists_view.dart';
-import 'package:demo_spotify_app/views/home/widgets/tracks_view.dart';
+import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
+import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/tracks_view.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     setIsLoading();
-
+    Provider.of<DownloadViewModel>(context, listen: false).loadTracksDownloaded();
     Provider.of<HomeViewModel>(context, listen: false)
       ..fetchChartPlaylistsApi()
       ..fetchChartAlbumsApi()
@@ -54,33 +55,61 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
-      return Scaffold(
-        body: Consumer<HomeViewModel>(
-          builder: (context, value, child) {
-            return Container(
-              padding: const EdgeInsets.only(top: defaultPadding),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    paddingHeight(1),
-                    const HeaderBody(),
-                    paddingHeight(1),
-                    buildHomeRecentSearch(),
-                    const PlaylistView(),
-                    paddingHeight(2),
-                    const AlbumListView(),
-                    paddingHeight(2),
-                    const TrackListView(),
-                    paddingHeight(2),
-                    const ArtistListView(),
-                    paddingHeight(8),
-                  ],
+      return WillPopScope(
+        onWillPop: () async {
+          bool confirmed = await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Xác nhận'),
+                content: const Text('Bạn có muốn thoát ứng dụng không?'),
+                actions: [
+                  TextButton(
+                    child: const Text('Không'),
+                    onPressed: () {
+                      Navigator.of(context).pop(false);
+                    },
+                  ),
+                  TextButton(
+                    child: const Text('Có'),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+          return confirmed;
+        },
+        child: Scaffold(
+          body: Consumer<HomeViewModel>(
+            builder: (context, value, child) {
+              return Container(
+                padding: const EdgeInsets.only(top: defaultPadding),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      paddingHeight(1),
+                      const HeaderBody(),
+                      paddingHeight(1),
+                      buildHomeRecentSearch(),
+                      const PlaylistView(),
+                      paddingHeight(2),
+                      const AlbumListView(),
+                      paddingHeight(2),
+                      const TrackListView(),
+                      paddingHeight(2),
+                      const ArtistListView(),
+                      paddingHeight(8),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       );
     }

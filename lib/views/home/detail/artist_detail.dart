@@ -13,8 +13,8 @@ import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/artist_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
-import '../components/play_control/play_button.dart';
-import '../components/selection_title.dart';
+import '../../../widgets/play_control/play_button.dart';
+import '../../../widgets/selection_title.dart';
 
 class ArtistDetail extends StatefulWidget {
   const ArtistDetail({Key? key, required this.artistId}) : super(key: key);
@@ -136,7 +136,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
               );
             case Status.COMPLETED:
               Artist? artist = value.artist.data;
-              if(artist != null) {
+              if (artist != null) {
                 return Scaffold(
                   body: Stack(
                     children: [
@@ -162,10 +162,10 @@ class _ArtistDetailState extends State<ArtistDetail> {
                   ),
                 );
               } else {
-                return  Text(value.artist.toString());
+                return Text(value.artist.toString());
               }
             case Status.ERROR:
-              return  Text(value.artist.toString());
+              return Text(value.artist.toString());
             default:
               return const Text('Default Switch');
           }
@@ -300,7 +300,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
               );
             }
           case Status.ERROR:
-            return  SliverToBoxAdapter(
+            return SliverToBoxAdapter(
               child: Text(value.trackList.toString()),
             );
           default:
