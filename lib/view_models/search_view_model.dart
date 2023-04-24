@@ -3,8 +3,8 @@ import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/genre/genre_search.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
-import 'package:demo_spotify_app/repository/genre_repository.dart';
-import 'package:demo_spotify_app/repository/search_repository.dart';
+import 'package:demo_spotify_app/repository/remote/genre_repository.dart';
+import 'package:demo_spotify_app/repository/remote/search_repository.dart';
 import 'package:flutter/material.dart';
 
 import '../models/genre/genre.dart';

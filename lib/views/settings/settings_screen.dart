@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/local/download/download_database_service.dart';
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
 
@@ -76,13 +75,6 @@ class _SettingScreenState extends State<SettingScreen> {
             ),
           ),
           const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
-          SettingItem(
-            title: 'Delete table',
-            subTitle: '1.0.0-beta',
-            onTap: () async {
-              await DownloadDBService.instance.deleteTable();
-            },
-          ),
           SettingItem(
               onTap: () {
                 if (isCheck) {

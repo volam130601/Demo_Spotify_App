@@ -1,7 +1,7 @@
 import 'package:demo_spotify_app/data/network/network_api_services.dart';
 import 'package:demo_spotify_app/models/track.dart';
 
-import '../utils/app_url.dart';
+import '../../utils/app_url.dart';
 
 class TrackRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();

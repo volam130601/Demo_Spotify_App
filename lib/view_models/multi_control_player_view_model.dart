@@ -8,7 +8,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../models/album.dart';
 import '../models/track.dart';
-import '../widgets/play_control/common.dart';
+import '../widgets/play_control/seekbar.dart';
 
 class MultiPlayerViewModel with ChangeNotifier {
   dynamic _playlist = ConcatenatingAudioSource(children: []);

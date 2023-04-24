@@ -3,7 +3,6 @@ import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
-import 'package:demo_spotify_app/views/home/components/selection_title.dart';
 import 'package:demo_spotify_app/views/home/detail/album_detail.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,8 @@ import 'package:provider/provider.dart';
 import '../../../models/album.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
-import '../components/card_item_custom.dart';
+import '../../../widgets/card_item_custom.dart';
+import '../../../widgets/selection_title.dart';
 
 class TrackDetail extends StatefulWidget {
   const TrackDetail({Key? key, required this.id}) : super(key: key);

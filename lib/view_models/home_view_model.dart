@@ -7,7 +7,7 @@ import '../models/album.dart';
 import '../models/artist.dart';
 import '../models/playlist.dart';
 import '../models/track.dart';
-import '../repository/chart_repository.dart';
+import '../repository/remote/chart_repository.dart';
 
 class HomeViewModel with ChangeNotifier {
   final _chartPlaylist = ChartRepository();

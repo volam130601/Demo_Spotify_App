@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../models/artist.dart';
 import '../models/track.dart';
-import '../repository/artist_repository.dart';
+import '../repository/remote/artist_repository.dart';
 
 class ArtistViewModel with ChangeNotifier {
   final _artist = ArtistRepository();

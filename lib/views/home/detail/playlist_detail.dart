@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
-import 'package:demo_spotify_app/views/home/components/action/action_download_playlist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -13,8 +12,9 @@ import '../../../models/playlist.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
-import '../components/action/action_more.dart';
-import '../components/play_control/play_button.dart';
+import '../../../widgets/action/action_download_playlist.dart';
+import '../../../widgets/action/action_more.dart';
+import '../../../widgets/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
   const PlaylistDetail({Key? key, required this.playlist, this.userName})
@@ -130,65 +130,65 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ),
       );
     } else {
-       return CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            buildAppBar(value, context),
-            buildHeaderBody(context, value),
-            SliverToBoxAdapter(
-              child: playlistActions(),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: tracks!.length < 50 ? tracks.length * 60 : 50 * 60,
-                child: ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: defaultPadding * 2),
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      child: playlistTile(context, tracks[index]),
-                      onTap: () {
-                        var value = Provider.of<MultiPlayerViewModel>(context,
-                            listen: false);
-                        int? currentPlaylistId = widget.playlist!.id as int;
-                        if (currentPlaylistId != value.getPlaylistId) {
-                          value.initState(
-                              tracks: tracks,
-                              playlistId: widget.playlist!.id as int,
-                              index: index);
-                        } else {
-                          value.player.seek(Duration.zero, index: index);
-                        }
-                      },
-                    );
-                  },
-                  itemCount: tracks.length < 50 ? tracks.length : 50,
-                ),
+      return CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          buildAppBar(value, context),
+          buildHeaderBody(context, value),
+          SliverToBoxAdapter(
+            child: playlistActions(),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: tracks!.length < 50 ? tracks.length * 60 : 50 * 60,
+              child: ListView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: defaultPadding * 2),
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    child: playlistTile(context, tracks[index]),
+                    onTap: () {
+                      var value = Provider.of<MultiPlayerViewModel>(context,
+                          listen: false);
+                      int? currentPlaylistId = widget.playlist!.id as int;
+                      if (currentPlaylistId != value.getPlaylistId) {
+                        value.initState(
+                            tracks: tracks,
+                            playlistId: widget.playlist!.id as int,
+                            index: index);
+                      } else {
+                        value.player.seek(Duration.zero, index: index);
+                      }
+                    },
+                  );
+                },
+                itemCount: tracks.length < 50 ? tracks.length : 50,
               ),
             ),
-            SliverToBoxAdapter(
-              child: Column(
-                children: [
-                  Center(
-                    child: OutlinedButton(
-                      onPressed: () {},
-                      style: OutlinedButton.styleFrom(
-                          shape: const StadiumBorder()),
-                      child: Text(
-                        'See all tracks',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(color: Colors.white),
-                      ),
+          ),
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Center(
+                  child: OutlinedButton(
+                    onPressed: () {},
+                    style:
+                        OutlinedButton.styleFrom(shape: const StadiumBorder()),
+                    child: Text(
+                      'See all tracks',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(color: Colors.white),
                     ),
                   ),
-                  const SizedBox(height: defaultPadding * 5),
-                ],
-              ),
+                ),
+                const SizedBox(height: defaultPadding * 5),
+              ],
             ),
-          ],
-        );
+          ),
+        ],
+      );
     }
   }
 
@@ -227,7 +227,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               ],
             ),
             const SizedBox(height: defaultPadding / 2),
-            Text('${value.totalTracks.toString()} tracks - ${value.duration}',
+            Text('${widget.playlist!.nbTracks} tracks - ${value.totalDuration}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -266,7 +266,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         IconButton(
             onPressed: () {}, icon: const Icon(Icons.favorite_border_sharp)),
         ActionDownloadPlaylist(
-          playlistId: widget.playlist!.id,
+          playlist: widget.playlist!,
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),
@@ -357,7 +357,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
               track.title as String,
@@ -368,28 +368,18 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             Row(
               children: [
                 isDownloaded
-                    ? const Icon(Icons.download_for_offline_outlined,
-                        color: Colors.deepPurple)
+                    ? Row(
+                        children: [
+                          const Icon(Icons.download_for_offline_outlined,
+                              color: Colors.deepPurple),
+                          paddingWidth(0.5),
+                        ],
+                      )
                     : const SizedBox(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                  color: Colors.grey,
-                  child: const Text(
-                    'LYRICS',
-                    style: TextStyle(
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                  ),
-                ),
-                const SizedBox(width: defaultPadding / 2),
                 Text(
                   track.artist!.name as String,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Colors.grey, fontWeight: FontWeight.w600),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

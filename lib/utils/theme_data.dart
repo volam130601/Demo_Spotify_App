@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 
 class Styles {
-  //wait repair: set up color for text=====
   static ThemeData themeData(bool isDarkTheme, BuildContext context) {
     return ThemeData(
       scaffoldBackgroundColor: ColorsConsts.scaffoldColorDark,

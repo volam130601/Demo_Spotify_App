@@ -10,6 +10,7 @@ class TrackDownload {
   String? coverSmall;
   String? coverXl;
   String? preview;
+  int? duration;
   String? type;
 
   TrackDownload(
@@ -24,6 +25,7 @@ class TrackDownload {
       this.coverSmall,
       this.coverXl,
       this.preview,
+      this.duration,
       this.type,
       });
 
@@ -39,6 +41,7 @@ class TrackDownload {
     coverSmall = data['cover_small'];
     coverXl = data['cover_xl'];
     preview = data['preview'];
+    duration = data['duration'];
     type = data['type'];
   }
 
@@ -55,6 +58,7 @@ class TrackDownload {
     data['cover_small'] = coverSmall;
     data['cover_xl'] = coverXl;
     data['preview'] = preview;
+    data['duration'] = duration;
     data['type'] = type;
     return data;
   }

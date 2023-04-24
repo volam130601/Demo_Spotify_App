@@ -10,7 +10,7 @@ import '../../../models/artist.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
-import '../components/play_control/play_button.dart';
+import '../../../widgets/play_control/play_button.dart';
 
 class AlbumDetail extends StatefulWidget {
   const AlbumDetail({Key? key, this.album, this.artist}) : super(key: key);

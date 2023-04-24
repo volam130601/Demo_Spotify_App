@@ -1,10 +1,10 @@
 import 'package:demo_spotify_app/data/network/network_api_services.dart';
 import 'package:demo_spotify_app/models/album.dart';
 
-import '../models/artist.dart';
-import '../models/playlist.dart';
-import '../models/track.dart';
-import '../utils/app_url.dart';
+import '../../models/artist.dart';
+import '../../models/playlist.dart';
+import '../../models/track.dart';
+import '../../utils/app_url.dart';
 
 class ArtistRepository {
   final NetworkApiServices _apiServices = NetworkApiServices();

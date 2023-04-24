@@ -1,9 +1,10 @@
 import 'package:demo_spotify_app/data/response/api_response.dart';
 import 'package:demo_spotify_app/models/track.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/material.dart';
 
-import '../repository/artist_repository.dart';
-import '../repository/track_repository.dart';
+import '../repository/remote/artist_repository.dart';
+import '../repository/remote/track_repository.dart';
 
 class TrackPlayViewModel with ChangeNotifier {
   final _tracks = TrackRepository();
@@ -16,25 +17,12 @@ class TrackPlayViewModel with ChangeNotifier {
   ApiResponse<List<Track>> tracksPlayControl = ApiResponse.loading();
   ApiResponse<List<Track>> tracksDownload = ApiResponse.loading();
 
-  int _totalTracks = 0;
   String _totalDuration = '';
 
-  int get totalTracks => _totalTracks;
+  String get totalDuration => _totalDuration;
 
-  String get duration => _totalDuration;
-
-  setTotalTracks(int total) {
-    _totalTracks = total;
-    notifyListeners();
-  }
-
-  setTotalDuration(int duration) {
-    int seconds = duration;
-    int minutes = seconds ~/ 60;
-    int hours = minutes ~/ 60;
-    int remainingMinutes = minutes % 60;
-    String totalDuration = '$hours h $remainingMinutes min';
-    _totalDuration = totalDuration;
+  setTotalDuration(String duration) {
+    _totalDuration = duration;
     notifyListeners();
   }
 
@@ -74,13 +62,7 @@ class TrackPlayViewModel with ChangeNotifier {
       await _tracks
           .getTracksByPlaylistID(playlistID, index, 10000)
           .then((value) {
-        List<Track> tracks = value;
-        int totalDuration = 0;
-        for (var item in tracks) {
-          totalDuration += item.duration!;
-        }
-        setTotalTracks(tracks.length);
-        return setTotalDuration(totalDuration);
+        return setTotalDuration(CommonUtils.instance.convertTotalDuration(value));
       });
       await _tracksPlayControl
           .getTracksByPlaylistID(playlistID, index, limit)

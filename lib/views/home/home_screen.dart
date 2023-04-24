@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
-import 'package:demo_spotify_app/views/home/widgets/albums_view.dart';
-import 'package:demo_spotify_app/views/home/widgets/artists_view.dart';
-import 'package:demo_spotify_app/views/home/widgets/playlists_view.dart';
-import 'package:demo_spotify_app/views/home/widgets/tracks_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
+import 'package:demo_spotify_app/views/home/tab_view/tracks_view.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';

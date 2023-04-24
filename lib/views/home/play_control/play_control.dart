@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/multi_control_player_view_model.dart';
-import '../../../widgets/play_control/common.dart';
+import '../../../widgets/play_control/seekbar.dart';
 
 class PlayControl extends StatefulWidget {
   const PlayControl({Key? key}) : super(key: key);

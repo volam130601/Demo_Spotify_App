@@ -2,19 +2,21 @@ import 'dart:developer';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:demo_spotify_app/data/local/download/download_service.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../models/playlist.dart';
 import '../../../../models/track.dart';
 import '../../../../view_models/downloader/download_view_modal.dart';
+import '../../repository/local/download_repository.dart';
 
 class ActionDownloadPlaylist extends StatefulWidget {
-  const ActionDownloadPlaylist({Key? key, this.playlistId}) : super(key: key);
-  final int? playlistId;
+  const ActionDownloadPlaylist({Key? key, required this.playlist})
+      : super(key: key);
+  final Playlist playlist;
 
   @override
   State<ActionDownloadPlaylist> createState() => _ActionDownloadPlaylistState();
@@ -26,10 +28,8 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
   @override
   void initState() {
     super.initState();
-    if (widget.playlistId != null) {
-      Provider.of<TrackPlayViewModel>(context, listen: false)
-          .fetchTracksDownloadByPlaylistID(widget.playlistId!, 0, 100);
-    }
+    Provider.of<TrackPlayViewModel>(context, listen: false)
+        .fetchTracksDownloadByPlaylistID(widget.playlist.id!, 0, 100);
     FlutterDownloader.registerCallback(downloadCallback);
   }
 
@@ -56,7 +56,9 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
             final status = await Permission.storage.request();
             if (status.isGranted) {
               List<Track>? tracks = value.tracksDownload.data;
-              await DownloadService.instance.downloadFiles(tracks!);
+              await DownloadRepository.instance.downloadTracks(tracks!);
+              await DownloadRepository.instance
+                  .playlistDownloadInsert(widget.playlist);
               await downloadProvider.loadTracksDownloaded();
             } else {
               log("Permission denied");

@@ -1,7 +1,11 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
@@ -9,8 +13,13 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../models/track.dart';
+import '../repository/local/download_repository.dart';
+import '../repository/remote/track_repository.dart';
+import '../utils/common_utils.dart';
 import '../utils/constants/default_constant.dart';
-import '../widgets/play_control/common.dart';
+import '../view_models/downloader/download_view_modal.dart';
+import '../widgets/play_control/seekbar.dart';
 import '../widgets/slide_animation_page_route.dart';
 import 'home/play_control/track_play.dart';
 
@@ -25,13 +34,45 @@ class LayoutScreen extends StatefulWidget {
 }
 
 class _LayoutScreenState extends State<LayoutScreen> {
+  final ReceivePort port = ReceivePort();
 
   @override
   void initState() {
     super.initState();
     Provider.of<LayoutScreenViewModel>(context, listen: false).setScreenWidget();
+
+    //Isolate download track
+    IsolateNameServer.registerPortWithName(port.sendPort, 'downloader_track');
+    final downloadProvider =
+    Provider.of<DownloadViewModel>(context, listen: false);
+    final trackRepository = TrackRepository();
+    port.listen((data) async {
+      final taskId = data[0];
+      final status = data[1];
+      if (status == DownloadTaskStatus.complete.value) {
+        final tasks = await FlutterDownloader.loadTasks();
+        for (var task in tasks!) {
+          String trackId = CommonUtils.instance.subStringTrackId(task.filename.toString());
+          if (task.taskId == taskId &&
+              task.status == DownloadTaskStatus.complete) {
+            Track? track = await trackRepository.getTrackByID(int.parse(trackId));
+            await DownloadRepository.instance.trackDownloadInsert(
+                track: track, taskId: taskId, task: task);
+            await downloadProvider.loadTracksDownloaded();
+            print("save to db");
+          } else if (task.status == DownloadTaskStatus.failed) {
+            FlutterDownloader.remove(taskId: task.taskId);
+          }
+        }
+      }
+    });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    IsolateNameServer.removePortNameMapping('downloader_track');
+  }
   @override
   Widget build(BuildContext context) {
     Widget screen;
