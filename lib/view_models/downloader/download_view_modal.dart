@@ -11,7 +11,6 @@ class DownloadViewModel with ChangeNotifier {
     DownloadDBService.instance.getAllTrackDownloads().then((value) {
       _tracksDownload = value;
     });
-    print('>>set track download');
   }
 
   String getTaskIdByTrackId(String trackId) {

@@ -119,7 +119,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   }
 
   Widget buildPlaylistBody(BuildContext context, TrackPlayViewModel value) {
-    List<Track>? tracks = value.tracks.data;
+    List<Track>? tracks = value.tracksPlayControl.data;
     if (isLoading) {
       return Scaffold(
         body: Center(
@@ -146,14 +146,14 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                   padding: const EdgeInsets.only(bottom: defaultPadding * 2),
                   itemBuilder: (context, index) {
                     return InkWell(
-                      child: playlistTile(context, tracks![index]),
+                      child: playlistTile(context, tracks[index]),
                       onTap: () {
                         var value = Provider.of<MultiPlayerViewModel>(context,
                             listen: false);
                         int? currentPlaylistId = widget.playlist!.id as int;
                         if (currentPlaylistId != value.getPlaylistId) {
                           value.initState(
-                              tracks: tracks!,
+                              tracks: tracks,
                               playlistId: widget.playlist!.id as int,
                               index: index);
                         } else {

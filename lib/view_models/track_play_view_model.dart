@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:demo_spotify_app/data/response/api_response.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:flutter/material.dart';

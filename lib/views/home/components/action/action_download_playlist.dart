@@ -57,9 +57,7 @@ class _ActionDownloadPlaylistState extends State<ActionDownloadPlaylist> {
             if (status.isGranted) {
               List<Track>? tracks = value.tracksDownload.data;
               await DownloadService.instance.downloadFiles(tracks!);
-              print('down done 1');
               await downloadProvider.loadTracksDownloaded();
-              print('down done 2');
             } else {
               log("Permission denied");
             }

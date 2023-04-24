@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -31,7 +33,7 @@ class DownloadService {
           openFileFromNotification: false,
         );
       } else {
-        print('Track ${tracks[index].id} downloaded');
+        log('Track ${tracks[index].id} downloaded');
       }
     }
   }

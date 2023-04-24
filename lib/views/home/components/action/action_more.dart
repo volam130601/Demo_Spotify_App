@@ -71,7 +71,6 @@ class _ActionMoreState extends State<ActionMore> {
             log('save to db');
           } else if (item.status == DownloadTaskStatus.failed) {
             FlutterDownloader.remove(taskId: item.taskId);
-            print('>>remove taskId : ${item.filename}');
           }
         }
         await downloadProvider.loadTracksDownloaded();
@@ -114,13 +113,10 @@ class _ActionMoreState extends State<ActionMore> {
           DownloadDBService.instance.deleteTrackDownload(track.id.toString());
           final downloadProvider =
               Provider.of<DownloadViewModel>(context, listen: false);
-          final trackDownload = await DownloadDBService.instance
-              .getTrackDownload(track.id.toString());
-          String taskId = downloadProvider.getTaskIdByTrackId(track.id.toString());
+          String taskId =
+              downloadProvider.getTaskIdByTrackId(track.id.toString());
           await FlutterDownloader.remove(
-            taskId: taskId,
-            shouldDeleteContent: true);
-          print('remove success : $taskId');
+              taskId: taskId, shouldDeleteContent: true);
           await downloadProvider.loadTracksDownloaded();
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
