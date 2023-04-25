@@ -29,12 +29,12 @@ class TrackRepository {
     return total;
   }
 
-  Future<List<Track>> getTracksByAlbumID(
+/*  Future<List<Track>> getTracksByAlbumID(
       int albumID, int index, int limit) async {
     var url = Uri.https(AppUrl.baseURL, '/album/$albumID/tracks',
         {'limit': '$limit', 'index': '$index'});
     final response = await _apiServices.getGetApiResponse(url);
     final List<dynamic> items = response['data'];
     return items.map((item) => Track.fromJson(item)).toList();
-  }
+  }*/
 }
