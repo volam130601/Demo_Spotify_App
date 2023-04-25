@@ -13,9 +13,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../models/track.dart';
 import '../repository/local/download_repository.dart';
-import '../repository/remote/track_repository.dart';
 import '../utils/common_utils.dart';
 import '../utils/constants/default_constant.dart';
 import '../view_models/downloader/download_view_modal.dart';

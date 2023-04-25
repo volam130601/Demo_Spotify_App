@@ -13,15 +13,22 @@ import 'package:provider/provider.dart';
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../view_models/downloader/download_view_modal.dart';
+import '../../models/album.dart';
 import '../../models/playlist.dart';
 import '../../repository/local/download_repository.dart';
 
+// TODO: Make icon render when download track
 class ActionMore extends StatefulWidget {
   const ActionMore(
-      {Key? key, required this.track, this.playlist, this.isDownloaded = false})
+      {Key? key,
+      required this.track,
+      this.playlist,
+      this.isDownloaded = false,
+      this.album})
       : super(key: key);
   final Track track;
   final Playlist? playlist;
+  final Album? album;
   final bool? isDownloaded;
 
   @override
@@ -29,9 +36,6 @@ class ActionMore extends StatefulWidget {
 }
 
 class _ActionMoreState extends State<ActionMore> {
-  // final ReceivePort port = ReceivePort();
-  // final trackRepository = TrackRepository();
-
   @override
   void initState() {
     super.initState();
@@ -98,14 +102,17 @@ class _ActionMoreState extends State<ActionMore> {
             await FlutterDownloader.enqueue(
               url: '${track.preview}',
               savedDir: externalDir!.path,
-              fileName: (widget.playlist != null)
-                  ? 'playlist-${widget.playlist!.id}-${track.id}.mp3'
-                  : 'track-${track.id}.mp3',
+              fileName: 'track-${track.id}.mp3',
               showNotification: false,
               openFileFromNotification: false,
             );
-            await DownloadRepository.instance
-                .insertPlaylistDownload(widget.playlist!);
+            if (widget.playlist != null) {
+              await DownloadRepository.instance
+                  .insertPlaylistDownload(widget.playlist!);
+            } else if(widget.album != null) {
+              await DownloadRepository.instance
+                  .insertAlbumDownload(widget.album!);
+            }
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
             // ignore: use_build_context_synchronously
@@ -225,7 +232,7 @@ class _ActionMoreState extends State<ActionMore> {
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(defaultBorderRadius),
           child: CachedNetworkImage(
-            imageUrl: '${track!.album!.coverSmall}',
+            imageUrl: (widget.album != null) ? '${widget.album!.coverMedium}': '${track!.album!.coverSmall}',
             fit: BoxFit.cover,
             placeholder: (context, url) => Image.asset(
               'assets/images/music_default.jpg',
@@ -235,7 +242,7 @@ class _ActionMoreState extends State<ActionMore> {
           ),
         ),
         title: Text(
-          '${track.title}',
+          '${track!.title}',
           style: Theme.of(context).textTheme.titleMedium,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

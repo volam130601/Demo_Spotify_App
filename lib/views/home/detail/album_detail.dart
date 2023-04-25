@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/album_view_model.dart';
+import 'package:demo_spotify_app/widgets/action/action_more.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import '../../../data/response/status.dart';
 import '../../../models/album.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
+import '../../../view_models/downloader/download_view_modal.dart';
 import '../../../widgets/action/action_download_track.dart';
 import '../../../widgets/play_control/play_button.dart';
 
@@ -120,7 +122,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      return playlistTile(context, tracks[index]);
+                      return playlistTile(context, tracks[index], album);
                     },
                     childCount: tracks.length,
                   ),
@@ -249,7 +251,9 @@ class _AlbumDetailState extends State<AlbumDetail> {
     );
   }
 
-  Widget playlistTile(BuildContext context, Track? track) {
+  Widget playlistTile(BuildContext context, Track track, Album album) {
+    final isDownloaded = Provider.of<DownloadViewModel>(context, listen: true)
+        .checkExistTrackId(track.id!);
     return Container(
       height: 60,
       margin: const EdgeInsets.only(bottom: defaultPadding),
@@ -259,7 +263,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              track!.title as String,
+              track.title as String,
               style: Theme.of(context)
                   .textTheme
                   .headlineSmall
@@ -296,10 +300,11 @@ class _AlbumDetailState extends State<AlbumDetail> {
             ),
           ],
         ),
-        trailing: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.more_vert),
-        ),
+        trailing: ActionMore(
+          track: track,
+          album: album,
+          isDownloaded: isDownloaded,
+        )
       ),
     );
   }

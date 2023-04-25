@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../repository/local/download_repository.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/downloader/download_view_modal.dart';
-import '../../widgets/container_null_value.dart';
 import 'tab_view/tab_playlist.dart';
 import 'tab_view/tab_track.dart';
 
@@ -104,11 +103,7 @@ class _DownloadScreenState extends State<DownloadScreen>
                 controller: _tabController,
                 physics: const BouncingScrollPhysics(
                     decelerationRate: ScrollDecelerationRate.fast),
-                children: const [
-                  TabTrack(),
-                  TabPlaylist(),
-                  TabAlbum()
-                ],
+                children: const [TabTrack(), TabPlaylist(), TabAlbum()],
               ),
             ),
             paddingHeight(5),
