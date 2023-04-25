@@ -50,9 +50,7 @@ class TrackListView extends StatelessWidget {
                               context,
                               listen: false);
                           await trackPlayVM.fetchTracksPlayControl(
-                            albumID: tracks[index].album!.id as int,
-                            index: 0,
-                            limit: 20,
+                            albumID: tracks[index].album!.id!,
                           );
                           int? trackIndex = trackPlayVM.tracksPlayControl.data!
                               .indexWhere(
@@ -60,6 +58,7 @@ class TrackListView extends StatelessWidget {
                           await multiPlayerVM.initState(
                               tracks: trackPlayVM.tracksPlayControl.data!,
                               albumId: tracks[index].album!.id as int,
+                              album: tracks[index].album,
                               artist: tracks[index].artist,
                               index: trackIndex);
                         },

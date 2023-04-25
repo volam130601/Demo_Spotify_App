@@ -77,10 +77,16 @@ class MultiPlayerViewModel with ChangeNotifier {
           tag: MediaItem(
             id: track.id.toString(),
             title: track.title as String,
-            album: track.album?.title,
-            artist: track.artist?.name,
-            artHeaders: {"artArtist": "${track.artist?.pictureSmall}"},
-            artUri: Uri.parse(track.album?.coverXl as String),
+            album: track.album!.title,
+            artist: track.artist!.name,
+            artHeaders: {
+              "artArtist": (_artist.pictureSmall != null)
+                  ? "${_artist.pictureSmall}"
+                  : "${track.artist!.pictureSmall}"
+            },
+            artUri: (_album.coverXl != null)
+                ? Uri.parse(_album.coverXl.toString())
+                : Uri.parse(track.album!.coverXl.toString()),
           ),
         ));
       } else {
@@ -89,14 +95,16 @@ class MultiPlayerViewModel with ChangeNotifier {
           tag: MediaItem(
             id: track.id.toString(),
             title: track.title as String,
-            album: track.album?.title,
-            artist: track.artist?.name,
+            album: (_album.title != null) ? _album.title : track.album!.title,
+            artist: track.artist!.name,
             artHeaders: {
-              "artArtist": (_artist.id != null)
+              "artArtist": (_artist.pictureSmall != null)
                   ? "${_artist.pictureSmall}"
-                  : "${track.artist?.pictureSmall}"
+                  : "${track.artist!.pictureSmall}"
             },
-            artUri: Uri.parse(track.album?.coverXl as String),
+            artUri: (_album.coverXl != null)
+                ? Uri.parse(_album.coverXl.toString())
+                : Uri.parse(track.album!.coverXl.toString()),
           ),
         ));
       }

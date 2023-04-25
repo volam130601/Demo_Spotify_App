@@ -25,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     setIsLoading();
     Provider.of<DownloadViewModel>(context, listen: false).loadTracksDownloaded();

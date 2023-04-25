@@ -42,32 +42,26 @@ class _LayoutScreenState extends State<LayoutScreen> {
     Provider.of<LayoutScreenViewModel>(context, listen: false)
         .setScreenWidget();
 
-    //Isolate download track
+    ///Isolate listen: download track
     IsolateNameServer.registerPortWithName(port.sendPort, 'downloader_track');
     final downloadProvider =
         Provider.of<DownloadViewModel>(context, listen: false);
-    final trackRepository = TrackRepository();
     port.listen((data) async {
       final taskId = data[0];
       final status = data[1];
       if (status == DownloadTaskStatus.complete.value) {
         final tasks = await FlutterDownloader.loadTasks();
         for (var task in tasks!) {
-          String trackId =
-              CommonUtils.instance.subStringTrackId(task.filename.toString());
-          int playlistId = CommonUtils.instance
-              .subStringPlaylistId(task.filename.toString());
           if (task.taskId == taskId &&
               task.status == DownloadTaskStatus.complete) {
-            Track? track =
-                await trackRepository.getTrackByID(int.parse(trackId));
-            await DownloadRepository.instance.insertTrackDownload(
-                track: track,
-                taskId: taskId,
-                task: task,
-                playlistId: playlistId);
+            String trackId =
+                CommonUtils.instance.subStringTrackId(task.filename.toString());
+            await DownloadRepository.instance.updateTrackDownload(
+              trackId: int.parse(trackId),
+              taskId: taskId,
+              task: task,
+            );
             await downloadProvider.loadTracksDownloaded();
-            print("save to db");
           } else if (task.status == DownloadTaskStatus.failed) {
             FlutterDownloader.remove(taskId: task.taskId);
           }

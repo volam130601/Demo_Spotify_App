@@ -8,12 +8,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../../utils/colors.dart';
-import '../../../utils/constants/default_constant.dart';
-import '../../utils/common_utils.dart';
-import '../../view_models/multi_control_player_view_model.dart';
-import '../../widgets/play_control/play_button.dart';
-import '../track.dart';
+import '../../../../utils/colors.dart';
+import '../../../../utils/constants/default_constant.dart';
+import '../../../utils/common_utils.dart';
+import '../../../view_models/multi_control_player_view_model.dart';
+import '../../../widgets/play_control/play_button.dart';
+import '../../../models/track.dart';
 
 class PlaylistDetailDownload extends StatefulWidget {
   const PlaylistDetailDownload({Key? key, required this.playlistDownload})

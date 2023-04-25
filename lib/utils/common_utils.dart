@@ -1,4 +1,5 @@
 import 'package:demo_spotify_app/models/local/track_download.dart';
+import 'package:intl/intl.dart';
 
 import '../models/album.dart';
 import '../models/artist.dart';
@@ -47,5 +48,10 @@ class CommonUtils {
       return int.parse(result);
     }
     return 0;
+  }
+
+  String formatReleaseDate(String inputDate) {
+    DateTime dateTime = DateTime.parse(inputDate);
+    return DateFormat('MMMM d, y').format(dateTime);
   }
 }

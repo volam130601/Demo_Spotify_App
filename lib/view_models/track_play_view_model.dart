@@ -1,5 +1,6 @@
 import 'package:demo_spotify_app/data/response/api_response.dart';
 import 'package:demo_spotify_app/models/track.dart';
+import 'package:demo_spotify_app/repository/remote/album_repository.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,7 @@ class TrackPlayViewModel with ChangeNotifier {
   final _trackDetail = TrackRepository();
   final _tracksPlayControl = TrackRepository();
   final _artists = ArtistRepository();
+  final _album = AlbumRepository();
 
   ApiResponse<Track> trackDetail = ApiResponse.loading();
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
@@ -31,7 +33,7 @@ class TrackPlayViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  setTrackList(ApiResponse<List<Track>> response) async {
+  setTrackList(ApiResponse<List<Track>> response) {
     tracks = response;
     notifyListeners();
   }
@@ -53,8 +55,8 @@ class TrackPlayViewModel with ChangeNotifier {
       int index = 0,
       int limit = 5}) async {
     if (albumID != 0) {
-      await _tracksPlayControl
-          .getChildTracksByAlbumID(albumID)
+      await _album
+          .getTracksByAlbumId(albumID)
           .then((value) => setTracksPlayControl(ApiResponse.completed(value)))
           .onError((error, stackTrace) =>
               setTracksPlayControl(ApiResponse.error(error.toString())));
@@ -85,14 +87,6 @@ class TrackPlayViewModel with ChangeNotifier {
         .then((value) => setTrackDetail(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
             setTrackDetail(ApiResponse.error(error.toString())));
-  }
-
-  Future<void> fetchTracksByAlbumID(int albumID, int index, int limit) async {
-    await _tracks
-        .getChildTracksByAlbumID(albumID)
-        .then((value) => setTrackList(ApiResponse.completed(value)))
-        .onError((error, stackTrace) =>
-            setTrackList(ApiResponse.error(error.toString())));
   }
 
   Future<void> fetchTracksDownloadByPlaylistID(

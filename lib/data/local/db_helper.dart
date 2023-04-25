@@ -7,6 +7,7 @@ class DBHelper {
   static const _databaseVersion = 1;
   static const String trackTableName = 'TrackDownload';
   static const String playlistTableName = 'PlaylistDownload';
+  static const String albumTableName = 'AlbumDownload';
 
   static Database? _database;
 
@@ -52,6 +53,17 @@ class DBHelper {
         "picture_medium TEXT,"
         "picture_xl TEXT,"
         "user_name TEXT,"
+        "type TEXT,"
+        "create_time INTEGER"
+        ")");
+
+    await db.execute("CREATE TABLE ${DBHelper.albumTableName} ("
+        "id INTEGER PRIMARY KEY,"
+        "title TEXT,"
+        "artist_name TEXT,"
+        "picture_small TEXT,"
+        "cover_xl TEXT,"
+        "release_date TEXT,"
         "type TEXT,"
         "create_time INTEGER"
         ")");
