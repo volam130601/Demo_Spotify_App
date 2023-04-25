@@ -59,7 +59,7 @@ class DownloadRepository {
         whereArgs: [trackId]);
   }
 
-  Future<TrackDownload> getTrackByTrackId(String trackId) async {
+  Future<TrackDownload> getTrackById(String trackId) async {
     final db = await dbHelper.database;
     var res = await db
         .query(DBHelper.trackTableName, where: "id = ?", whereArgs: [trackId]);

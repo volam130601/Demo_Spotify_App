@@ -53,7 +53,7 @@ class PlaylistView extends StatelessWidget {
                                 return LayoutScreen(
                                   index: 4,
                                   screen: PlaylistDetail(
-                                    playlist: playlists[index],
+                                    playlistId: playlists[index].id!,
                                   ),
                                 );
                               },

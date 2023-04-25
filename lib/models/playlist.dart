@@ -1,9 +1,15 @@
 class Playlist {
   int? id;
   String? title;
+  String? description;
+  int? duration;
   bool? public;
+  bool? isLovedTrack;
+  bool? collaborative;
   int? nbTracks;
+  int? fans;
   String? link;
+  String? share;
   String? picture;
   String? pictureSmall;
   String? pictureMedium;
@@ -14,15 +20,22 @@ class Playlist {
   String? creationDate;
   String? md5Image;
   String? pictureType;
+  Creator? creator;
   UserPlaylist? user;
   String? type;
 
   Playlist(
       {this.id,
       this.title,
+      this.description,
+      this.duration,
       this.public,
+      this.isLovedTrack,
+      this.collaborative,
       this.nbTracks,
+      this.fans,
       this.link,
+      this.share,
       this.picture,
       this.pictureSmall,
       this.pictureMedium,
@@ -33,15 +46,23 @@ class Playlist {
       this.creationDate,
       this.md5Image,
       this.pictureType,
+      this.creator,
       this.user,
-      this.type});
+      this.type
+      });
 
   Playlist.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     title = json["title"];
+    description = json["description"];
+    duration = json["duration"];
     public = json["public"];
+    isLovedTrack = json["is_loved_track"];
+    collaborative = json["collaborative"];
     nbTracks = json["nb_tracks"];
+    fans = json["fans"];
     link = json["link"];
+    share = json["share"];
     picture = json["picture"];
     pictureSmall = json["picture_small"];
     pictureMedium = json["picture_medium"];
@@ -52,33 +73,11 @@ class Playlist {
     creationDate = json["creation_date"];
     md5Image = json["md5_image"];
     pictureType = json["picture_type"];
+    creator = json["creator"] == null ? null : Creator.fromJson(json["creator"]);
     user = json["user"] == null ? null : UserPlaylist.fromJson(json["user"]);
     type = json["type"];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["id"] = id;
-    data["title"] = title;
-    data["public"] = public;
-    data["nb_tracks"] = nbTracks;
-    data["link"] = link;
-    data["picture"] = picture;
-    data["picture_small"] = pictureSmall;
-    data["picture_medium"] = pictureMedium;
-    data["picture_big"] = pictureBig;
-    data["picture_xl"] = pictureXl;
-    data["checksum"] = checksum;
-    data["tracklist"] = tracklist;
-    data["creation_date"] = creationDate;
-    data["md5_image"] = md5Image;
-    data["picture_type"] = pictureType;
-    if (user != null) {
-      data["user"] = user?.toJson();
-    }
-    data["type"] = type;
-    return data;
-  }
 }
 
 class UserPlaylist {
@@ -95,13 +94,19 @@ class UserPlaylist {
     tracklist = json["tracklist"];
     type = json["type"];
   }
+}
+class Creator {
+  int? id;
+  String? name;
+  String? tracklist;
+  String? type;
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["id"] = id;
-    data["name"] = name;
-    data["tracklist"] = tracklist;
-    data["type"] = type;
-    return data;
+  Creator({this.id, this.name, this.tracklist, this.type});
+
+  Creator.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    name = json["name"];
+    tracklist = json["tracklist"];
+    type = json["type"];
   }
 }

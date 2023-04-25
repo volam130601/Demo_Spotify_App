@@ -135,7 +135,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            CommonUtils.instance.formatReleaseDate(
+                            CommonUtils.formatReleaseDate(
                                 album.releaseDate.toString()),
                             style: Theme.of(context).textTheme.titleMedium),
                         paddingHeight(1.5),

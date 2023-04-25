@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
@@ -11,6 +10,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/constants/default_constant.dart';
+import '../../view_models/downloader/download_view_modal.dart';
 import '../../view_models/home_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     setIsLoading();
-    Provider.of<DownloadViewModel>(context, listen: false).loadTracksDownloaded();
+    Provider.of<DownloadViewModel>(context, listen: false).loadTrackDownload();
     Provider.of<HomeViewModel>(context, listen: false)
       ..fetchChartPlaylistsApi()
       ..fetchChartAlbumsApi()

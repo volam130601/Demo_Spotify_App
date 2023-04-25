@@ -61,7 +61,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
           .getTracksByPlaylistId(widget.playlistDownload.id!),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<Track> tracks = CommonUtils.instance
+          List<Track> tracks = CommonUtils
               .convertTrackDownloadsToTracks(snapshot.data!);
           return Stack(
             children: [
@@ -175,7 +175,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
             ),
             const SizedBox(height: defaultPadding / 2),
             Text(
-                '${tracks.length} tracks - ${CommonUtils.instance.convertTotalDuration(tracks)}',
+                '${tracks.length} tracks - ${CommonUtils.convertTotalDuration(tracks)}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall

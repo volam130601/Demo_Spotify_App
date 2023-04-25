@@ -42,11 +42,10 @@ class _DownloadScreenState extends State<DownloadScreen>
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_sharp)),
           IconButton(
-              onPressed: () async {
-                final downloadProvider =
-                    Provider.of<DownloadViewModel>(context, listen: false);
-                await DownloadRepository.instance.removeAll();
-                await downloadProvider.loadTracksDownloaded();
+              onPressed: () {
+                Provider.of<DownloadViewModel>(context, listen: false)
+                    .clearTrackDownloads();
+                DownloadRepository.instance.removeAll();
               },
               icon: const Icon(Ionicons.trash_outline)),
         ],

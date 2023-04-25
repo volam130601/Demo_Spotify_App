@@ -37,8 +37,7 @@ class _TabTrackState extends State<TabTrack> {
                   'Download your favorite track so you can play it when there is no internet connection.',
             );
           }
-          List<Track> tracks = CommonUtils.instance
-              .convertTrackDownloadsToTracks(snapshot.data!);
+          List<Track> tracks = CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
           return ListView.builder(
             padding: const EdgeInsets.all(0),
             physics: const BouncingScrollPhysics(),

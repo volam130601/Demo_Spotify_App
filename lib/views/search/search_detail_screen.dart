@@ -282,7 +282,7 @@ class _BoxSearchState extends State<BoxSearch> {
                             return LayoutScreen(
                               index: 4,
                               screen: PlaylistDetail(
-                                playlist: playlists[index],
+                                playlistId: playlists[index].id!,
                               ),
                             );
                           },
@@ -748,7 +748,7 @@ class _RecentSearchState extends State<RecentSearch> {
               return LayoutScreen(
                 index: 4,
                 screen: PlaylistDetail(
-                  playlist: playlist,
+                  playlistId: playlist.id!,
                   userName: item.playlistSearch!.userName,
                 ),
               );

@@ -64,7 +64,7 @@ class TrackPlayViewModel with ChangeNotifier {
       await _tracks
           .getTracksByPlaylistID(playlistID, index, 10000)
           .then((value) {
-        return setTotalDuration(CommonUtils.instance.convertTotalDuration(value));
+        return setTotalDuration(CommonUtils.convertTotalDuration(value));
       });
       await _tracksPlayControl
           .getTracksByPlaylistID(playlistID, index, limit)

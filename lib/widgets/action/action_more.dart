@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
@@ -63,12 +64,12 @@ class _ActionMoreState extends State<ActionMore> {
         icon: const Icon(Ionicons.trash_outline),
         onTap: () async {
           DownloadRepository.instance.deleteTrackDownload(track.id!);
-          final downloadProvider =
-              Provider.of<DownloadViewModel>(context, listen: false);
-          String taskId = downloadProvider.getTaskIdByTrackId(track.id!);
+          Provider.of<DownloadViewModel>(context, listen: false)
+              .removeTrackDownload(track.id!.toInt());
+          TrackDownload trackDownload = await DownloadRepository.instance
+              .getTrackById(track.id!.toString());
           await FlutterDownloader.remove(
-              taskId: taskId, shouldDeleteContent: true);
-          await downloadProvider.loadTracksDownloaded();
+              taskId: trackDownload.taskId.toString(), shouldDeleteContent: true);
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
           // ignore: use_build_context_synchronously
@@ -109,9 +110,13 @@ class _ActionMoreState extends State<ActionMore> {
             if (widget.playlist != null) {
               await DownloadRepository.instance
                   .insertPlaylistDownload(widget.playlist!);
-            } else if(widget.album != null) {
+              await DownloadRepository.instance.insertTrackDownload(
+                  track: track, playlistId: widget.playlist!.id);
+            } else if (widget.album != null) {
               await DownloadRepository.instance
                   .insertAlbumDownload(widget.album!);
+              await DownloadRepository.instance
+                  .insertTrackDownload(track: track, album: widget.album);
             }
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
@@ -232,7 +237,9 @@ class _ActionMoreState extends State<ActionMore> {
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(defaultBorderRadius),
           child: CachedNetworkImage(
-            imageUrl: (widget.album != null) ? '${widget.album!.coverMedium}': '${track!.album!.coverSmall}',
+            imageUrl: (widget.album != null)
+                ? '${widget.album!.coverMedium}'
+                : '${track!.album!.coverSmall}',
             fit: BoxFit.cover,
             placeholder: (context, url) => Image.asset(
               'assets/images/music_default.jpg',

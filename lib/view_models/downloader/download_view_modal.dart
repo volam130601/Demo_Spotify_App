@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 
 import '../../models/local/track_download.dart';
@@ -5,30 +7,34 @@ import '../../repository/local/download_repository.dart';
 
 class DownloadViewModel with ChangeNotifier {
   // TODO: Change render data of track download
-  late List<TrackDownload> _tracksDownload;
-  List<TrackDownload> get tracks => _tracksDownload;
+  final List<TrackDownload> _tracksDownloads = [];
 
-  loadTracksDownloaded() {
-    DownloadRepository.instance.getAllTrackDownloads().then((value) {
-      _tracksDownload = value;
-    });
+  List<TrackDownload> get trackDownloads => _tracksDownloads;
+
+  setTrackDownload(List<TrackDownload> trackDownloads) {
+    _tracksDownloads.addAll(trackDownloads);
+    notifyListeners();
   }
 
-  String getTaskIdByTrackId(int trackId) {
-    for(var item in _tracksDownload) {
-      if(item.id == trackId) {
-        return item.taskId.toString();
-      }
-    }
-    return '';
+  addTrackDownload(newValue) {
+    _tracksDownloads.add(newValue);
+    notifyListeners();
   }
 
-  bool checkExistTrackId(int trackId) {
-    for (var item in _tracksDownload) {
-      if (item.id == trackId) {
-        return true;
-      }
-    }
-    return false;
+  removeTrackDownload(int trackId) {
+    _tracksDownloads.removeWhere((item) => item.id == trackId);
+    notifyListeners();
+  }
+
+  clearTrackDownloads() {
+    _tracksDownloads.clear();
+    notifyListeners();
+  }
+
+  void loadTrackDownload() async {
+    await DownloadRepository.instance
+        .getAllTrackDownloads()
+        .then((value) => setTrackDownload(value))
+        .onError((error, stackTrace) => log('Get all track download error!'));
   }
 }

@@ -75,7 +75,6 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
                 await DownloadRepository.instance
                     .insertAlbumDownload(widget.album!);
               }
-              await downloadProvider.loadTracksDownloaded();
             } else {
               log("Permission denied");
             }

@@ -5,7 +5,6 @@ import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../../../models/album.dart';
 import '../../../models/track.dart';
 import '../../../repository/local/download_repository.dart';
 import '../../../utils/colors.dart';
@@ -26,12 +25,6 @@ class _AlbumDetailDownloadState extends State<AlbumDetailDownload> {
   final ScrollController _scrollController = ScrollController();
   late bool isShow = false;
   late bool isCheckScrollExtendAfter = false;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
 
   void setIsShow(newValue) {
     setState(() {
@@ -66,8 +59,8 @@ class _AlbumDetailDownloadState extends State<AlbumDetailDownload> {
           .getTracksByAlbumId(widget.albumDownload.id!),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<Track> tracks = CommonUtils.instance
-              .convertTrackDownloadsToTracks(snapshot.data!);
+          List<Track> tracks =
+              CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
           return CustomScrollView(
             controller: _scrollController,
             slivers: [
@@ -92,7 +85,7 @@ class _AlbumDetailDownloadState extends State<AlbumDetailDownload> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                          CommonUtils.instance.formatReleaseDate(
+                          CommonUtils.formatReleaseDate(
                               widget.albumDownload.releaseDate!),
                           style: Theme.of(context).textTheme.titleMedium),
                       paddingHeight(1.5),

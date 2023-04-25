@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
@@ -53,13 +54,15 @@ class _LayoutScreenState extends State<LayoutScreen> {
           if (task.taskId == taskId &&
               task.status == DownloadTaskStatus.complete) {
             String trackId =
-                CommonUtils.instance.subStringTrackId(task.filename.toString());
+                CommonUtils.subStringTrackId(task.filename.toString());
             await DownloadRepository.instance.updateTrackDownload(
               trackId: int.parse(trackId),
               taskId: taskId,
               task: task,
             );
-            await downloadProvider.loadTracksDownloaded();
+            final TrackDownload trackDownload =
+                await DownloadRepository.instance.getTrackById(trackId);
+            await downloadProvider.addTrackDownload(trackDownload);
           } else if (task.status == DownloadTaskStatus.failed) {
             FlutterDownloader.remove(taskId: task.taskId);
           }
