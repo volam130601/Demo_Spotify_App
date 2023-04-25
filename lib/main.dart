@@ -1,9 +1,11 @@
 import 'package:demo_spotify_app/utils/theme_data.dart';
+import 'package:demo_spotify_app/view_models/album_view_model.dart';
 import 'package:demo_spotify_app/view_models/artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
+import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
@@ -61,6 +63,8 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => HomeViewModel()),
         ChangeNotifierProvider(create: (_) => TrackPlayViewModel()),
+        ChangeNotifierProvider(create: (_) => AlbumViewModel()),
+        ChangeNotifierProvider(create: (_) => PlaylistViewModel()),
         ChangeNotifierProvider(create: (_) => ArtistViewModel()),
         ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
         ChangeNotifierProvider(create: (_) => SearchViewModel()),

@@ -26,7 +26,6 @@ class TrackDetail extends StatefulWidget {
 class _TrackDetailState extends State<TrackDetail> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Provider.of<TrackPlayViewModel>(context, listen: false)
         .fetchTracksByID(widget.id);
@@ -219,7 +218,6 @@ class YouMightAlsoLike extends StatefulWidget {
 class _YouMightAlsoLikeState extends State<YouMightAlsoLike> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     Provider.of<HomeViewModel>(context, listen: false).fetchChartAlbumsApi();
   }
@@ -271,7 +269,7 @@ class _YouMightAlsoLikeState extends State<YouMightAlsoLike> {
             Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (_) => LayoutScreen(
                       index: 4,
-                      screen: AlbumDetail(album: albums[index]),
+                      screen: AlbumDetail(albumId: albums[index].id!,),
                     )));
           },
         );

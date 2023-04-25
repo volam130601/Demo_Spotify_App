@@ -1,52 +1,51 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/views/library/widgets/playlist_detail_download.dart';
-import 'package:demo_spotify_app/models/local/playlist_download.dart';
-import 'package:demo_spotify_app/utils/constants/default_constant.dart';
-import 'package:demo_spotify_app/views/layout_screen.dart';
-import 'package:demo_spotify_app/widgets/container_null_value.dart';
+import 'package:demo_spotify_app/models/local/album_download.dart';
+import 'package:demo_spotify_app/views/library/widgets/album_detail_download.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../repository/local/download_repository.dart';
+import '../../../utils/constants/default_constant.dart';
+import '../../../widgets/container_null_value.dart';
+import '../../layout_screen.dart';
 
-class TabPlaylist extends StatefulWidget {
-  const TabPlaylist({Key? key}) : super(key: key);
+class TabAlbum extends StatefulWidget {
+  const TabAlbum({Key? key}) : super(key: key);
 
   @override
-  State<TabPlaylist> createState() => _TabPlaylistState();
+  State<TabAlbum> createState() => _TabAlbumState();
 }
 
-class _TabPlaylistState extends State<TabPlaylist> {
+class _TabAlbumState extends State<TabAlbum> {
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<PlaylistDownload>>(
-      future: DownloadRepository.instance.getAllPlaylistDownloads(),
+    return FutureBuilder<List<AlbumDownload>>(
+      future: DownloadRepository.instance.getAllAlbumDownloads(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data!.isEmpty) {
             return const ContainerNullValue(
               image: 'assets/images/library/album_none.png',
-              title: 'You haven\'t downloaded any track yet.',
+              title: 'You haven\'t downloaded any albums yet.',
               subtitle:
-                  'Download your favorite track so you can play it when there is no internet connection.',
+                  'Download your favorite albums so you can play it when there is no internet connection.',
             );
           }
-          List<PlaylistDownload>? playlistDownloads = snapshot.data;
+          List<AlbumDownload>? albums = snapshot.data;
           return ListView.builder(
             padding: const EdgeInsets.all(0),
             physics: const BouncingScrollPhysics(),
-            itemCount: playlistDownloads!.length + 1,
+            itemCount: albums!.length + 1,
             itemBuilder: (BuildContext context, int index) {
               if (index == snapshot.data!.length) {
                 return paddingHeight(8);
               }
-              PlaylistDownload playlistDownload = playlistDownloads[index];
+              AlbumDownload album = albums[index];
               return Dismissible(
                 key: UniqueKey(),
                 background: Container(color: Colors.red),
                 onDismissed: (direction) {
-                  DownloadRepository.instance
-                      .deletePlaylistDownload(playlistDownload.id!);
+                  DownloadRepository.instance.deleteAlbumDownload(album.id!);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Row(
@@ -57,7 +56,7 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             height: 20,
                           ),
                           paddingWidth(0.5),
-                          Text('Deleted playlistId ${playlistDownload.id} '),
+                          Text('Deleted albumId ${album.id} '),
                         ],
                       ),
                       duration: const Duration(milliseconds: 500),
@@ -74,8 +73,8 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             Animation<double> animation2) {
                           return LayoutScreen(
                             index: 4,
-                            screen: PlaylistDetailDownload(
-                              playlistDownload: playlistDownload,
+                            screen: AlbumDetailDownload(
+                              albumDownload: albums[index],
                             ),
                           );
                         },
@@ -96,7 +95,7 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             borderRadius:
                                 BorderRadius.circular(defaultBorderRadius),
                             child: CachedNetworkImage(
-                              imageUrl: '${playlistDownload.pictureMedium}',
+                              imageUrl: '${album.coverXl}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Image.asset(
                                 'assets/images/music_default.jpg',
@@ -114,13 +113,13 @@ class _TabPlaylistState extends State<TabPlaylist> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                playlistDownload.title.toString(),
+                                album.title.toString(),
                                 style: Theme.of(context).textTheme.titleMedium,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                playlistDownload.userName.toString(),
+                                album.artistName.toString(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleSmall

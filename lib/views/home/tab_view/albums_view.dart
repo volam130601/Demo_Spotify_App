@@ -1,6 +1,6 @@
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
-import 'package:demo_spotify_app/widgets/card_item_custom.dart';
 import 'package:demo_spotify_app/views/layout_screen.dart';
+import 'package:demo_spotify_app/widgets/card_item_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +51,7 @@ class AlbumListView extends StatelessWidget {
                                   return LayoutScreen(
                                     index: 4,
                                     screen: AlbumDetail(
-                                      album: albums[index],
+                                      albumId: albums[index].id!,
                                     ),
                                   );
                                 },

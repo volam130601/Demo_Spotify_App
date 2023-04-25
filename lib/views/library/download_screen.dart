@@ -1,3 +1,4 @@
+import 'package:demo_spotify_app/views/library/tab_view/tab_album.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
@@ -106,12 +107,7 @@ class _DownloadScreenState extends State<DownloadScreen>
                 children: const [
                   TabTrack(),
                   TabPlaylist(),
-                  ContainerNullValue(
-                    image: 'assets/images/library/album_none.png',
-                    title: 'You haven\'t downloaded any albums yet.',
-                    subtitle:
-                        'Download your favorite albums so you can play it when there is no internet connection.',
-                  ),
+                  TabAlbum()
                 ],
               ),
             ),

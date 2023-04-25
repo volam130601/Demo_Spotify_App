@@ -48,7 +48,6 @@ class _BoxSearchState extends State<BoxSearch> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _searchController.addListener(_onTextChanged);
     _focusNode.addListener(_hideBottomBar);
@@ -387,10 +386,7 @@ class _BoxSearchState extends State<BoxSearch> {
                               Animation<double> animation2) {
                             return LayoutScreen(
                               index: 4,
-                              screen: AlbumDetail(
-                                album: albums[index],
-                                artist: albums[index].artist,
-                              ),
+                              screen: AlbumDetail(albumId: albums[index].id!),
                             );
                           },
                           transitionDuration: Duration.zero,
@@ -769,12 +765,6 @@ class _RecentSearchState extends State<RecentSearch> {
             id: int.parse(item.itemId!),
             title: item.title,
             coverXl: item.albumSearch!.coverXl);
-        Artist? artist = Artist(
-          id: item.artistSearch!.id,
-          name: item.artistSearch!.name,
-          pictureSmall: item.artistSearch!.pictureSmall,
-          pictureXl: item.artistSearch!.pictureXl,
-        );
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -782,10 +772,7 @@ class _RecentSearchState extends State<RecentSearch> {
                 Animation<double> animation2) {
               return LayoutScreen(
                 index: 4,
-                screen: AlbumDetail(
-                  album: album,
-                  artist: artist,
-                ),
+                screen: AlbumDetail(albumId: album.id!),
               );
             },
             transitionDuration: Duration.zero,

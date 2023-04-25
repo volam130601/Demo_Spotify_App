@@ -12,7 +12,7 @@ import '../../../models/playlist.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play_view_model.dart';
-import '../../../widgets/action/action_download_playlist.dart';
+import '../../../widgets/action/action_download_track.dart';
 import '../../../widgets/action/action_more.dart';
 import '../../../widgets/play_control/play_button.dart';
 
@@ -31,11 +31,10 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   late bool isCheckScrollExtendAfter = false;
   late bool isShow = false;
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
-
+    // TODO: Change fetch data get playlist By ID. remove play control
     Provider.of<TrackPlayViewModel>(context, listen: false)
         .fetchTracksPlayControl(
             playlistID: widget.playlist!.id as int, index: 0, limit: 20);
@@ -44,7 +43,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     _scrollController.addListener(_onScrollEvent);
   }
 
-  Future<void> setIsLoading() async {
+
+
+  void setIsLoading() async {
     await Future.delayed(const Duration(milliseconds: 700));
     setState(() {
       isLoading = false;
@@ -54,7 +55,6 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   @override
   void dispose() {
     _scrollController.removeListener(_onScrollEvent);
-
     super.dispose();
   }
 
@@ -138,53 +138,27 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
           SliverToBoxAdapter(
             child: playlistActions(),
           ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: tracks!.length < 50 ? tracks.length * 60 : 50 * 60,
-              child: ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: defaultPadding * 2),
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    child: playlistTile(context, tracks[index]),
-                    onTap: () {
-                      var value = Provider.of<MultiPlayerViewModel>(context,
-                          listen: false);
-                      int? currentPlaylistId = widget.playlist!.id as int;
-                      if (currentPlaylistId != value.getPlaylistId) {
-                        value.initState(
-                            tracks: tracks,
-                            playlistId: widget.playlist!.id as int,
-                            index: index);
-                      } else {
-                        value.player.seek(Duration.zero, index: index);
-                      }
-                    },
-                  );
-                },
-                itemCount: tracks.length < 50 ? tracks.length : 50,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                Center(
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style:
-                        OutlinedButton.styleFrom(shape: const StadiumBorder()),
-                    child: Text(
-                      'See all tracks',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(color: Colors.white),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: defaultPadding * 5),
-              ],
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                return InkWell(
+                  child: playlistTile(context, tracks[index]),
+                  onTap: () {
+                    var value = Provider.of<MultiPlayerViewModel>(context,
+                        listen: false);
+                    int? currentPlaylistId = widget.playlist!.id as int;
+                    if (currentPlaylistId != value.getPlaylistId) {
+                      value.initState(
+                          tracks: tracks,
+                          playlistId: widget.playlist!.id as int,
+                          index: index);
+                    } else {
+                      value.player.seek(Duration.zero, index: index);
+                    }
+                  },
+                );
+              },
+              childCount: tracks!.length,
             ),
           ),
         ],
@@ -265,7 +239,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
       children: [
         IconButton(
             onPressed: () {}, icon: const Icon(Icons.favorite_border_sharp)),
-        ActionDownloadPlaylist(
+        ActionDownloadTracks(
           playlist: widget.playlist!,
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
