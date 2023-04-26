@@ -1,5 +1,6 @@
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/album.dart';
 import '../models/artist.dart';
@@ -57,5 +58,27 @@ class CommonUtils {
   static String formatReleaseDate(String inputDate) {
     DateTime dateTime = DateTime.parse(inputDate);
     return DateFormat('MMMM d, y').format(dateTime);
+  }
+
+  ///getFileSize
+  static Future<int> getFileSize(String text) async {
+    var url = Uri.parse(text);
+    http.Response response = await http.head(url);
+    int? contentLength = int.tryParse(response.headers['content-length'] ?? '');
+    return contentLength ?? 0;
+  }
+
+  static String formatSize(int sizeInBytes) {
+    double sizeInMB = sizeInBytes / (1024 * 1024);
+    String size = sizeInMB.toStringAsFixed(1);
+    return '$size MB';
+  }
+
+  static Future<String> getSizeInBytesOfTrackDownload(List<Track> tracks) async {
+    int totalSize=  0;
+    for (var track in tracks) {
+      totalSize += await getFileSize(track.preview.toString());
+    }
+    return formatSize(totalSize);
   }
 }

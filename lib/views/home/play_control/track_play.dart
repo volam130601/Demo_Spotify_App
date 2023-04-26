@@ -41,48 +41,6 @@ class _TrackPlayState extends State<TrackPlay> {
         );
       }),
     );
-    /* return Scaffold(
-      body: Consumer<TrackPlayViewModel>(
-        builder: (context, value, _) {
-          switch (value.tracksPlayControl.status) {
-            case Status.LOADING:
-              return Container(
-                height: double.infinity,
-                color: Colors.black54,
-              );
-            case Status.COMPLETED:
-              return Consumer<MultiPlayerViewModel>(
-                  builder: (context, value, child) {
-                return Stack(
-                  children: [
-                    buildImageBackground(context, value),
-                    Container(
-                      height: double.infinity,
-                      width: double.infinity,
-                      color: Colors.black45,
-                    ),
-                    Positioned(
-                      bottom: 50,
-                      left: 0,
-                      right: 0,
-                      child: buildPlayControlBox(),
-                    ),
-                    Positioned(
-                        left: 0,
-                        right: 0,
-                        top: 20,
-                        child: buildHeader(context, value)),
-                  ],
-                );
-              });
-            case Status.ERROR:
-              return Text(value.tracksPlayControl.toString());
-            default:
-              return const Text('Default Switch');
-          }
-        },
-      ),
-    );*/
   }
 
   SizedBox buildPlayControlBox() {

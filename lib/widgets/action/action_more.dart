@@ -3,9 +3,9 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -69,29 +69,15 @@ class _ActionMoreState extends State<ActionMore> {
           TrackDownload trackDownload = await DownloadRepository.instance
               .getTrackById(track.id!.toString());
           await FlutterDownloader.remove(
-              taskId: trackDownload.taskId.toString(), shouldDeleteContent: true);
+              taskId: trackDownload.taskId.toString(),
+              shouldDeleteContent: true);
+          ToastCommon.showCustomText(content: 'Deleted from memory');
           // ignore: use_build_context_synchronously
           Navigator.pop(context);
-          // ignore: use_build_context_synchronously
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/spotify_logo.svg',
-                    width: 20,
-                    height: 20,
-                  ),
-                  paddingWidth(0.5),
-                  const Text('Deleted from memory'),
-                ],
-              ),
-              duration: const Duration(milliseconds: 500),
-            ),
-          );
         },
       );
     } else {
+      //TODO: Add modal bottom sheet for download this song.
       downloadTileItem = buildModalTileItem(
         context,
         title: 'Download this song',
@@ -118,25 +104,10 @@ class _ActionMoreState extends State<ActionMore> {
               await DownloadRepository.instance
                   .insertTrackDownload(track: track, album: widget.album);
             }
+            ToastCommon.showCustomText(
+                content: 'Add track to downloaded list.');
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
-            // ignore: use_build_context_synchronously
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/spotify_logo.svg',
-                      width: 20,
-                      height: 20,
-                    ),
-                    paddingWidth(0.5),
-                    const Text('Add track to downloaded list'),
-                  ],
-                ),
-                duration: const Duration(milliseconds: 500),
-              ),
-            );
           } else {
             log("Permission denied");
           }

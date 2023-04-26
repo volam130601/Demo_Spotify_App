@@ -37,15 +37,15 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   void initState() {
     super.initState();
     Provider.of<PlaylistViewModel>(context, listen: false)
-      ..fetchTracksByPlaylistId(widget.playlistId, 0, 10000)
-      ..fetchPlaylistById(widget.playlistId);
+      ..fetchPlaylistById(widget.playlistId)
+      ..fetchTracksByPlaylistId(widget.playlistId, 0, 10000);
 
     setIsLoading();
     _scrollController.addListener(_onScrollEvent);
   }
 
   void setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 700));
+    await Future.delayed(const Duration(milliseconds: 2000));
     setState(() {
       isLoading = false;
     });
@@ -123,7 +123,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                   buildAppBar(context, playlist!),
                   buildHeaderBody(context, playlist),
                   SliverToBoxAdapter(
-                    child: playlistActions(tracks!, playlist),
+                    child: playlistActions(tracks!, playlist, value),
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
@@ -149,8 +149,18 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                       childCount: tracks.length,
                     ),
                   ),
+                  SliverToBoxAdapter(child: paddingHeight(8)),
                 ],
               ),
+              if (isShow) ...{
+                Positioned(
+                    top: 80,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                        color: ColorsConsts.scaffoldColorDark,
+                        child: playlistActions(tracks, playlist, value))),
+              }
             ],
           );
         case Status.ERROR:
@@ -198,7 +208,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
             paddingHeight(0.5),
             Text(
-                '${playlist.nbTracks} likes - ${CommonUtils.totalDuration(playlist.duration!)}',
+                '${playlist.nbTracks} tracks - ${CommonUtils.totalDuration(playlist.duration!)}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -223,7 +233,8 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     );
   }
 
-  Row playlistActions(List<Track> tracks, Playlist playlist) {
+  Widget playlistActions(
+      List<Track> tracks, Playlist playlist, PlaylistViewModel value) {
     return Row(
       children: [
         IconButton(
@@ -231,6 +242,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ActionDownloadTracks(
           playlist: playlist,
           tracks: tracks,
+          sizeFileDownload: (value.totalSizeDownload != '')
+              ? value.totalSizeDownload
+              : '0.0 MB',
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),
@@ -241,7 +255,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ),
         const SizedBox(width: defaultPadding)
       ],
-    );
+    ); // Show the fetched data.
   }
 
   Widget playlistTile(BuildContext context, Track track, Playlist playlist) {
@@ -258,6 +272,11 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
               width: 50,
               height: 50,
               imageUrl: track.album!.coverSmall as String,
+              placeholder: (context, url) => Image.asset(
+                'assets/images/music_default.jpg',
+                fit: BoxFit.cover,
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
               fit: BoxFit.cover,
             ),
             title: Column(

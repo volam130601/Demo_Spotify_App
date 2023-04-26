@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:demo_spotify_app/utils/theme_data.dart';
 import 'package:demo_spotify_app/view_models/album_view_model.dart';
 import 'package:demo_spotify_app/view_models/artist_view_model.dart';
@@ -86,6 +87,8 @@ class _MyAppState extends State<MyApp> {
                     const LayoutScreen(index: 0, screen: Placeholder()),
                 RoutesName.login: (context) => const LoginScreen(),
               },
+              builder: BotToastInit(),
+              navigatorObservers: [BotToastNavigatorObserver()],
             ),
     );
   }

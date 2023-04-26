@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
 import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -105,7 +106,7 @@ class LoginScreen extends StatelessWidget {
                             photoUrl: user.photoURL.toString()));
                         // ignore: use_build_context_synchronously
                         Navigator.of(context).pushReplacementNamed(RoutesName.home);
-                        log('Login with google is success');
+                        ToastCommon.showCustomText(content: 'Login with google is success');
                       } catch (e) {
                         // Error signing in
                         log('>>>>Login ERROR');

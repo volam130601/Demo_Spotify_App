@@ -17,6 +17,7 @@ import 'package:provider/provider.dart';
 import '../repository/local/download_repository.dart';
 import '../utils/common_utils.dart';
 import '../utils/constants/default_constant.dart';
+import '../utils/toast_utils.dart';
 import '../view_models/downloader/download_view_modal.dart';
 import '../widgets/play_control/seekbar.dart';
 import '../widgets/slide_animation_page_route.dart';

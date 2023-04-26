@@ -22,6 +22,7 @@ class AlbumDetail extends StatefulWidget {
   @override
   State<AlbumDetail> createState() => _AlbumDetailState();
 }
+
 //TODO: play track index of album
 class _AlbumDetailState extends State<AlbumDetail> {
   final ScrollController _scrollController = ScrollController();
@@ -111,52 +112,65 @@ class _AlbumDetailState extends State<AlbumDetail> {
           case Status.COMPLETED:
             Album? album = value.albumDetail.data;
             List<Track>? tracks = value.tracks.data;
-            return CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                buildAppBar(value, context, album!),
-                buildSelectionTitle(context, album),
-                SliverToBoxAdapter(
-                  child: albumActions(tracks!, album),
-                ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return playlistTile(context, tracks[index], album);
-                    },
-                    childCount: tracks.length,
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: defaultPadding, vertical: defaultPadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                            CommonUtils.formatReleaseDate(
-                                album.releaseDate.toString()),
-                            style: Theme.of(context).textTheme.titleMedium),
-                        paddingHeight(1.5),
-                        Row(
+            return Stack(
+              children: [
+                CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    buildAppBar(value, context, album!),
+                    buildSelectionTitle(context, album),
+                    SliverToBoxAdapter(
+                      child: actions(tracks!, album),
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                          return playlistTile(context, tracks[index], album);
+                        },
+                        childCount: tracks.length,
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: defaultPadding, vertical: defaultPadding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CircleAvatar(
-                              backgroundImage: CachedNetworkImageProvider(
-                                  album.artist!.pictureSmall.toString()),
-                              radius: 20,
+                            Text(
+                                CommonUtils.formatReleaseDate(
+                                    album.releaseDate.toString()),
+                                style: Theme.of(context).textTheme.titleMedium),
+                            paddingHeight(1.5),
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundImage: CachedNetworkImageProvider(
+                                      album.artist!.pictureSmall.toString()),
+                                  radius: 20,
+                                ),
+                                paddingWidth(1.5),
+                                Text(album.artist!.name.toString(),
+                                    style: Theme.of(context).textTheme.titleMedium)
+                              ],
                             ),
-                            paddingWidth(1.5),
-                            Text(album.artist!.name.toString(),
-                                style: Theme.of(context).textTheme.titleMedium)
+                            paddingHeight(5),
                           ],
                         ),
-                        paddingHeight(5),
-                      ],
-                    ),
-                  ),
-                )
-              ],
+                      ),
+                    )
+                  ],
+                ),
+                if (isShow) ...{
+                  Positioned(
+                      top: 80,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                          color: ColorsConsts.scaffoldColorDark,
+                          child: actions(tracks, album))),
+                }
+              ]
             );
           case Status.ERROR:
             return Text(value.tracks.toString());
@@ -228,7 +242,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
     );
   }
 
-  Row albumActions(List<Track> tracks, Album album) {
+  Row actions(List<Track> tracks, Album album) {
     return Row(
       children: [
         IconButton(
@@ -252,60 +266,69 @@ class _AlbumDetailState extends State<AlbumDetail> {
   }
 
   Widget playlistTile(BuildContext context, Track track, Album album) {
-    final isDownloaded = Provider.of<DownloadViewModel>(context, listen: true)
-        .checkExistTrackId(track.id!);
-    return Container(
-      height: 60,
-      margin: const EdgeInsets.only(bottom: defaultPadding),
-      child: ListTile(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              track.title as String,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: defaultPadding / 2),
-            Row(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                  color: Colors.grey,
-                  child: const Text(
-                    'E',
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
+    return Consumer<DownloadViewModel>(
+      builder: (context, value, child) {
+        final trackDownloads = value.trackDownloads;
+        final bool isDownloaded =
+            trackDownloads.any((item) => item.id == track.id!);
+        return Container(
+          height: 60,
+          margin: const EdgeInsets.only(bottom: defaultPadding),
+          child: ListTile(
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    track.title as String,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(width: defaultPadding / 2),
-                Text(
-                  track.artist!.name as String,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w500),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ],
-        ),
-        trailing: ActionMore(
-          track: track,
-          album: album,
-          isDownloaded: isDownloaded,
-        )
-      ),
+                  const SizedBox(height: defaultPadding / 2),
+                  Row(
+                    children: [
+                      isDownloaded
+                          ? Row(
+                              children: [
+                                const Icon(Icons.download_for_offline_outlined,
+                                    color: Colors.deepPurple),
+                                paddingWidth(0.5),
+                              ],
+                            )
+                          : const SizedBox(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 3, vertical: 1),
+                        color: Colors.grey,
+                        child: const Text(
+                          'E',
+                          style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black),
+                        ),
+                      ),
+                      const SizedBox(width: defaultPadding / 2),
+                      Text(
+                        track.artist!.name as String,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Colors.grey, fontWeight: FontWeight.w500),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              trailing: ActionMore(
+                track: track,
+                album: album,
+                isDownloaded: isDownloaded,
+              )),
+        );
+      },
     );
   }
 }

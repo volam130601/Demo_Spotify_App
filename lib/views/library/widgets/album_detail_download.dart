@@ -4,12 +4,14 @@ import 'package:demo_spotify_app/models/local/album_download.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/track.dart';
 import '../../../repository/local/download_repository.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/common_utils.dart';
 import '../../../utils/constants/default_constant.dart';
+import '../../../view_models/downloader/download_view_modal.dart';
 import '../../../widgets/play_control/play_button.dart';
 
 class AlbumDetailDownload extends StatefulWidget {
@@ -201,58 +203,66 @@ class _AlbumDetailDownloadState extends State<AlbumDetailDownload> {
     );
   }
 
-  Widget playlistTile(BuildContext context, Track? track) {
-    return Container(
-      height: 60,
-      margin: const EdgeInsets.only(bottom: defaultPadding),
-      child: ListTile(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              track!.title as String,
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: defaultPadding / 2),
-            Row(
+  Widget playlistTile(BuildContext context, Track track) {
+    return Consumer<DownloadViewModel>(
+      builder: (context, value, child) {
+        final trackDownloads = value.trackDownloads;
+        final bool isDownloaded =
+            trackDownloads.any((item) => item.id == track.id!);
+        return Container(
+          height: 60,
+          margin: const EdgeInsets.only(bottom: defaultPadding),
+          child: ListTile(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                  color: Colors.grey,
-                  child: const Text(
-                    'E',
-                    style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                  ),
-                ),
-                const SizedBox(width: defaultPadding / 2),
                 Text(
-                  track.artist!.name as String,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w500),
+                  track.title as String,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.w500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: defaultPadding / 2),
+                Row(
+                  children: [
+                    isDownloaded
+                        ? Row(
+                            children: [
+                              const Icon(Icons.download_for_offline_outlined,
+                                  color: Colors.deepPurple),
+                              paddingWidth(0.5),
+                            ],
+                          )
+                        : const SizedBox(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 3, vertical: 1),
+                      color: Colors.grey,
+                      child: const Text(
+                        'E',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      ),
+                    ),
+                    const SizedBox(width: defaultPadding / 2),
+                    Text(
+                      track.artist!.name as String,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.grey, fontWeight: FontWeight.w500),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-        trailing: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.more_vert),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

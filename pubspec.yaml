@@ -58,6 +58,8 @@ dependencies:
   cached_network_image: ^3.2.3
   flutter_svg: ^2.0.3
   loading_animation_widget: ^1.2.0+4
+  bot_toast: ^4.0.3
+  fluttertoast: ^8.2.1
 
   #firebase
   firebase_core: ^2.8.0
@@ -66,7 +68,7 @@ dependencies:
   email_validator: ^2.1.17
   google_sign_in: ^6.1.0
   permission_handler: ^10.2.0
-  bot_toast: ^4.0.3
+
 
 dev_dependencies:
   flutter_test:

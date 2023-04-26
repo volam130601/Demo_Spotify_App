@@ -61,8 +61,8 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
           .getTracksByPlaylistId(widget.playlistDownload.id!),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          List<Track> tracks = CommonUtils
-              .convertTrackDownloadsToTracks(snapshot.data!);
+          List<Track> tracks =
+              CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
           return Stack(
             children: [
               CustomScrollView(
@@ -78,7 +78,7 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
                     child: SizedBox(
                       height: (tracks.length + 4) * 60,
                       child: ListView.builder(
-                        padding:  const EdgeInsets.all(0),
+                        padding: const EdgeInsets.all(0),
                         physics: const NeverScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           return Container(
@@ -218,113 +218,58 @@ class _PlaylistDetailDownloadState extends State<PlaylistDetailDownload> {
     );
   }
 
-  Padding playlistInfo(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              width: 150,
-              height: 150,
-              margin: const EdgeInsets.only(top: 40),
-              child: CachedNetworkImage(
-                imageUrl: widget.playlistDownload.pictureMedium as String,
-                placeholder: (context, url) => Image.asset(
-                  'assets/images/music_default.jpg',
-                  fit: BoxFit.cover,
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: defaultPadding / 2),
-          Text(
-            widget.playlistDownload.title as String,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: defaultPadding / 2),
-          Row(
-            children: [
-              SvgPicture.network(
-                'https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg',
-                fit: BoxFit.cover,
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(width: defaultPadding / 2),
-              Text(
-                widget.playlistDownload.userName.toString(),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(color: Colors.white),
-              )
-            ],
-          ),
-          const SizedBox(height: defaultPadding / 2),
-          Text('33.856 likes - 2h 52min',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w400)),
-        ],
-      ),
-    );
-  }
-
   Widget playlistTile(BuildContext context, TrackDownload track) {
-    final isDownloaded = Provider.of<DownloadViewModel>(context, listen: true)
-        .checkExistTrackId(track.id!);
-    return ListTile(
-      leading: CachedNetworkImage(
-        width: 50,
-        height: 50,
-        imageUrl: track.coverSmall as String,
-        fit: BoxFit.cover,
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Text(
-            track.title as String,
-            style: Theme.of(context).textTheme.titleLarge,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+    return Consumer<DownloadViewModel>(
+      builder: (context, value, child) {
+        final trackDownloads = value.trackDownloads;
+        final bool isDownloaded =
+            trackDownloads.any((item) => item.id == track.id!);
+        return ListTile(
+          leading: CachedNetworkImage(
+            width: 50,
+            height: 50,
+            imageUrl: track.coverSmall as String,
+            placeholder: (context, url) => Image.asset(
+              'assets/images/music_default.jpg',
+              fit: BoxFit.cover,
+            ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+            fit: BoxFit.cover,
           ),
-          Row(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              isDownloaded
-                  ? Row(
-                      children: [
-                        const Icon(Icons.download_for_offline_outlined,
-                            color: Colors.deepPurple),
-                        paddingWidth(0.5),
-                      ],
-                    )
-                  : const SizedBox(),
               Text(
-                track.artistName as String,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleSmall
-                    ?.copyWith(color: Colors.grey, fontWeight: FontWeight.w600),
+                track.title as String,
+                style: Theme.of(context).textTheme.titleLarge,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              Row(
+                children: [
+                  isDownloaded
+                      ? Row(
+                          children: [
+                            const Icon(Icons.download_for_offline_outlined,
+                                color: Colors.deepPurple),
+                            paddingWidth(0.5),
+                          ],
+                        )
+                      : const SizedBox(),
+                  Text(
+                    track.artistName as String,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Colors.grey, fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
-      /* trailing: ActionMore(
-        track: track,
-        playlistId: widget.playlistDownload.playlistId.toString(),
-        isDownloaded: isDownloaded,
-      ),*/
+        );
+      },
     );
   }
 }

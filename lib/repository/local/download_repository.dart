@@ -36,8 +36,9 @@ class DownloadRepository {
         title: track.title,
         artistName: track.artist!.name,
         artistPictureSmall: track.artist!.pictureSmall,
-        coverSmall:(album != null) ? album.coverSmall : track.album!.coverSmall,
-        coverXl:(album != null) ? album.coverXl : track.album!.coverXl,
+        coverSmall:
+            (album != null) ? album.coverSmall : track.album!.coverSmall,
+        coverXl: (album != null) ? album.coverXl : track.album!.coverXl,
         duration: track.duration,
         type: typeTrack);
     await db.insert(DBHelper.trackTableName, trackDownload.toMap());
@@ -92,6 +93,7 @@ class DownloadRepository {
         res.isNotEmpty ? res.map((c) => TrackDownload.fromMap(c)).toList() : [];
     return list;
   }
+
   Future<List<TrackDownload>> getTracksByAlbumId(int albumId) async {
     final db = await dbHelper.database;
     var res = await db.query(DBHelper.trackTableName,
@@ -130,7 +132,9 @@ class DownloadRepository {
           title: playlist.title,
           pictureMedium: playlist.pictureMedium,
           pictureXl: playlist.pictureXl,
-          userName: playlist.user!.name,
+          userName: (playlist.creator != null)
+              ? playlist.creator!.name
+              : playlist.user!.name,
           type: typePlaylist);
       await db.insert(DBHelper.playlistTableName, playlistDownload.toMap());
     } else {
@@ -182,13 +186,13 @@ class DownloadRepository {
     bool isExists = await albumDownloadExists(album.id!);
     if (!isExists) {
       AlbumDownload albumDownload = AlbumDownload(
-          id: album.id,
-          title: album.title,
-          artistName: album.artist!.name,
-          pictureSmall: album.artist!.pictureSmall,
-          coverXl: album.coverXl,
-          releaseDate: album.releaseDate,
-          type: typePlaylist,
+        id: album.id,
+        title: album.title,
+        artistName: album.artist!.name,
+        pictureSmall: album.artist!.pictureSmall,
+        coverXl: album.coverXl,
+        releaseDate: album.releaseDate,
+        type: typePlaylist,
       );
       await db.insert(DBHelper.albumTableName, albumDownload.toMap());
     } else {
@@ -199,34 +203,30 @@ class DownloadRepository {
   Future<List<AlbumDownload>> getAllAlbumDownloads() async {
     final db = await dbHelper.database;
     var res =
-    await db.query(DBHelper.albumTableName, orderBy: 'create_time DESC');
-    List<AlbumDownload> list = res.isNotEmpty
-        ? res.map((c) => AlbumDownload.fromMap(c)).toList()
-        : [];
+        await db.query(DBHelper.albumTableName, orderBy: 'create_time DESC');
+    List<AlbumDownload> list =
+        res.isNotEmpty ? res.map((c) => AlbumDownload.fromMap(c)).toList() : [];
     return list;
   }
 
-  Future<AlbumDownload> getAlbumDownloadById(
-      int albumId) async {
+  Future<AlbumDownload> getAlbumDownloadById(int albumId) async {
     final db = await dbHelper.database;
-    var res = await db.query(DBHelper.albumTableName,
-        where: "id = ?", whereArgs: [albumId]);
-    return res.isNotEmpty
-        ? AlbumDownload.fromMap(res.first)
-        : AlbumDownload();
+    var res = await db
+        .query(DBHelper.albumTableName, where: "id = ?", whereArgs: [albumId]);
+    return res.isNotEmpty ? AlbumDownload.fromMap(res.first) : AlbumDownload();
   }
 
   Future<bool> albumDownloadExists(int albumId) async {
     final db = await dbHelper.database;
-    var res = await db.query(DBHelper.albumTableName,
-        where: "id = ?", whereArgs: [albumId]);
+    var res = await db
+        .query(DBHelper.albumTableName, where: "id = ?", whereArgs: [albumId]);
     return res.isNotEmpty;
   }
 
   Future<void> deleteAlbumDownload(int albumId) async {
     final db = await dbHelper.database;
-    await db.delete(DBHelper.albumTableName,
-        where: "id = ?", whereArgs: [albumId]);
+    await db
+        .delete(DBHelper.albumTableName, where: "id = ?", whereArgs: [albumId]);
   }
 
   Future<void> deleteAllAlbum() async {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
+import '../../utils/toast_utils.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({Key? key}) : super(key: key);
@@ -83,6 +84,8 @@ class _SettingScreenState extends State<SettingScreen> {
                   setState(() {
                     isCheck = false;
                   });
+                  ToastCommon.showCustomText(
+                      content: 'Log out is success.');
                 } else {
                   Navigator.of(context).pushNamed(RoutesName.login);
                 }

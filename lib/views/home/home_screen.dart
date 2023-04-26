@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
@@ -54,61 +55,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
-      return WillPopScope(
-        onWillPop: () async {
-          bool confirmed = await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Xác nhận'),
-                content: const Text('Bạn có muốn thoát ứng dụng không?'),
-                actions: [
-                  TextButton(
-                    child: const Text('Không'),
-                    onPressed: () {
-                      Navigator.of(context).pop(false);
-                    },
-                  ),
-                  TextButton(
-                    child: const Text('Có'),
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-          return confirmed;
-        },
-        child: Scaffold(
-          body: Consumer<HomeViewModel>(
-            builder: (context, value, child) {
-              return Container(
-                padding: const EdgeInsets.only(top: defaultPadding),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  child: Column(
-                    children: [
-                      paddingHeight(1),
-                      const HeaderBody(),
-                      paddingHeight(1),
-                      buildHomeRecentSearch(),
-                      const PlaylistView(),
-                      paddingHeight(2),
-                      const AlbumListView(),
-                      paddingHeight(2),
-                      const TrackListView(),
-                      paddingHeight(2),
-                      const ArtistListView(),
-                      paddingHeight(8),
-                    ],
-                  ),
+      return Scaffold(
+        body: Consumer<HomeViewModel>(
+          builder: (context, value, child) {
+            return Container(
+              padding: const EdgeInsets.only(top: defaultPadding),
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  children: [
+                    paddingHeight(1),
+                    const HeaderBody(),
+                    paddingHeight(1),
+                    buildHomeRecentSearch(),
+                    const PlaylistView(),
+                    paddingHeight(2),
+                    const AlbumListView(),
+                    paddingHeight(2),
+                    const TrackListView(),
+                    paddingHeight(2),
+                    const ArtistListView(),
+                    paddingHeight(8),
+                  ],
                 ),
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       );
     }
