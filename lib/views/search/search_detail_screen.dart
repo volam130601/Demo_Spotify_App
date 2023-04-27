@@ -8,8 +8,6 @@ import 'package:demo_spotify_app/view_models/search_view_model.dart';
 import 'package:demo_spotify_app/views/search/recent_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/network/firebase/recent_search_service.dart';
@@ -151,8 +149,9 @@ class _BoxSearchState extends State<BoxSearch> {
                         index: trackIndex);
                     Album? album = tracks[index].album;
                     Artist? artist = tracks[index].artist;
-                    if (await _recentSearchService
-                            .isCheckExists('${tracks[index].id}' ,FirebaseAuth.instance.currentUser!.uid) ==
+                    if (await _recentSearchService.isCheckExists(
+                            '${tracks[index].id}',
+                            FirebaseAuth.instance.currentUser!.uid) ==
                         false) {
                       _recentSearchService.addItem(RecentSearchItem(
                           id: DateTime.now().toString(),
@@ -221,8 +220,9 @@ class _BoxSearchState extends State<BoxSearch> {
                           reverseTransitionDuration: Duration.zero,
                         ),
                       );
-                      if (await _recentSearchService
-                              .isCheckExists('${artists[index].id}',FirebaseAuth.instance.currentUser!.uid) ==
+                      if (await _recentSearchService.isCheckExists(
+                              '${artists[index].id}',
+                              FirebaseAuth.instance.currentUser!.uid) ==
                           false) {
                         _recentSearchService.addItem(RecentSearchItem(
                           id: DateTime.now().toString(),
@@ -292,8 +292,9 @@ class _BoxSearchState extends State<BoxSearch> {
                         ),
                       );
                       Playlist? playlist = playlists[index];
-                      if (await _recentSearchService
-                              .isCheckExists('${playlist.id}',FirebaseAuth.instance.currentUser!.uid) ==
+                      if (await _recentSearchService.isCheckExists(
+                              '${playlist.id}',
+                              FirebaseAuth.instance.currentUser!.uid) ==
                           false) {
                         _recentSearchService.addItem(RecentSearchItem(
                             id: DateTime.now().toString(),
@@ -396,8 +397,9 @@ class _BoxSearchState extends State<BoxSearch> {
                       );
                       Album? album = albums[index];
                       Artist? artist = album.artist;
-                      if (await _recentSearchService
-                              .isCheckExists('${album.id}',FirebaseAuth.instance.currentUser!.uid) ==
+                      if (await _recentSearchService.isCheckExists(
+                              '${album.id}',
+                              FirebaseAuth.instance.currentUser!.uid) ==
                           false) {
                         _recentSearchService.addItem(
                           RecentSearchItem(
@@ -581,7 +583,6 @@ class _BoxSearchState extends State<BoxSearch> {
     );
   }
 }
-
 
 void showBottomBar(BuildContext context) {
   FocusManager.instance.primaryFocus?.unfocus();

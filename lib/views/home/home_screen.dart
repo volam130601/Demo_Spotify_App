@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';

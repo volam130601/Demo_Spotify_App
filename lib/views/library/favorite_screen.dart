@@ -1,8 +1,6 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/network/firebase/favorite_song_service.dart';
 import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
-import 'package:demo_spotify_app/utils/colors.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
 import 'package:demo_spotify_app/widgets/list_tile_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +13,6 @@ import '../../models/album.dart';
 import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/multi_control_player_view_model.dart';
-import '../../widgets/action/action_more.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/slide_animation_page_route.dart';
 import '../home/play_control/track_play.dart';
@@ -185,7 +182,6 @@ class FavoriteSongBody extends StatelessWidget {
                 paddingHeight(1),
                 buildListFavoriteSong(tracks),
                 paddingHeight(8),
-
               ],
             ),
           ),

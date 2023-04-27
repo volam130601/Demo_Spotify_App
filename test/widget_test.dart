@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
@@ -5,7 +7,7 @@ void main() async {
   String url =
       'https://cdns-preview-d.dzcdn.net/stream/c-deda7fa9316d9e9e880d2c6207e92260-10.mp3';
   int sizeInBytes = await getFileSize(url);
-  print(formatSize(sizeInBytes));
+  log(formatSize(sizeInBytes));
 }
 
 Future<int> getFileSize(String text) async {

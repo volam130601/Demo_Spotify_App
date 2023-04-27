@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/models/track.dart';

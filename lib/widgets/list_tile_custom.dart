@@ -217,33 +217,33 @@ class PlaylistTileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Provider.of<PlaylistViewModel>(context, listen: false)
-            .fetchTotalSizeDownload(
-            playlist.id!, 0, 10000);
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (BuildContext context,
-                Animation<double> animation1,
-                Animation<double> animation2) {
-              return LayoutScreen(
-                index: 4,
-                screen: PlaylistDetail(
-                  playlistId: playlist.id!,
-                ),
-              );
-            },
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.only(left: defaultPadding),
-        margin: const EdgeInsets.only(bottom: defaultPadding),
-        height: 50,
+    return Container(
+      padding: const EdgeInsets.only(left: defaultPadding),
+      margin: const EdgeInsets.only(bottom: defaultPadding),
+      height: 50,
+      child: InkWell(
+        onTap: () {
+          Provider.of<PlaylistViewModel>(context, listen: false)
+              .fetchTotalSizeDownload(
+              playlist.id!, 0, 10000);
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (BuildContext context,
+                  Animation<double> animation1,
+                  Animation<double> animation2) {
+                return LayoutScreen(
+                  index: 4,
+                  screen: PlaylistDetail(
+                    playlistId: playlist.id!,
+                  ),
+                );
+              },
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        },
         child: Row(
           children: [
             ClipRRect(
@@ -302,30 +302,30 @@ class AlbumTileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (BuildContext context,
-                Animation<double> animation1,
-                Animation<double> animation2) {
-              return LayoutScreen(
-                index: 4,
-                screen: AlbumDetail(
-                  albumId: album.id!,
-                ),
-              );
-            },
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.only(left: defaultPadding),
-        margin: const EdgeInsets.only(bottom: defaultPadding),
-        height: 50,
+    return Container(
+      padding: const EdgeInsets.only(left: defaultPadding),
+      margin: const EdgeInsets.only(bottom: defaultPadding),
+      height: 50,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (BuildContext context,
+                  Animation<double> animation1,
+                  Animation<double> animation2) {
+                return LayoutScreen(
+                  index: 4,
+                  screen: AlbumDetail(
+                    albumId: album.id!,
+                  ),
+                );
+              },
+              transitionDuration: Duration.zero,
+              reverseTransitionDuration: Duration.zero,
+            ),
+          );
+        },
         child: Row(
           children: [
             ClipRRect(

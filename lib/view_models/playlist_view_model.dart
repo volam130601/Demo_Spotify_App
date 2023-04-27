@@ -56,7 +56,6 @@ class PlaylistViewModel with ChangeNotifier {
       String totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(
           value.where((element) => element.preview != '').toList());
       return setTotalSizeDownload(totalSize);
-    }).onError((error, stackTrace) =>
-            setTotalSizeDownload('Error fetch total size download'));
+    }).onError((error, stackTrace) => log('Error fetch total size download'));
   }
 }

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 
 import '../../../models/firebase/favorite_album.dart';
 

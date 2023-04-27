@@ -3,18 +3,13 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
-import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
-import 'package:demo_spotify_app/views/search/search_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../models/playlist.dart';
 import '../../../../models/track.dart';
-import '../../view_models/download_view_modal.dart';
 import '../../models/album.dart';
 import '../../repository/local/download_repository.dart';
 import '../../utils/colors.dart';
