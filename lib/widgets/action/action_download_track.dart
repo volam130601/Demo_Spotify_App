@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../models/playlist.dart';
 import '../../../../models/track.dart';
-import '../../../../view_models/downloader/download_view_modal.dart';
+import '../../view_models/download_view_modal.dart';
 import '../../models/album.dart';
 import '../../repository/local/download_repository.dart';
 import '../../utils/colors.dart';

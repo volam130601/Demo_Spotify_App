@@ -5,7 +5,7 @@ class SlideTopPageRoute extends PageRouteBuilder {
 
   SlideTopPageRoute({required this.page})
       : super(
-          transitionDuration: const Duration(milliseconds: 250),
+          transitionDuration: const Duration(milliseconds: 500),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return SlideTransition(
               position: Tween<Offset>(

@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/playlist_download.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/repository/local/download_repository.dart';
-import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
+import 'package:demo_spotify_app/view_models/download_view_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';

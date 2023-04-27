@@ -2,9 +2,12 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/data/network/firebase/favorite_song_service.dart';
+import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:ionicons/ionicons.dart';
@@ -14,7 +17,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
-import '../../../../view_models/downloader/download_view_modal.dart';
+import '../../view_models/download_view_modal.dart';
 import '../../models/album.dart';
 import '../../models/playlist.dart';
 import '../../repository/local/download_repository.dart';
@@ -29,12 +32,14 @@ class ActionMore extends StatefulWidget {
       required this.track,
       this.playlist,
       this.isDownloaded = false,
-      this.album})
+      this.album,
+      this.isAddedFavorite})
       : super(key: key);
   final Track track;
   final Playlist? playlist;
   final Album? album;
   final bool? isDownloaded;
+  final bool? isAddedFavorite;
 
   @override
   State<ActionMore> createState() => _ActionMoreState();
@@ -70,6 +75,7 @@ class _ActionMoreState extends State<ActionMore> {
         title: 'Delete downloaded track',
         icon: const Icon(Ionicons.trash_outline),
         onTap: () async {
+          Navigator.pop(context);
           DownloadRepository.instance.deleteTrackDownload(track.id!);
           Provider.of<DownloadViewModel>(context, listen: false)
               .removeTrackDownload(track.id!.toInt());
@@ -79,12 +85,9 @@ class _ActionMoreState extends State<ActionMore> {
               taskId: trackDownload.taskId.toString(),
               shouldDeleteContent: true);
           ToastCommon.showCustomText(content: 'Deleted from memory');
-          // ignore: use_build_context_synchronously
-          Navigator.pop(context);
         },
       );
     } else {
-      //TODO: Add modal bottom sheet for download this song.
       downloadTileItem = buildModalTileItem(
         context,
         title: 'Download this song',
@@ -99,11 +102,12 @@ class _ActionMoreState extends State<ActionMore> {
       );
     }
     return SizedBox(
-      width: 60,
-      height: 60,
+      width: 50,
+      height: 50,
       child: ElevatedButton(
         onPressed: () {
-          buildShowModalMore(context, track, downloadTileItem);
+          buildShowModalMore(
+              context, track, downloadTileItem, widget.isAddedFavorite!);
         },
         style: ElevatedButton.styleFrom(
             elevation: 0, backgroundColor: Colors.transparent),
@@ -112,8 +116,8 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  Future<dynamic> buildShowModalMore(
-      BuildContext context, Track track, Widget downloadTileItem) {
+  Future<dynamic> buildShowModalMore(BuildContext context, Track track,
+      Widget downloadTileItem, bool isAddedFavorite) {
     return showModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
@@ -135,9 +139,50 @@ class _ActionMoreState extends State<ActionMore> {
                 buildHeaderModal(track, context),
                 buildDivider(),
                 downloadTileItem,
-                buildModalTileItem(context,
-                    title: 'Like',
-                    icon: const Icon(Icons.favorite_border_sharp)),
+                isAddedFavorite
+                    ? buildModalTileItem(
+                        context,
+                        title: 'Added to the library',
+                        icon: Icon(
+                          Icons.favorite,
+                          color: ColorsConsts.primaryColorDark,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          ToastCommon.showCustomText(
+                              content:
+                                  'Removed ${track.title} from the library');
+                          FavoriteSongService.instance.deleteItemByTrackId(
+                              track.id.toString(),
+                              FirebaseAuth.instance.currentUser!.uid);
+                        },
+                      )
+                    : buildModalTileItem(
+                        context,
+                        title: 'Add to the library',
+                        icon: const Icon(Icons.favorite_border_sharp),
+                        onTap: () {
+                          Navigator.pop(context);
+                          ToastCommon.showCustomText(
+                              content: 'Added ${track.title} to the library');
+                          FavoriteSongService.instance.addItem(
+                            FavoriteSong(
+                              id: DateTime.now().toString(),
+                              trackId: track.id.toString(),
+                              albumId: track.album!.id.toString(),
+                              artistId: track.artist!.id.toString(),
+                              title: track.title,
+                              artistName: track.artist!.name,
+                              pictureMedium: track.artist!.pictureMedium,
+                              coverMedium: track.album!.coverMedium,
+                              coverXl: track.album!.coverXl,
+                              preview: track.preview,
+                              userId: FirebaseAuth.instance.currentUser!.uid,
+                              type: 'track',
+                            ),
+                          );
+                        },
+                      ),
                 buildModalTileItem(
                   context,
                   title: 'Add to playlist',
@@ -314,8 +359,6 @@ class _ActionMoreState extends State<ActionMore> {
                               }
                               ToastCommon.showCustomText(
                                   content: 'Add track to downloaded list.');
-                              // ignore: use_build_context_synchronously
-                              Navigator.pop(context);
                             } else {
                               log("Permission denied");
                             }

@@ -9,6 +9,8 @@ import '../../../models/track.dart';
 import '../../../view_models/multi_control_player_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
 import '../../../widgets/selection_title.dart';
+import '../../../widgets/slide_animation_page_route.dart';
+import '../play_control/track_play.dart';
 
 class TrackListView extends StatelessWidget {
   const TrackListView({Key? key}) : super(key: key);
@@ -61,6 +63,9 @@ class TrackListView extends StatelessWidget {
                               album: tracks[index].album,
                               artist: tracks[index].artist,
                               index: trackIndex);
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context)
+                              .push(SlideTopPageRoute(page: const TrackPlay()));
                         },
                       );
                     },

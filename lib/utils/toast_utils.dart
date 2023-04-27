@@ -27,7 +27,13 @@ class ToastCommon {
                   height: 20,
                 ),
                 paddingWidth(0.5),
-                Text(content),
+                Expanded(
+                  child: Text(
+                    content,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),

@@ -2,11 +2,10 @@ import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 
-import '../../models/local/track_download.dart';
-import '../../repository/local/download_repository.dart';
+import '../models/local/track_download.dart';
+import '../repository/local/download_repository.dart';
 
 class DownloadViewModel with ChangeNotifier {
-  // TODO: Change render data of track download
   final List<TrackDownload> _tracksDownloads = [];
 
   List<TrackDownload> get trackDownloads => _tracksDownloads;

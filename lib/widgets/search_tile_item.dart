@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../../../utils/constants/default_constant.dart';
 
-class ListTileItem extends StatelessWidget {
-  const ListTileItem({
+class SearchTileItem extends StatelessWidget {
+  const SearchTileItem({
     Key? key,
     required this.image,
     required this.title,

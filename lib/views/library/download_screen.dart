@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../repository/local/download_repository.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/downloader/download_view_modal.dart';
+import '../../view_models/download_view_modal.dart';
 import 'tab_view/tab_playlist.dart';
 import 'tab_view/tab_track.dart';
 

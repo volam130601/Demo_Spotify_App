@@ -4,6 +4,7 @@ import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/album_view_model.dart';
 import 'package:demo_spotify_app/widgets/action/action_more.dart';
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +12,7 @@ import '../../../data/response/status.dart';
 import '../../../models/album.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
-import '../../../view_models/downloader/download_view_modal.dart';
+import '../../../view_models/download_view_modal.dart';
 import '../../../widgets/action/action_download_track.dart';
 import '../../../widgets/play_control/play_button.dart';
 
@@ -216,7 +217,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
               ],
             ),
             const SizedBox(height: defaultPadding / 2),
-            Text('Album - 2023',
+            Text('Album • 2023',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -292,7 +293,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       isDownloaded
                           ? Row(
                               children: [
-                                const Icon(Icons.download_for_offline_outlined,
+                                const Icon(Ionicons.arrow_down_circle_outline,
                                     color: Colors.deepPurple),
                                 paddingWidth(0.5),
                               ],

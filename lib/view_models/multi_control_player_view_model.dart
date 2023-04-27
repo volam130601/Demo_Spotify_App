@@ -98,9 +98,9 @@ class MultiPlayerViewModel with ChangeNotifier {
             album: (_album.title != null) ? _album.title : track.album!.title,
             artist: track.artist!.name,
             artHeaders: {
-              "artArtist": (_artist.pictureSmall != null)
-                  ? "${_artist.pictureSmall}"
-                  : "${track.artist!.pictureSmall}"
+              "artArtist": (_artist.pictureMedium != null)
+                  ? "${_artist.pictureMedium}"
+                  : "${track.artist!.pictureMedium}"
             },
             artUri: (_album.coverXl != null)
                 ? Uri.parse(_album.coverXl.toString())

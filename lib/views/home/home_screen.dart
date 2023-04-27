@@ -11,7 +11,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/downloader/download_view_modal.dart';
+import '../../view_models/download_view_modal.dart';
 import '../../view_models/home_view_model.dart';
 
 class HomeScreen extends StatefulWidget {

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/views/library/favorite_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -291,6 +292,25 @@ class _LibraryScreenState extends State<LibraryScreen>
                     return const LayoutScreen(
                       index: 4,
                       screen: DownloadScreen(),
+                    );
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            };
+          }
+          if (categoryLibraries[index].code == CategoryLibrary.favoriteSong) {
+            onTap = () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const LayoutScreen(
+                      index: 4,
+                      screen: FavoriteSongScreen(),
                     );
                   },
                   transitionDuration: Duration.zero,

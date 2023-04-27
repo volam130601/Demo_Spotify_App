@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
-import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
+import 'package:demo_spotify_app/view_models/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
+import 'package:demo_spotify_app/widgets/list_tile_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -208,7 +210,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
             paddingHeight(0.5),
             Text(
-                '${playlist.nbTracks} tracks - ${CommonUtils.totalDuration(playlist.duration!)}',
+                '${playlist.nbTracks} tracks • ${CommonUtils.totalDuration(playlist.duration!)}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -261,62 +263,12 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   Widget playlistTile(BuildContext context, Track track, Playlist playlist) {
     return Consumer<DownloadViewModel>(
       builder: (context, value, child) {
-        final trackDownloads = value.trackDownloads;
         final bool isDownloaded =
-            trackDownloads.any((item) => item.id == track.id!);
-        return Container(
-          height: 60,
-          margin: const EdgeInsets.only(bottom: defaultPadding),
-          child: ListTile(
-            leading: CachedNetworkImage(
-              width: 50,
-              height: 50,
-              imageUrl: track.album!.coverSmall as String,
-              placeholder: (context, url) => Image.asset(
-                'assets/images/music_default.jpg',
-                fit: BoxFit.cover,
-              ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  track.title as String,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Row(
-                  children: [
-                    isDownloaded
-                        ? Row(
-                            children: [
-                              const Icon(Icons.download_for_offline_outlined,
-                                  color: Colors.deepPurple),
-                              paddingWidth(0.5),
-                            ],
-                          )
-                        : const SizedBox(),
-                    Text(
-                      track.artist!.name as String,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.grey, fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            trailing: ActionMore(
-              track: track,
-              playlist: playlist,
-              isDownloaded: isDownloaded,
-            ),
-          ),
+            value.trackDownloads.any((item) => item.id == track.id!);
+        return TrackTileItem(
+          track: track,
+          playlist: playlist,
+          isDownloaded: isDownloaded,
         );
       },
     );
