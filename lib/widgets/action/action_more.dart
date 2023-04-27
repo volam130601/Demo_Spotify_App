@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -17,8 +18,11 @@ import '../../../../view_models/downloader/download_view_modal.dart';
 import '../../models/album.dart';
 import '../../models/playlist.dart';
 import '../../repository/local/download_repository.dart';
+import '../../utils/colors.dart';
+import '../../views/home/detail/album_detail.dart';
+import '../../views/home/detail/artist_detail.dart';
+import '../../views/layout_screen.dart';
 
-// TODO: Make icon render when download track
 class ActionMore extends StatefulWidget {
   const ActionMore(
       {Key? key,
@@ -37,6 +41,9 @@ class ActionMore extends StatefulWidget {
 }
 
 class _ActionMoreState extends State<ActionMore> {
+  int _value = 0;
+  bool _isChecked = false;
+
   @override
   void initState() {
     super.initState();
@@ -83,34 +90,11 @@ class _ActionMoreState extends State<ActionMore> {
         title: 'Download this song',
         icon: const Icon(Icons.download_outlined),
         onTap: () async {
-          final status = await Permission.storage.request();
-          if (status.isGranted) {
-            final externalDir = await getExternalStorageDirectory();
-            await FlutterDownloader.enqueue(
-              url: '${track.preview}',
-              savedDir: externalDir!.path,
-              fileName: 'track-${track.id}.mp3',
-              showNotification: false,
-              openFileFromNotification: false,
-            );
-            if (widget.playlist != null) {
-              await DownloadRepository.instance
-                  .insertPlaylistDownload(widget.playlist!);
-              await DownloadRepository.instance.insertTrackDownload(
-                  track: track, playlistId: widget.playlist!.id);
-            } else if (widget.album != null) {
-              await DownloadRepository.instance
-                  .insertAlbumDownload(widget.album!);
-              await DownloadRepository.instance
-                  .insertTrackDownload(track: track, album: widget.album);
-            }
-            ToastCommon.showCustomText(
-                content: 'Add track to downloaded list.');
-            // ignore: use_build_context_synchronously
-            Navigator.pop(context);
-          } else {
-            log("Permission denied");
-          }
+          Navigator.pop(context);
+          int totalSize =
+              await CommonUtils.getFileSize(track.preview.toString());
+          // ignore: use_build_context_synchronously
+          buildShowModalDownloadThisSong(context, track, totalSize);
         },
       );
     }
@@ -119,75 +103,242 @@ class _ActionMoreState extends State<ActionMore> {
       height: 60,
       child: ElevatedButton(
         onPressed: () {
-          showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (_) {
-              return Container(
-                height: MediaQuery.of(context).size.height * .5,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade900,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(defaultBorderRadius),
-                    topRight: Radius.circular(defaultBorderRadius),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      paddingHeight(0.5),
-                      buildHeaderModal(track, context),
-                      buildDivider(),
-                      downloadTileItem,
-                      buildModalTileItem(context,
-                          title: 'Like',
-                          icon: const Icon(Icons.favorite_border_sharp)),
-                      buildModalTileItem(context,
-                          title: 'Add to playlist',
-                          icon: Image.asset(
-                            'assets/icons/icons8-add-song-48.png',
-                            color: Colors.white,
-                            width: 20,
-                            height: 20,
-                          )),
-                      buildModalTileItem(context,
-                          title: 'View Album',
-                          icon: Image.asset(
-                            'assets/icons/icons8-disk-24.png',
-                            color: Colors.white,
-                            width: 20,
-                            height: 20,
-                          )),
-                      buildModalTileItem(
-                        context,
-                        title: 'View Artist',
-                        icon: Image.asset(
-                          'assets/icons/icons8-artist-25.png',
-                          color: Colors.white,
-                          width: 20,
-                          height: 20,
-                        ),
-                        onTap: () async {
-                          List<DownloadTask>? newTasks =
-                              await FlutterDownloader.loadTasks();
-                          for (int i = 0; i < newTasks!.length; i++) {
-                            log('${newTasks[i].filename} : ${newTasks[i].status} : ${newTasks[i].savedDir}');
-                          }
-                        },
-                      ),
-                      paddingHeight(1),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
+          buildShowModalMore(context, track, downloadTileItem);
         },
         style: ElevatedButton.styleFrom(
             elevation: 0, backgroundColor: Colors.transparent),
         child: const Icon(Icons.more_vert),
       ),
+    );
+  }
+
+  Future<dynamic> buildShowModalMore(
+      BuildContext context, Track track, Widget downloadTileItem) {
+    return showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (_) {
+        return Container(
+          height: MediaQuery.of(context).size.height * .5,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade900,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(defaultBorderRadius),
+              topRight: Radius.circular(defaultBorderRadius),
+            ),
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                paddingHeight(0.5),
+                buildHeaderModal(track, context),
+                buildDivider(),
+                downloadTileItem,
+                buildModalTileItem(context,
+                    title: 'Like',
+                    icon: const Icon(Icons.favorite_border_sharp)),
+                buildModalTileItem(
+                  context,
+                  title: 'Add to playlist',
+                  icon: Image.asset(
+                    'assets/icons/icons8-add-song-48.png',
+                    color: Colors.white,
+                    width: 20,
+                    height: 20,
+                  ),
+                ),
+                buildModalTileItem(
+                  context,
+                  title: 'View Album',
+                  icon: Image.asset(
+                    'assets/icons/icons8-disk-24.png',
+                    color: Colors.white,
+                    width: 20,
+                    height: 20,
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop(true);
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation1,
+                            Animation<double> animation2) {
+                          return LayoutScreen(
+                            index: 4,
+                            screen: AlbumDetail(albumId: track.album!.id!),
+                          );
+                        },
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  },
+                ),
+                buildModalTileItem(
+                  context,
+                  title: 'View Artist',
+                  icon: Image.asset(
+                    'assets/icons/icons8-artist-25.png',
+                    color: Colors.white,
+                    width: 20,
+                    height: 20,
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop(true);
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation1,
+                            Animation<double> animation2) {
+                          return LayoutScreen(
+                            index: 4,
+                            screen: ArtistDetail(artistId: track.artist!.id!),
+                          );
+                        },
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  },
+                ),
+                paddingHeight(1),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<dynamic> buildShowModalDownloadThisSong(
+      BuildContext context, Track track, int totalSize) {
+    return showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) => Container(
+            height: MediaQuery.of(context).size.height * .6,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade900,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(defaultBorderRadius),
+                topRight: Radius.circular(defaultBorderRadius),
+              ),
+            ),
+            child: Column(
+              children: [
+                paddingHeight(0.5),
+                buildHeaderModal(track, context),
+                const Padding(
+                  padding: EdgeInsets.all(defaultPadding),
+                  child: Divider(),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: defaultPadding),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Chọn chất lượng tải',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      paddingHeight(1),
+                      buildChooseDownloadQuality(setState, context,
+                          tagName: 'SQ',
+                          title: 'Chất lượng tiêu chuẩn',
+                          subTitle: 'Tiết kiệm dung lượng bộ nhớ',
+                          index: 0),
+                      buildChooseDownloadQuality(setState, context,
+                          tagName: 'HQ',
+                          title: 'Chất lượng cao',
+                          subTitle: 'Tốt nhất cho tai nghe và loa',
+                          index: 1),
+                      const Divider(),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _isChecked,
+                            checkColor: Colors.black,
+                            activeColor: ColorsConsts.primaryColorDark,
+                            onChanged: (value) {
+                              setState(() {
+                                _isChecked = value!;
+                              });
+                            },
+                          ),
+                          Text(
+                            'Lưu lựa chọn chất lượng và không hỏi lại',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(context).pop(true);
+                            final status = await Permission.storage.request();
+                            if (status.isGranted) {
+                              final externalDir =
+                                  await getExternalStorageDirectory();
+                              await FlutterDownloader.enqueue(
+                                url: '${track.preview}',
+                                savedDir: externalDir!.path,
+                                fileName: 'track-${track.id}.mp3',
+                                showNotification: false,
+                                openFileFromNotification: false,
+                              );
+                              if (widget.playlist != null) {
+                                await DownloadRepository.instance
+                                    .insertPlaylistDownload(widget.playlist!);
+                                await DownloadRepository.instance
+                                    .insertTrackDownload(
+                                        track: track,
+                                        playlistId: widget.playlist!.id);
+                              } else if (widget.album != null) {
+                                await DownloadRepository.instance
+                                    .insertAlbumDownload(widget.album!);
+                                await DownloadRepository.instance
+                                    .insertTrackDownload(
+                                        track: track, album: widget.album);
+                              }
+                              ToastCommon.showCustomText(
+                                  content: 'Add track to downloaded list.');
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+                            } else {
+                              log("Permission denied");
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                              shape: const StadiumBorder()),
+                          child: Text(
+                            'TẢI XUỐNG (${CommonUtils.formatSize(totalSize)})',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w400),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -266,6 +417,62 @@ class _ActionMoreState extends State<ActionMore> {
           ],
         ),
       ),
+    );
+  }
+
+  InkWell buildChooseDownloadQuality(StateSetter setState, BuildContext context,
+      {required String tagName,
+      required String title,
+      required String subTitle,
+      required int index}) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _value = index;
+        });
+      },
+      child: ListTile(
+          contentPadding: const EdgeInsets.all(0),
+          leading: Container(
+            width: 40,
+            height: 35,
+            padding: const EdgeInsets.all(defaultPadding / 2),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade600,
+              borderRadius: BorderRadius.circular(defaultBorderRadius),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(defaultBorderRadius / 2),
+                  border: Border.all(width: 1, color: Colors.white)),
+              child: Center(
+                child: Text(
+                  tagName,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(),
+                ),
+              ),
+            ),
+          ),
+          title: Text(
+            title,
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w500),
+          ),
+          subtitle: Text(
+            subTitle,
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(color: Colors.grey, fontWeight: FontWeight.w500),
+          ),
+          trailing: (_value == index)
+              ? Icon(
+                  Icons.radio_button_checked,
+                  color: ColorsConsts.primaryColorDark,
+                )
+              : const Icon(Icons.radio_button_off)),
     );
   }
 }

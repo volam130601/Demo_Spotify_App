@@ -61,7 +61,7 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
     return Row(
       children: [
         IconButton(
-          onPressed: () async {
+          onPressed: () {
             showModalBottomSheet(
               backgroundColor: Colors.transparent,
               context: context,
@@ -296,29 +296,6 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
             overflow: TextOverflow.ellipsis,
           ),
         ],
-      ),
-    );
-  }
-
-  Widget buildModalTileItem(BuildContext context,
-      {String title = '', Widget? icon, VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap ?? () {},
-      child: Container(
-        height: 60,
-        color: Colors.transparent,
-        child: Row(
-          children: [
-            SizedBox(width: 60, child: icon),
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
       ),
     );
   }
