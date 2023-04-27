@@ -1,5 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
+import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
+import 'package:demo_spotify_app/models/playlist.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/views/library/favorite_screen.dart';
+import 'package:demo_spotify_app/widgets/list_tile_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -120,114 +125,66 @@ class _LibraryScreenState extends State<LibraryScreen>
     );
   }
 
-  Container buildTabPlaylist(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: defaultPadding),
-      child: SizedBox(
-        height: 70 * 8,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(
-              decelerationRate: ScrollDecelerationRate.fast),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onTap: () {},
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: defaultPadding / 4, horizontal: defaultPadding),
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius:
-                          BorderRadius.circular(defaultBorderRadius / 2),
-                    ),
-                    child: const Center(
-                      child: Icon(Ionicons.add, size: 30),
-                    ),
+  Widget buildTabPlaylist(BuildContext context) {
+    return SizedBox(
+      height: 70 * 8,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(
+            decelerationRate: ScrollDecelerationRate.fast),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              onTap: () {},
+              child: ListTile(
+                leading: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade800,
+                    borderRadius:
+                        BorderRadius.circular(defaultBorderRadius / 2),
                   ),
-                  title: Text(
-                    'Add playlist',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  child: const Center(
+                    child: Icon(Ionicons.add, size: 30),
                   ),
                 ),
-              ),
-              paddingHeight(1.5),
-              Padding(
-                padding: const EdgeInsets.only(left: defaultPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Playlist suggest',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    Text(
-                      'Heard a lot',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w400),
-                    ),
-                  ],
+                title: Text(
+                  'Add playlist',
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              paddingHeight(1),
-              ...Iterable<int>.generate(5).map(
-                (e) => SizedBox(
-                  height: 70,
-                  child: InkWell(
-                    onTap: () {},
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: defaultPadding),
-                      leading: Stack(children: [
-                        Container(
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius / 2),
-                            image: const DecorationImage(
-                              image:
-                                  AssetImage('assets/images/music_default.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius / 2),
-                            image: const DecorationImage(
-                              image: CachedNetworkImageProvider(
-                                  'https://e-cdns-images.dzcdn.net/images/playlist/7ff3e69ac26739df33ff53cf31e7259b/250x250-000000-80-0-0.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ]),
-                      title: Text(
-                        'Giai điệu chữa lành',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      subtitle: Text(
-                        'Spotify',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Colors.grey, fontWeight: FontWeight.w400),
-                      ),
-                      trailing: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Ionicons.heart_outline),
-                      ),
-                    ),
+            ),
+            paddingHeight(1),
+            StreamBuilder(
+              stream: FavoritePlaylistService.instance
+                  .getPlaylistItemsByUserId(userId: CommonUtils.userId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox();
+                }
+                List<FavoritePlaylist>? playlistFavorite = snapshot.data!;
+                List<Playlist> playlists = [];
+                for (var item in playlistFavorite) {
+                  playlists.add(Playlist(
+                      id: int.tryParse(item.playlistId.toString()),
+                      title: item.title,
+                      user: UserPlaylist(name: item.userName.toString()),
+                      pictureMedium: item.pictureMedium));
+                }
+                return SizedBox(
+                  height: playlists.length * (50 + 16),
+                  child: ListView.builder(
+                    itemCount: playlists.length,
+                    itemBuilder: (context, index) {
+                      return PlaylistTileItem(playlist: playlists[index]);
+                    },
                   ),
-                ),
-              ),
-            ],
-          ),
+                );
+              },
+            ),
+            paddingHeight(8),
+          ],
         ),
       ),
     );

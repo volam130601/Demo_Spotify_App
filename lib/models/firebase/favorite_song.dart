@@ -6,14 +6,15 @@ class FavoriteSong {
   String? albumId;
   String? artistId;
   String? title;
+  String? albumTitle;
   String? artistName;
   String? pictureMedium;
   String? coverMedium;
   String? coverXl;
   String? preview;
+  String? releaseDate;
   String? type;
   String? userId;
-
 
   FavoriteSong(
       {this.id,
@@ -21,13 +22,16 @@ class FavoriteSong {
       this.albumId,
       this.artistId,
       this.title,
+      this.albumTitle,
       this.artistName,
       this.pictureMedium,
       this.coverMedium,
       this.coverXl,
       this.preview,
+      this.releaseDate,
       this.type,
-      this.userId});
+      this.userId,
+      });
 
   factory FavoriteSong.fromSnapshot(DocumentSnapshot snapshot) {
     Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
@@ -37,11 +41,13 @@ class FavoriteSong {
       albumId: data['albumId'],
       artistId: data['artistId'],
       title: data['title'],
+      albumTitle: data['albumTitle'],
       artistName: data['artistName'],
       pictureMedium: data['pictureMedium'],
       coverMedium: data['coverMedium'],
       coverXl: data['coverXl'],
       preview: data['preview'],
+      releaseDate: data['releaseDate'],
       type: data['type'],
       userId: data['userId'],
     );
@@ -53,11 +59,13 @@ class FavoriteSong {
       'albumId': albumId,
       'artistId': artistId,
       'title': title,
+      'albumTitle': albumTitle,
       'artistName': artistName,
       'pictureMedium': pictureMedium,
       'coverMedium': coverMedium,
       'coverXl': coverXl,
       'preview': preview,
+      'releaseDate': releaseDate,
       'type': type,
       'userId': userId,
     };

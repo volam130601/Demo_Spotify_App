@@ -35,7 +35,7 @@ class DownloadRepository {
         albumId: (album != null) ? album.id : 0,
         title: track.title,
         artistName: track.artist!.name,
-        artistPictureSmall: track.artist!.pictureSmall,
+        artistPictureSmall: track.artist!.pictureMedium,
         coverSmall:
             (album != null) ? album.coverSmall : track.album!.coverSmall,
         coverXl: (album != null) ? album.coverXl : track.album!.coverXl,

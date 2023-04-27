@@ -1,19 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
+import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 
-class FavoriteSongService {
-  FavoriteSongService._();
+class FavoritePlaylistService {
+  FavoritePlaylistService._();
 
-  static final FavoriteSongService instance = FavoriteSongService._();
+  static final FavoritePlaylistService instance = FavoritePlaylistService._();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  static const String collectionName = 'favorite_song';
+  static const String collectionName = 'favorite_playlist';
 
-  Future<void> addItem(FavoriteSong item) {
+  Future<void> addItem(FavoritePlaylist item) {
     return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
-  Future<void> updateItem(FavoriteSong item) {
+  Future<void> updateItem(FavoritePlaylist item) {
     return _db.collection(collectionName).doc(item.id).update(item.toMap());
   }
 
@@ -21,10 +21,10 @@ class FavoriteSongService {
     return _db.collection(collectionName).doc(id).delete();
   }
 
-  Future<void> deleteItemByTrackId(String trackId, String userId) {
+  Future<void> deleteItemByPlaylistId(String playlistId, String userId) {
     return _db
         .collection(collectionName)
-        .where('trackId', isEqualTo: trackId)
+        .where('playlistId', isEqualTo: playlistId)
         .where('userId', isEqualTo: userId)
         .get()
         .then((QuerySnapshot snapshot) {
@@ -40,13 +40,14 @@ class FavoriteSongService {
     });
   }
 
-  Stream<List<FavoriteSong>> getItemsByUserId(String userId) {
+  Stream<List<FavoritePlaylist>> getPlaylistItemsByUserId(
+      {required String userId}) {
     return _db
         .collection(collectionName)
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => FavoriteSong.fromSnapshot(doc))
+            .map((doc) => FavoritePlaylist.fromSnapshot(doc))
             .toList());
   }
 }

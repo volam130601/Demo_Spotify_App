@@ -190,11 +190,11 @@ class PLayMusicCard extends StatelessWidget {
                               maxLines: 1,
                             ),
                             Text(
-                              metadata.artist as String,
+                              metadata.artist.toString(),
                               style: Theme.of(context)
                                   .textTheme
-                                  .titleSmall
-                                  ?.copyWith(color: Colors.grey.shade300),
+                                  .titleMedium
+                                  ?.copyWith(color: Colors.grey),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),

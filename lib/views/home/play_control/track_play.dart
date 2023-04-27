@@ -99,8 +99,12 @@ class _TrackPlayState extends State<TrackPlay> {
                             BorderRadius.circular(defaultBorderRadius / 2)),
                     child: CachedNetworkImage(
                       imageUrl: image,
-                      placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                      placeholder: (context, url) => Image.asset(
+                        'assets/images/music_default.jpg',
+                        fit: BoxFit.cover,
+                      ),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -111,21 +115,16 @@ class _TrackPlayState extends State<TrackPlay> {
                       children: [
                         Text(
                           metadata.title,
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context).textTheme.titleLarge,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
                         Text(
-                          metadata.artist as String,
+                          metadata.artist.toString(),
                           style: Theme.of(context)
                               .textTheme
-                              .titleSmall
-                              ?.copyWith(fontSize: 18),
+                              .titleMedium
+                              ?.copyWith(color: Colors.grey),
                         ),
                       ],
                     ),
@@ -169,7 +168,10 @@ class _TrackPlayState extends State<TrackPlay> {
               width: width,
               child: CachedNetworkImage(
                 imageUrl: metadata.artUri.toString(),
-                placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/music_default.jpg',
+                  fit: BoxFit.cover,
+                ),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 fit: BoxFit.cover,
               ),

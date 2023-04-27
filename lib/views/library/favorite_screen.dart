@@ -110,6 +110,9 @@ class FavoriteSongBody extends StatelessWidget {
                   pictureMedium: item.pictureMedium),
               album: Album(
                   id: int.tryParse(item.albumId.toString()),
+                  title: item.albumTitle,
+                  artist: Artist(
+                      name: item.artistName, pictureSmall: item.pictureMedium),
                   coverMedium: item.coverMedium,
                   coverXl: item.coverXl),
               preview: item.preview,
@@ -181,7 +184,8 @@ class FavoriteSongBody extends StatelessWidget {
                 buildSelection(context),
                 paddingHeight(1),
                 buildListFavoriteSong(tracks),
-                paddingHeight(8)
+                paddingHeight(8),
+
               ],
             ),
           ),
@@ -223,6 +227,7 @@ class FavoriteSongBody extends StatelessWidget {
             value.trackDownloads.any((item) => item.id == track.id!);
         return TrackTileItem(
           track: track,
+          album: track.album,
           isDownloaded: isDownloaded,
         );
       },

@@ -1,4 +1,5 @@
 import 'package:demo_spotify_app/models/local/track_download.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,6 +8,8 @@ import '../models/artist.dart';
 import '../models/track.dart';
 
 class CommonUtils {
+  static final String userId = FirebaseAuth.instance.currentUser!.uid;
+
   static List<Track> convertTrackDownloadsToTracks(
           List<TrackDownload> trackDownloads) =>
       trackDownloads
@@ -17,7 +20,7 @@ class CommonUtils {
                   Album(coverSmall: track.coverSmall, coverXl: track.coverXl),
               artist: Artist(
                   name: track.artistName,
-                  pictureSmall: track.artistPictureSmall),
+                  pictureMedium: track.artistPictureSmall),
               preview: track.preview,
               duration: track.duration,
               type: track.type))

@@ -90,7 +90,7 @@ class _TabTrackState extends State<TabTrack> {
                             borderRadius:
                                 BorderRadius.circular(defaultBorderRadius),
                             child: CachedNetworkImage(
-                              imageUrl: '${trackDownload.coverSmall}',
+                              imageUrl: '${trackDownload.coverXl}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Image.asset(
                                 'assets/images/music_default.jpg',
