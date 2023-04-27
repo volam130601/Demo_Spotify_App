@@ -169,16 +169,26 @@ class _ActionMoreState extends State<ActionMore> {
                             FavoriteSong(
                               id: DateTime.now().toString(),
                               trackId: track.id.toString(),
-                              albumId: track.album!.id.toString(),
+                              albumId: (widget.album != null)
+                                  ? widget.album!.id.toString()
+                                  : track.album!.id.toString(),
                               artistId: track.artist!.id.toString(),
                               title: track.title,
-                              albumTitle: track.album!.title,
+                              albumTitle: (widget.album != null)
+                                  ? widget.album!.title.toString()
+                                  : track.album!.title,
                               artistName: track.artist!.name,
                               pictureMedium: track.artist!.pictureMedium,
-                              coverMedium: track.album!.coverMedium,
-                              coverXl: track.album!.coverXl,
+                              coverMedium: (widget.album != null)
+                                  ? widget.album!.coverMedium.toString()
+                                  : track.album!.coverMedium,
+                              coverXl: (widget.album != null)
+                                  ? widget.album!.coverXl.toString()
+                                  : track.album!.coverXl,
                               preview: track.preview,
-                              releaseDate: track.album!.releaseDate,
+                              releaseDate: (widget.album != null)
+                                  ? widget.album!.releaseDate.toString()
+                                  : track.album!.releaseDate,
                               userId: FirebaseAuth.instance.currentUser!.uid,
                               type: 'track',
                             ),

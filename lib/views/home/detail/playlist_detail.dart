@@ -106,78 +106,83 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
 
   Widget buildPlaylistBody(BuildContext context) {
     return Consumer<PlaylistViewModel>(builder: (context, value, _) {
-      // ignore: unrelated_type_equality_checks
-      if (value.tracks.data == Status.LOADING ||
-          // ignore: unrelated_type_equality_checks
-          value.playlistDetail.data == Status.LOADING) {
-        return Scaffold(
-          body: Center(
-            child: LoadingAnimationWidget.staggeredDotsWave(
-              color: Colors.white,
-              size: 40,
+      switch (value.tracks.status) {
+        case Status.LOADING:
+          return Scaffold(
+            body: Center(
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white,
+                size: 40,
+              ),
             ),
-          ),
-        );
-      }
-      List<Track>? tracks = value.tracks.data;
-      Playlist? playlist = value.playlistDetail.data;
-      if (playlist != null && tracks != null) {
-        return Stack(
-          children: [
-            CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                buildAppBar(context, playlist),
-                buildHeaderBody(context, playlist),
-                SliverToBoxAdapter(
-                  child: playlistActions(tracks, playlist, value),
-                ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return InkWell(
-                        child: playlistTile(context, tracks[index], playlist),
-                        onTap: () {
-                          var value = Provider.of<MultiPlayerViewModel>(context,
-                              listen: false);
-                          int? currentPlaylistId = playlist.id;
-                          if (currentPlaylistId != value.getPlaylistId) {
-                            value.initState(
-                                tracks: tracks,
-                                playlistId: playlist.id,
-                                index: index);
-                          } else {
-                            value.player.seek(Duration.zero, index: index);
-                          }
+          );
+        case Status.COMPLETED:
+          List<Track>? tracks = value.tracks.data;
+          Playlist? playlist = value.playlistDetail.data;
+          if (playlist != null && tracks != null) {
+            return Stack(
+              children: [
+                CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    buildAppBar(context, playlist),
+                    buildHeaderBody(context, playlist),
+                    SliverToBoxAdapter(
+                      child: playlistActions(tracks, playlist, value),
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                          return InkWell(
+                            child: playlistTile(context, tracks[index], playlist),
+                            onTap: () {
+                              var value = Provider.of<MultiPlayerViewModel>(context,
+                                  listen: false);
+                              int? currentPlaylistId = playlist.id;
+                              if (currentPlaylistId != value.getPlaylistId) {
+                                value.initState(
+                                    tracks: tracks,
+                                    playlistId: playlist.id,
+                                    index: index);
+                              } else {
+                                value.player.seek(Duration.zero, index: index);
+                              }
+                            },
+                          );
                         },
-                      );
-                    },
-                    childCount: tracks.length,
-                  ),
+                        childCount: tracks.length,
+                      ),
+                    ),
+                    SliverToBoxAdapter(child: paddingHeight(8)),
+                  ],
                 ),
-                SliverToBoxAdapter(child: paddingHeight(8)),
+                if (isShow) ...{
+                  Positioned(
+                      top: 80,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                          color: ColorsConsts.scaffoldColorDark,
+                          child: playlistActions(tracks, playlist, value))),
+                }
               ],
-            ),
-            if (isShow) ...{
-              Positioned(
-                  top: 80,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                      color: ColorsConsts.scaffoldColorDark,
-                      child: playlistActions(tracks, playlist, value))),
-            }
-          ],
-        );
-      } else {
-        return Scaffold(
-          body: Center(
-            child: LoadingAnimationWidget.staggeredDotsWave(
-              color: Colors.white,
-              size: 40,
-            ),
-          ),
-        );
+            );
+          } else {
+            return Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            );
+          }
+        case Status.ERROR:
+          return SliverToBoxAdapter(
+            child: Text(value.tracks.toString()),
+          );
+        default:
+          return const Text('Default Switch');
       }
     });
   }

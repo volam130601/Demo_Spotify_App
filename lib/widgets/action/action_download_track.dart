@@ -95,8 +95,11 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
                                     borderRadius: BorderRadius.circular(
                                         defaultBorderRadius / 2)),
                                 width: double.infinity,
-                                child: Text(
-                                    'Bạn có thể tải ${trackDownloads.length}/${widget.playlist!.nbTracks} bài hát của playlist.'),
+                                child: (widget.album != null)
+                                    ? Text(
+                                        'Bạn có thể tải ${trackDownloads.length}/${widget.album!.nbTracks} bài hát của album.')
+                                    : Text(
+                                        'Bạn có thể tải ${trackDownloads.length}/${widget.playlist!.nbTracks} bài hát của playlist.'),
                               ),
                               paddingHeight(1),
                               Text(
@@ -176,8 +179,8 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
                                       shape: const StadiumBorder()),
                                   child: Text(
                                     (widget.sizeFileDownload != null)
-                                        ? 'TẢI PLAYLIST (${widget.sizeFileDownload})'
-                                        : 'TẢI PLAYLIST (0.0 MB)',
+                                        ? 'TẢI ${(widget.album != null) ? 'ALBUM' : 'PLAYLIST'} (${widget.sizeFileDownload})'
+                                        : 'TẢI ${(widget.album != null) ? 'ALBUM' : 'PLAYLIST'} (0.0 MB)',
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
@@ -287,7 +290,9 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
       subtitle: Row(
         children: [
           Text(
-            '${widget.playlist!.creator!.name}',
+            (widget.playlist != null)
+                ? '${widget.playlist!.creator!.name}'
+                : '${widget.album!.artist!.name}',
             style: Theme.of(context)
                 .textTheme
                 .titleSmall

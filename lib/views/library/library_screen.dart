@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
+import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
@@ -9,7 +10,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
+import '../../data/network/firebase/favorite_album_service.dart';
+import '../../models/artist.dart';
 import '../../models/category/category_library.dart';
+import '../../models/firebase/favorite_album.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/selection_title.dart';
@@ -117,11 +121,39 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   Widget buildTabAlbum(BuildContext context) {
-    return const ContainerNullValue(
-      image: 'assets/images/library/album_none.png',
-      title: 'You haven\'t created any albums yet.',
-      subtitle:
-          'Find and click the favorite button for the album to add it to the library.',
+    return StreamBuilder(
+      stream: FavoriteAlbumService.instance
+          .getAlbumItemsByUserId(userId: CommonUtils.userId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const ContainerNullValue(
+            image: 'assets/images/library/album_none.png',
+            title: 'You haven\'t created any albums yet.',
+            subtitle:
+                'Find and click the favorite button for the album to add it to the library.',
+          );
+        }
+        List<FavoriteAlbum>? albumFavorite = snapshot.data!;
+        List<Album> albums = [];
+        for (var item in albumFavorite) {
+          albums.add(
+            Album(
+                id: int.tryParse(item.albumId.toString()),
+                title: item.title,
+                artist: Artist(name: item.artistName),
+                coverMedium: item.coverMedium),
+          );
+        }
+        return SizedBox(
+          height: albums.length * (50 + 16),
+          child: ListView.builder(
+            itemCount: albums.length,
+            itemBuilder: (context, index) {
+              return AlbumTileItem(album: albums[index]);
+            },
+          ),
+        );
+      },
     );
   }
 

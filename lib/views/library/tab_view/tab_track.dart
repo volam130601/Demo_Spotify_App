@@ -37,7 +37,8 @@ class _TabTrackState extends State<TabTrack> {
                   'Download your favorite track so you can play it when there is no internet connection.',
             );
           }
-          List<Track> tracks = CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
+          List<Track> tracks =
+              CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
           return ListView.builder(
             padding: const EdgeInsets.all(0),
             physics: const BouncingScrollPhysics(),
@@ -128,13 +129,7 @@ class _TabTrackState extends State<TabTrack> {
                         SizedBox(
                           width: 60,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              List<DownloadTask>? tasks =
-                                  await FlutterDownloader.loadTasks();
-                              for (var item in tasks!) {
-                                log('$item');
-                              }
-                            },
+                            onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               elevation: 0,

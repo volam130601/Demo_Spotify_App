@@ -63,6 +63,11 @@ class CommonUtils {
     return DateFormat('MMMM d, y').format(dateTime);
   }
 
+  static String getYearByReleaseDate(String inputDate) {
+    DateTime dateTime = DateTime.parse(inputDate);
+    return dateTime.year.toString();
+  }
+
   ///getFileSize
   static Future<int> getFileSize(String text) async {
     var url = Uri.parse(text);

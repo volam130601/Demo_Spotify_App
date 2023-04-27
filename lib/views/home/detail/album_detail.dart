@@ -2,18 +2,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/album_view_model.dart';
-import 'package:demo_spotify_app/widgets/action/action_more.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/network/firebase/favorite_album_service.dart';
 import '../../../data/response/status.dart';
 import '../../../models/album.dart';
+import '../../../models/firebase/favorite_album.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
+import '../../../utils/toast_utils.dart';
 import '../../../view_models/download_view_modal.dart';
 import '../../../widgets/action/action_download_track.dart';
+import '../../../widgets/list_tile_custom.dart';
 import '../../../widgets/play_control/play_button.dart';
 
 class AlbumDetail extends StatefulWidget {
@@ -44,7 +47,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
   }
 
   Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 1500));
+    await Future.delayed(const Duration(milliseconds: 2000));
     setState(() {
       isLoading = false;
     });
@@ -113,19 +116,19 @@ class _AlbumDetailState extends State<AlbumDetail> {
           case Status.COMPLETED:
             Album? album = value.albumDetail.data;
             List<Track>? tracks = value.tracks.data;
-            return Stack(
-              children: [
+            if (album != null && tracks != null) {
+              return Stack(children: [
                 CustomScrollView(
                   controller: _scrollController,
                   slivers: [
-                    buildAppBar(value, context, album!),
+                    buildAppBar(value, context, album),
                     buildSelectionTitle(context, album),
                     SliverToBoxAdapter(
-                      child: actions(tracks!, album),
+                      child: actions(tracks, album , value),
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (context, index) {
+                        (context, index) {
                           return playlistTile(context, tracks[index], album);
                         },
                         childCount: tracks.length,
@@ -134,7 +137,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: defaultPadding, vertical: defaultPadding),
+                            horizontal: defaultPadding,
+                            vertical: defaultPadding),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -152,7 +156,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                                 ),
                                 paddingWidth(1.5),
                                 Text(album.artist!.name.toString(),
-                                    style: Theme.of(context).textTheme.titleMedium)
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium)
                               ],
                             ),
                             paddingHeight(5),
@@ -169,9 +174,17 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       right: 0,
                       child: Container(
                           color: ColorsConsts.scaffoldColorDark,
-                          child: actions(tracks, album))),
+                          child: actions(tracks, album, value))),
                 }
-              ]
+              ]);
+            }
+            return Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
             );
           case Status.ERROR:
             return Text(value.tracks.toString());
@@ -217,7 +230,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
               ],
             ),
             const SizedBox(height: defaultPadding / 2),
-            Text('Album • 2023',
+            Text(
+                'Album • ${CommonUtils.getYearByReleaseDate(album.releaseDate.toString())}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -243,14 +257,60 @@ class _AlbumDetailState extends State<AlbumDetail> {
     );
   }
 
-  Row actions(List<Track> tracks, Album album) {
+  Row actions(List<Track> tracks, Album album, AlbumViewModel value) {
     return Row(
       children: [
-        IconButton(
-            onPressed: () {}, icon: const Icon(Icons.favorite_border_sharp)),
+        StreamBuilder(
+            stream: FavoriteAlbumService.instance
+                .getAlbumItemsByUserId(userId: CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Ionicons.heart_outline),
+                );
+              }
+              final isAddedFavoriteAlbum = snapshot.data!
+                  .any((element) => element.albumId == album.id.toString());
+
+              return isAddedFavoriteAlbum
+                  ? IconButton(
+                      onPressed: () {
+                        ToastCommon.showCustomText(
+                            content:
+                                'Removed album ${album.title} from the library');
+                        FavoriteAlbumService.instance.deleteItemByAlbumId(
+                            album.id.toString(), CommonUtils.userId);
+                      },
+                      icon: Icon(
+                        Ionicons.heart,
+                        color: ColorsConsts.primaryColorDark,
+                      ),
+                    )
+                  : IconButton(
+                      onPressed: () {
+                        ToastCommon.showCustomText(
+                            content:
+                                'Added album ${album.title} to the library');
+                        FavoriteAlbumService.instance.addItem(
+                          FavoriteAlbum(
+                            id: DateTime.now().toString(),
+                            albumId: album.id.toString(),
+                            title: album.title,
+                            artistName: album.artist!.name,
+                            coverMedium: album.coverMedium,
+                            userId: CommonUtils.userId,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Ionicons.heart_outline));
+            }),
         ActionDownloadTracks(
           album: album,
           tracks: tracks,
+          sizeFileDownload: (value.totalSizeDownload != '')
+              ? value.totalSizeDownload
+              : '0.0 MB',
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),
@@ -269,10 +329,14 @@ class _AlbumDetailState extends State<AlbumDetail> {
   Widget playlistTile(BuildContext context, Track track, Album album) {
     return Consumer<DownloadViewModel>(
       builder: (context, value, child) {
-        final trackDownloads = value.trackDownloads;
         final bool isDownloaded =
-            trackDownloads.any((item) => item.id == track.id!);
-        return Container(
+            value.trackDownloads.any((item) => item.id == track.id!);
+        return TrackTileItem(
+          track: track,
+          album: album,
+          isDownloaded: isDownloaded,
+        );
+        /*return Container(
           height: 60,
           margin: const EdgeInsets.only(bottom: defaultPadding),
           child: ListTile(
@@ -327,8 +391,9 @@ class _AlbumDetailState extends State<AlbumDetail> {
                 track: track,
                 album: album,
                 isDownloaded: isDownloaded,
+                isAddedFavorite: false,
               )),
-        );
+        );*/
       },
     );
   }

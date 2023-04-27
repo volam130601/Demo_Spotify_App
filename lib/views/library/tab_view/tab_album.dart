@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/album_download.dart';
+import 'package:demo_spotify_app/view_models/album_view_model.dart';
 import 'package:demo_spotify_app/views/library/widgets/album_detail_download.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import '../../../repository/local/download_repository.dart';
 import '../../../utils/constants/default_constant.dart';
@@ -65,6 +67,9 @@ class _TabAlbumState extends State<TabAlbum> {
                 },
                 child: InkWell(
                   onTap: () {
+                    Provider.of<AlbumViewModel>(context, listen: false)
+                        .fetchTotalSizeDownload(
+                        albums[index].id!);
                     Navigator.push(
                       context,
                       PageRouteBuilder(
