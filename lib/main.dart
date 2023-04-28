@@ -5,6 +5,7 @@ import 'package:demo_spotify_app/view_models/artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/home_view_model.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
+import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
@@ -71,6 +72,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => SearchViewModel()),
         ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
         ChangeNotifierProvider(create: (_) => DownloadViewModel()),
+        ChangeNotifierProvider(create: (_) => LibraryViewModel()),
       ],
       child: isLoading
           ? Center(

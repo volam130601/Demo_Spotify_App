@@ -4,7 +4,8 @@ import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 class FavoritePlaylistService {
   FavoritePlaylistService._();
 
-  static final FavoritePlaylistService instance = FavoritePlaylistService._();
+  static final FavoritePlaylistService instance =
+      FavoritePlaylistService._();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'favorite_playlist';

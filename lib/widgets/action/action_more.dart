@@ -110,7 +110,9 @@ class _ActionMoreState extends State<ActionMore> {
               context, track, downloadTileItem, widget.isAddedFavorite!);
         },
         style: ElevatedButton.styleFrom(
-            elevation: 0, backgroundColor: Colors.transparent),
+            elevation: 0, backgroundColor: Colors.transparent,
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(0)),
         child: const Icon(Icons.more_vert),
       ),
     );
@@ -411,18 +413,22 @@ class _ActionMoreState extends State<ActionMore> {
     return SizedBox(
       height: 60,
       child: ListTile(
-        leading: ClipRRect(
-          borderRadius: BorderRadius.circular(defaultBorderRadius),
-          child: CachedNetworkImage(
-            imageUrl: (widget.album != null)
-                ? '${widget.album!.coverMedium}'
-                : '${track!.album!.coverSmall}',
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Image.asset(
-              'assets/images/music_default.jpg',
+        leading: SizedBox(
+          width: 60,
+          height: 60,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(defaultBorderRadius),
+            child: CachedNetworkImage(
+              imageUrl: (widget.album != null)
+                  ? '${widget.album!.coverMedium}'
+                  : '${track!.album!.coverSmall}',
               fit: BoxFit.cover,
+              placeholder: (context, url) => Image.asset(
+                'assets/images/music_default.jpg',
+                fit: BoxFit.cover,
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
             ),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
         ),
         title: Text(

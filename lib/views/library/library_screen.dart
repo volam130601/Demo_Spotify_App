@@ -1,11 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
+import 'package:demo_spotify_app/data/network/firebase/playlist_new_service.dart';
 import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
+import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
+import 'package:demo_spotify_app/views/library/add_playlist.dart';
 import 'package:demo_spotify_app/views/library/favorite_screen.dart';
 import 'package:demo_spotify_app/widgets/list_tile_custom.dart';
+import 'package:demo_spotify_app/widgets/tab_bar/tab_bar_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -36,7 +40,7 @@ class _LibraryScreenState extends State<LibraryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     if (_auth.currentUser != null) {
       setState(() {
         isCheck = true;
@@ -58,13 +62,10 @@ class _LibraryScreenState extends State<LibraryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverToBoxAdapter(
+            child: SizedBox(
               height: 200,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,85 +75,33 @@ class _LibraryScreenState extends State<LibraryScreen>
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 50,
-                    child: TabBar(
-                      controller: _tabController,
-                      tabs: const [
-                        Tab(text: 'My Playlist'),
-                        Tab(text: 'Playlist'),
-                        Tab(text: 'Album'),
-                      ],
-                      labelColor: Colors.white,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      padding: const EdgeInsets.only(
-                          top: defaultPadding / 2,
-                          bottom: defaultPadding / 2,
-                          right: defaultPadding),
-                      indicatorPadding: const EdgeInsets.symmetric(
-                          horizontal: defaultPadding / 2),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.more_vert,
-                    size: 20,
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * .8,
-              child: TabBarView(
+          ),
+          SliverPersistentHeader(
+            delegate: StickyTabBarLibraryDelegate(
+              child: TabBar(
                 controller: _tabController,
-                physics: const BouncingScrollPhysics(
-                    decelerationRate: ScrollDecelerationRate.fast),
-                children: [ buildTabMyPlaylist(context), buildTabPlaylist(context), buildTabAlbum(context)],
+                tabs: const [
+                  Tab(text: 'Playlist'),
+                  Tab(text: 'Album'),
+                ],
+                labelColor: Colors.white,
+                indicatorSize: TabBarIndicatorSize.label,
+                padding: const EdgeInsets.only(
+                    top: defaultPadding / 2,
+                    bottom: defaultPadding / 2,
+                    right: defaultPadding),
+                indicatorPadding:
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-  Widget buildTabMyPlaylist(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(
-            decelerationRate: ScrollDecelerationRate.fast),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InkWell(
-              onTap: () {},
-              child: ListTile(
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade800,
-                    borderRadius:
-                    BorderRadius.circular(defaultBorderRadius / 2),
-                  ),
-                  child: const Center(
-                    child: Icon(Ionicons.add, size: 30),
-                  ),
-                ),
-                title: Text(
-                  'Add playlist',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ),
-            ),
-            paddingHeight(8),
-          ],
+            pinned: true,
+          )
+        ],
+        body: TabBarView(
+          controller: _tabController,
+          physics: const BouncingScrollPhysics(
+              decelerationRate: ScrollDecelerationRate.fast),
+          children: [buildTabPlaylist(context), buildTabAlbum(context)],
         ),
       ),
     );
@@ -196,33 +145,104 @@ class _LibraryScreenState extends State<LibraryScreen>
   }
 
   Widget buildTabPlaylist(BuildContext context) {
-    return StreamBuilder(
-      stream: FavoritePlaylistService.instance
-          .getPlaylistItemsByUserId(userId: CommonUtils.userId),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const SizedBox();
-        }
-        List<FavoritePlaylist>? playlistFavorite = snapshot.data!;
-        List<Playlist> playlists = [];
-        for (var item in playlistFavorite) {
-          playlists.add(Playlist(
-              id: int.tryParse(item.playlistId.toString()),
-              title: item.title,
-              user: UserPlaylist(name: item.userName.toString()),
-              pictureMedium: item.pictureMedium));
-        }
-        return SizedBox(
-          height: playlists.length * (50 + 16),
-          child: ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            itemCount: playlists.length,
-            itemBuilder: (context, index) {
-              return PlaylistTileItem(playlist: playlists[index]);
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const AddPlaylistScreen();
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                  horizontal: defaultPadding, vertical: defaultPadding / 2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius:
+                          BorderRadius.circular(defaultBorderRadius / 2),
+                    ),
+                    child: const Center(
+                      child: Icon(Ionicons.add, size: 30),
+                    ),
+                  ),
+                  paddingWidth(0.5),
+                  Text(
+                    'Add playlist',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          StreamBuilder(
+            stream: FavoritePlaylistService.instance
+                .getPlaylistItemsByUserId(userId: CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox();
+              }
+              List<FavoritePlaylist>? playlistFavorite = snapshot.data!;
+              List<Playlist> playlists = [];
+              for (var item in playlistFavorite) {
+                playlists.add(Playlist(
+                    id: int.tryParse(item.playlistId.toString()),
+                    title: item.title,
+                    user: UserPlaylist(name: item.userName.toString()),
+                    pictureMedium: item.pictureMedium));
+              }
+              return SizedBox(
+                height: playlists.length * (50 + 16),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: playlists.length,
+                  itemBuilder: (context, index) {
+                    return PlaylistTileItem(playlist: playlists[index]);
+                  },
+                ),
+              );
             },
           ),
-        );
-      },
+          StreamBuilder(
+            stream: PlaylistNewService.instance
+                .getItemsByUserId(CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox();
+              }
+              List<PlaylistNew>? playlistNews = snapshot.data!;
+              playlistNews.sort((a, b) => a.title!.compareTo(b.title!));
+              return SizedBox(
+                height: playlistNews.length * (50 + 16),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: playlistNews.length,
+                  itemBuilder: (context, index) {
+                    return PlaylistNewTileItem(playlistNew: playlistNews[index]);
+                  },
+                ),
+              );
+            },
+          ),
+          paddingHeight(8),
+        ],
+      ),
     );
   }
 

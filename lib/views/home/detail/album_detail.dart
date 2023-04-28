@@ -336,64 +336,6 @@ class _AlbumDetailState extends State<AlbumDetail> {
           album: album,
           isDownloaded: isDownloaded,
         );
-        /*return Container(
-          height: 60,
-          margin: const EdgeInsets.only(bottom: defaultPadding),
-          child: ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    track.title as String,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.w500),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: defaultPadding / 2),
-                  Row(
-                    children: [
-                      isDownloaded
-                          ? Row(
-                              children: [
-                                const Icon(Ionicons.arrow_down_circle_outline,
-                                    color: Colors.deepPurple),
-                                paddingWidth(0.5),
-                              ],
-                            )
-                          : const SizedBox(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 3, vertical: 1),
-                        color: Colors.grey,
-                        child: const Text(
-                          'E',
-                          style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                        ),
-                      ),
-                      const SizedBox(width: defaultPadding / 2),
-                      Text(
-                        track.artist!.name as String,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Colors.grey, fontWeight: FontWeight.w500),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              trailing: ActionMore(
-                track: track,
-                album: album,
-                isDownloaded: isDownloaded,
-                isAddedFavorite: false,
-              )),
-        );*/
       },
     );
   }

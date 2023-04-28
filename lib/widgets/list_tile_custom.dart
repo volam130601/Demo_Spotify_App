@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 
 import '../data/network/firebase/favorite_song_service.dart';
+import '../data/network/firebase/playlist_new_service.dart';
 import '../models/album.dart';
 import '../models/firebase/favorite_song.dart';
 import '../models/playlist.dart';
@@ -16,6 +18,8 @@ import '../view_models/playlist_view_model.dart';
 import '../views/home/detail/album_detail.dart';
 import '../views/home/detail/playlist_detail.dart';
 import '../views/layout_screen.dart';
+import '../views/library/add_playlist.dart';
+import '../views/library/add_playlist_detail_screen.dart';
 import 'action/action_more.dart';
 
 class TrackTileItem extends StatefulWidget {
@@ -39,8 +43,8 @@ class _TrackTileItemState extends State<TrackTileItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(left: defaultPadding),
-      margin: const EdgeInsets.only(bottom: defaultPadding),
+      margin: const EdgeInsets.symmetric(
+          horizontal: defaultPadding, vertical: defaultPadding / 2),
       height: 50,
       child: Row(
         children: [
@@ -50,7 +54,9 @@ class _TrackTileItemState extends State<TrackTileItem> {
               width: 50,
               height: 50,
               child: CachedNetworkImage(
-                imageUrl: (widget.album != null) ? '${widget.album!.coverMedium}' :  widget.track.album!.coverMedium.toString(),
+                imageUrl: (widget.album != null)
+                    ? '${widget.album!.coverMedium}'
+                    : widget.track.album!.coverMedium.toString(),
                 placeholder: (context, url) => Image.asset(
                   'assets/images/music_default.jpg',
                   fit: BoxFit.cover,
@@ -217,33 +223,31 @@ class PlaylistTileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: defaultPadding),
-      margin: const EdgeInsets.only(bottom: defaultPadding),
-      height: 50,
-      child: InkWell(
-        onTap: () {
-          Provider.of<PlaylistViewModel>(context, listen: false)
-              .fetchTotalSizeDownload(
-              playlist.id!, 0, 10000);
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (BuildContext context,
-                  Animation<double> animation1,
-                  Animation<double> animation2) {
-                return LayoutScreen(
-                  index: 4,
-                  screen: PlaylistDetail(
-                    playlistId: playlist.id!,
-                  ),
-                );
-              },
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
-        },
+    return InkWell(
+      onTap: () {
+        Provider.of<PlaylistViewModel>(context, listen: false)
+            .fetchTotalSizeDownload(playlist.id!, 0, 10000);
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: PlaylistDetail(
+                  playlistId: playlist.id!,
+                ),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: defaultPadding, vertical: defaultPadding / 2),
+        height: 50,
         child: Row(
           children: [
             ClipRRect(
@@ -280,8 +284,12 @@ class PlaylistTileItem extends StatelessWidget {
                           (playlist.user != null)
                               ? playlist.user!.name.toString()
                               : playlist.creator!.name.toString(),
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Colors.grey, fontWeight: FontWeight.w500),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ],
@@ -302,30 +310,29 @@ class AlbumTileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: defaultPadding),
-      margin: const EdgeInsets.only(bottom: defaultPadding),
-      height: 50,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (BuildContext context,
-                  Animation<double> animation1,
-                  Animation<double> animation2) {
-                return LayoutScreen(
-                  index: 4,
-                  screen: AlbumDetail(
-                    albumId: album.id!,
-                  ),
-                );
-              },
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
-        },
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: AlbumDetail(
+                  albumId: album.id!,
+                ),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: defaultPadding, vertical: defaultPadding / 2),
+        height: 50,
         child: Row(
           children: [
             ClipRRect(
@@ -358,10 +365,13 @@ class AlbumTileItem extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      Text(
-                          album.artist!.name.toString(),
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              color: Colors.grey, fontWeight: FontWeight.w500),
+                      Text(album.artist!.name.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ],
@@ -369,6 +379,197 @@ class AlbumTileItem extends StatelessWidget {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PlaylistNewTileItem extends StatelessWidget {
+  const PlaylistNewTileItem({Key? key, required this.playlistNew})
+      : super(key: key);
+  final PlaylistNew playlistNew;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: AddPlaylistDetailScreen(
+                  playlistNew: playlistNew,
+                ),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: defaultPadding, vertical: defaultPadding / 2),
+        height: 50,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(defaultBorderRadius / 2),
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: (playlistNew.picture != null)
+                    ? CachedNetworkImage(
+                        imageUrl: playlistNew.picture.toString(),
+                        placeholder: (context, url) => Image.asset(
+                          'assets/images/music_default.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        'assets/images/music_default.jpg',
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            paddingWidth(0.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    playlistNew.title.toString(),
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    children: [
+                      Text(playlistNew.userName.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class TrackSuggestTileItem extends StatelessWidget {
+  const TrackSuggestTileItem({Key? key, required this.track, required this.playlistNew}) : super(key: key);
+  final Track track;
+  final PlaylistNew playlistNew;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        /*Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return const LayoutScreen(
+                index: 4,
+                screen: AddPlaylistDetailScreen(),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );*/
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: defaultPadding, vertical: defaultPadding / 2),
+        height: 50,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(defaultBorderRadius / 2),
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: CachedNetworkImage(
+                  imageUrl: track.album!.coverMedium.toString(),
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/music_default.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            paddingWidth(0.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    track.title.toString(),
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    children: [
+                      Text(track.artist!.name.toString(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 50,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  List<Track> tracks = [];
+                  tracks.add(track);
+                  playlistNew.tracks?.addAll(tracks);
+                  PlaylistNewService.instance.updateItem(PlaylistNew(
+                    id: playlistNew.id,
+                    tracks: playlistNew.tracks,
+                  ));
+                },
+                style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(0)),
+                child: const Icon(Ionicons.add_circle_outline),
+              ),
+            )
           ],
         ),
       ),
