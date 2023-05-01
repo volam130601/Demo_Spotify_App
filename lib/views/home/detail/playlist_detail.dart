@@ -3,10 +3,8 @@ import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
-import 'package:demo_spotify_app/view_models/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
-import 'package:demo_spotify_app/widgets/list_tile_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
@@ -19,6 +17,7 @@ import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
 import '../../../widgets/action/action_download_track.dart';
+import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
@@ -132,11 +131,15 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
-                            (context, index) {
+                        (context, index) {
                           return InkWell(
-                            child: playlistTile(context, tracks[index], playlist),
+                            child: TrackTileItem(
+                              track: tracks[index],
+                              playlist: playlist,
+                            ),
                             onTap: () {
-                              var value = Provider.of<MultiPlayerViewModel>(context,
+                              var value = Provider.of<MultiPlayerViewModel>(
+                                  context,
                                   listen: false);
                               int? currentPlaylistId = playlist.id;
                               if (currentPlaylistId != value.getPlaylistId) {
@@ -316,19 +319,5 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         const SizedBox(width: defaultPadding)
       ],
     ); // Show the fetched data.
-  }
-
-  Widget playlistTile(BuildContext context, Track track, Playlist playlist) {
-    return Consumer<DownloadViewModel>(
-      builder: (context, value, child) {
-        final bool isDownloaded =
-            value.trackDownloads.any((item) => item.id == track.id!);
-        return TrackTileItem(
-          track: track,
-          playlist: playlist,
-          isDownloaded: isDownloaded,
-        );
-      },
-    );
   }
 }

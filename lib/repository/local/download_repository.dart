@@ -181,17 +181,23 @@ class DownloadRepository {
   }
 
   ///Album DB
-  Future<void> insertAlbumDownload(Album album) async {
+  Future<void> insertAlbumDownload(Album album, {Track? track}) async {
     final db = await dbHelper.database;
     bool isExists = await albumDownloadExists(album.id!);
     if (!isExists) {
       AlbumDownload albumDownload = AlbumDownload(
         id: album.id,
         title: album.title,
-        artistName: album.artist!.name,
-        pictureSmall: album.artist!.pictureSmall,
+        artistName: (track!.artist!.name != null)
+            ? track.artist!.name
+            : album.artist!.name,
+        pictureSmall: (track.artist!.pictureSmall != null)
+            ? track.artist!.pictureSmall
+            : album.artist!.pictureSmall,
         coverXl: album.coverXl,
-        releaseDate: album.releaseDate,
+        releaseDate: (track.album!.releaseDate != null)
+            ? track.album!.releaseDate
+            : album.releaseDate,
         type: typePlaylist,
       );
       await db.insert(DBHelper.albumTableName, albumDownload.toMap());

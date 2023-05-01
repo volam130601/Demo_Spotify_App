@@ -92,6 +92,34 @@ class Album {
     type = json["type"];
   }
 
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data["id"] = id;
+    data["title"] = title;
+    data["upc"] = upc;
+    data["link"] = link;
+    data["share"] = share;
+    data["cover"] = cover;
+    data["cover_small"] = coverSmall;
+    data["cover_medium"] = coverMedium;
+    data["cover_big"] = coverBig;
+    data["cover_xl"] = coverXl;
+    data["md5_image"] = md5Image;
+    data["genre_id"] = genreId;
+    data["label"] = label;
+    data["nb_tracks"] = nbTracks;
+    data["duration"] = duration;
+    data["fans"] = fans;
+    data["release_date"] = releaseDate;
+    data["record_type"] = recordType;
+    data["available"] = available;
+    data["explicit_lyrics"] = explicitLyrics;
+    data["explicit_content_lyrics"] = explicitContentLyrics;
+    data["explicit_content_cover"] = explicitContentCover;
+    data["type"] = type;
+    return data;
+  }
+
 }
 
 class Contributors {

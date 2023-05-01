@@ -94,6 +94,7 @@ class _TabTrackState extends State<TabTrack> {
                               placeholder: (context, url) => Image.asset(
                                 'assets/images/music_default.jpg',
                                 fit: BoxFit.cover,
+                                height: 60,
                               ),
                               errorWidget: (context, url, error) =>
                                   const Icon(Icons.error),

@@ -17,29 +17,36 @@ import 'package:provider/provider.dart';
 
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
-import '../../view_models/download_view_modal.dart';
+import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/album.dart';
+import '../../models/firebase/playlist_new.dart';
 import '../../models/playlist.dart';
 import '../../repository/local/download_repository.dart';
 import '../../utils/colors.dart';
+import '../../view_models/download_view_modal.dart';
+import '../../view_models/layout_screen_view_model.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/artist_detail.dart';
 import '../../views/layout_screen.dart';
+import '../../views/library/add_playlist.dart';
+import '../list_tile_custom/list_tile_custom.dart';
 
 class ActionMore extends StatefulWidget {
-  const ActionMore(
-      {Key? key,
-      required this.track,
-      this.playlist,
-      this.isDownloaded = false,
-      this.album,
-      this.isAddedFavorite})
-      : super(key: key);
+  const ActionMore({
+    Key? key,
+    required this.track,
+    this.playlist,
+    this.isDownloaded = false,
+    this.album,
+    this.isAddedFavorite,
+    this.playlistNew,
+  }) : super(key: key);
   final Track track;
   final Playlist? playlist;
   final Album? album;
   final bool? isDownloaded;
   final bool? isAddedFavorite;
+  final PlaylistNew? playlistNew;
 
   @override
   State<ActionMore> createState() => _ActionMoreState();
@@ -48,6 +55,8 @@ class ActionMore extends StatefulWidget {
 class _ActionMoreState extends State<ActionMore> {
   int _value = 0;
   bool _isChecked = false;
+  final _searchPlaylist = TextEditingController();
+  String _searchText = "";
 
   @override
   void initState() {
@@ -69,6 +78,8 @@ class _ActionMoreState extends State<ActionMore> {
   Widget build(BuildContext context) {
     Track? track = widget.track;
     Widget downloadTileItem;
+    Widget addFavoriteTileItem;
+    Widget addPlaylistTileItem;
     if (widget.isDownloaded == true) {
       downloadTileItem = buildModalTileItem(
         context,
@@ -101,16 +112,79 @@ class _ActionMoreState extends State<ActionMore> {
         },
       );
     }
+    if (widget.isAddedFavorite == true) {
+      addFavoriteTileItem = buildModalTileItem(
+        context,
+        title: 'Added to the library',
+        icon: Icon(
+          Icons.favorite,
+          color: ColorsConsts.primaryColorDark,
+        ),
+        onTap: removeFavoriteTrack(track),
+      );
+    } else {
+      addFavoriteTileItem = buildModalTileItem(
+        context,
+        title: 'Add to the library',
+        icon: const Icon(Icons.favorite_border_sharp),
+        onTap: addFavoriteTrack(track),
+      );
+    }
+    if (widget.playlistNew != null) {
+      addPlaylistTileItem = buildModalTileItem(
+        context,
+        title: 'Remove from playlist',
+        icon: Image.asset(
+          'assets/icons/icons8-add-song-48.png',
+          color: Colors.white,
+          width: 20,
+          height: 20,
+        ),
+        onTap: () {
+          PlaylistNew? playlistNew = widget.playlistNew;
+          List<Track> tracks = playlistNew!.tracks!;
+          tracks.removeWhere((element) => element.id == track.id);
+          PlaylistNewService.instance.updateItem(
+            PlaylistNew(
+              id: playlistNew.id,
+              title: playlistNew.title,
+              isDownloading: playlistNew.isDownloading,
+              isPrivate: playlistNew.isDownloading,
+              picture: (tracks.isNotEmpty) ? tracks.first.album!.coverBig: null,
+              releaseDate: playlistNew.releaseDate,
+              userId: playlistNew.userId,
+              tracks: tracks,
+              userName: playlistNew.userName,
+            ),
+          );
+          Navigator.pop(context);
+        },
+      );
+    } else {
+      addPlaylistTileItem = buildModalTileItem(context,
+          title: 'Add to playlist',
+          icon: Image.asset(
+            'assets/icons/icons8-add-song-48.png',
+            color: Colors.white,
+            width: 20,
+            height: 20,
+          ), onTap: () {
+        Navigator.of(context).pop(true);
+        buildModalAddPlaylist(context);
+      });
+    }
+
     return SizedBox(
       width: 50,
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          buildShowModalMore(
-              context, track, downloadTileItem, widget.isAddedFavorite!);
+          buildShowModalMore(context, track, downloadTileItem,
+              addFavoriteTileItem, addPlaylistTileItem);
         },
         style: ElevatedButton.styleFrom(
-            elevation: 0, backgroundColor: Colors.transparent,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
             alignment: Alignment.center,
             padding: const EdgeInsets.all(0)),
         child: const Icon(Icons.more_vert),
@@ -118,10 +192,153 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  Future<dynamic> buildShowModalMore(BuildContext context, Track track,
-      Widget downloadTileItem, bool isAddedFavorite) {
+  Future<dynamic> buildModalAddPlaylist(BuildContext context) {
+    return showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      backgroundColor: Colors.grey.shade900,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0))),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
+          margin: const EdgeInsets.only(top: defaultPadding * 2),
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(0),
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                Text(
+                  'Add track to the playlist',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                buildDivider(),
+                Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: defaultPadding),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: defaultPadding,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(defaultBorderRadius * 4),
+                    color: Colors.grey.shade800,
+                  ),
+                  child: TextField(
+                    controller: _searchPlaylist,
+                    onChanged: (value) {
+                      setState(() {
+                        _searchText = _searchPlaylist.text;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      prefixIcon: Icon(Ionicons.search),
+                      hintText: 'Search playlist',
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (BuildContext context,
+                            Animation<double> animation1,
+                            Animation<double> animation2) {
+                          return const AddPlaylistScreen();
+                        },
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: defaultPadding,
+                        vertical: defaultPadding / 2),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade800,
+                            borderRadius:
+                                BorderRadius.circular(defaultBorderRadius / 2),
+                          ),
+                          child: const Center(
+                            child: Icon(Ionicons.add, size: 30),
+                          ),
+                        ),
+                        paddingWidth(0.5),
+                        Text(
+                          'Add playlist',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * .5,
+                  child: StreamBuilder(
+                    stream: PlaylistNewService.instance
+                        .getItemsByUserId(CommonUtils.userId),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const SizedBox();
+                      }
+                      List<PlaylistNew>? playlistNews = snapshot.data!;
+
+                      if(_searchText.isNotEmpty) {
+                        List<PlaylistNew>? result =  playlistNews.where((element) => element.title!.contains(_searchText)).toList();
+                         return SizedBox(
+                           height: result.length * (50 + 16),
+                           child: ListView.builder(
+                             physics: const BouncingScrollPhysics(),
+                             itemCount: result.length,
+                             itemBuilder: (context, index) {
+                               return AddTrackToPlaylistTileItem(
+                                   playlistNew: result[index], track: widget.track,);
+                             },
+                           ),
+                         );
+                      }
+                      playlistNews.sort((a, b) => a.title!.compareTo(b.title!));
+                      return SizedBox(
+                        height: playlistNews.length * (50 + 16),
+                        child: ListView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: playlistNews.length,
+                          itemBuilder: (context, index) {
+                            return AddTrackToPlaylistTileItem(
+                              playlistNew: playlistNews[index], track: widget.track,);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<dynamic> buildShowModalMore(
+      BuildContext context,
+      Track track,
+      Widget downloadTileItem,
+      Widget addFavoriteTileItem,
+      Widget addPlaylistTileItem) {
     return showModalBottomSheet(
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       context: context,
       builder: (_) {
         return Container(
@@ -141,72 +358,8 @@ class _ActionMoreState extends State<ActionMore> {
                 buildHeaderModal(track, context),
                 buildDivider(),
                 downloadTileItem,
-                isAddedFavorite
-                    ? buildModalTileItem(
-                        context,
-                        title: 'Added to the library',
-                        icon: Icon(
-                          Icons.favorite,
-                          color: ColorsConsts.primaryColorDark,
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          ToastCommon.showCustomText(
-                              content:
-                                  'Removed ${track.title} from the library');
-                          FavoriteSongService.instance.deleteItemByTrackId(
-                              track.id.toString(),
-                              FirebaseAuth.instance.currentUser!.uid);
-                        },
-                      )
-                    : buildModalTileItem(
-                        context,
-                        title: 'Add to the library',
-                        icon: const Icon(Icons.favorite_border_sharp),
-                        onTap: () {
-                          Navigator.pop(context);
-                          ToastCommon.showCustomText(
-                              content: 'Added ${track.title} to the library');
-                          FavoriteSongService.instance.addItem(
-                            FavoriteSong(
-                              id: DateTime.now().toString(),
-                              trackId: track.id.toString(),
-                              albumId: (widget.album != null)
-                                  ? widget.album!.id.toString()
-                                  : track.album!.id.toString(),
-                              artistId: track.artist!.id.toString(),
-                              title: track.title,
-                              albumTitle: (widget.album != null)
-                                  ? widget.album!.title.toString()
-                                  : track.album!.title,
-                              artistName: track.artist!.name,
-                              pictureMedium: track.artist!.pictureMedium,
-                              coverMedium: (widget.album != null)
-                                  ? widget.album!.coverMedium.toString()
-                                  : track.album!.coverMedium,
-                              coverXl: (widget.album != null)
-                                  ? widget.album!.coverXl.toString()
-                                  : track.album!.coverXl,
-                              preview: track.preview,
-                              releaseDate: (widget.album != null)
-                                  ? widget.album!.releaseDate.toString()
-                                  : track.album!.releaseDate,
-                              userId: FirebaseAuth.instance.currentUser!.uid,
-                              type: 'track',
-                            ),
-                          );
-                        },
-                      ),
-                buildModalTileItem(
-                  context,
-                  title: 'Add to playlist',
-                  icon: Image.asset(
-                    'assets/icons/icons8-add-song-48.png',
-                    color: Colors.white,
-                    width: 20,
-                    height: 20,
-                  ),
-                ),
+                addFavoriteTileItem,
+                addPlaylistTileItem,
                 buildModalTileItem(
                   context,
                   title: 'View Album',
@@ -270,6 +423,57 @@ class _ActionMoreState extends State<ActionMore> {
         );
       },
     );
+  }
+
+  VoidCallback removeFavoriteTrack(Track track) {
+    return () {
+      ToastCommon.showCustomText(
+          content: 'Removed track ${track.title} from the library');
+      FavoriteSongService.instance.deleteItemByTrackId(
+          track.id.toString(), FirebaseAuth.instance.currentUser!.uid);
+    };
+  }
+
+  VoidCallback addFavoriteTrack(Track track) {
+    return () {
+      ToastCommon.showCustomText(
+          content: 'Added track ${track.title} to the library');
+      FavoriteSongService.instance.addItem(
+        (widget.album != null)
+            ? FavoriteSong(
+                id: DateTime.now().toString(),
+                trackId: track.id.toString(),
+                albumId: widget.album!.id.toString(),
+                artistId: track.artist!.id.toString(),
+                title: track.title,
+                albumTitle: widget.album!.title.toString(),
+                artistName: track.artist!.name,
+                pictureMedium: track.artist!.pictureMedium,
+                coverMedium: widget.album!.coverMedium.toString(),
+                coverXl: widget.album!.coverXl.toString(),
+                preview: track.preview,
+                releaseDate: widget.album!.releaseDate.toString(),
+                userId: FirebaseAuth.instance.currentUser!.uid,
+                type: 'track',
+              )
+            : FavoriteSong(
+                id: DateTime.now().toString(),
+                trackId: track.id.toString(),
+                albumId: track.album!.id.toString(),
+                artistId: track.artist!.id.toString(),
+                title: track.title,
+                albumTitle: track.album!.title,
+                artistName: track.artist!.name,
+                pictureMedium: track.artist!.pictureMedium,
+                coverMedium: track.album!.coverMedium,
+                coverXl: track.album!.coverXl,
+                preview: track.preview,
+                releaseDate: track.album!.releaseDate,
+                userId: FirebaseAuth.instance.currentUser!.uid,
+                type: 'track',
+              ),
+      );
+    };
   }
 
   Future<dynamic> buildShowModalDownloadThisSong(
@@ -350,13 +554,6 @@ class _ActionMoreState extends State<ActionMore> {
                             if (status.isGranted) {
                               final externalDir =
                                   await getExternalStorageDirectory();
-                              await FlutterDownloader.enqueue(
-                                url: '${track.preview}',
-                                savedDir: externalDir!.path,
-                                fileName: 'track-${track.id}.mp3',
-                                showNotification: false,
-                                openFileFromNotification: false,
-                              );
                               if (widget.playlist != null) {
                                 await DownloadRepository.instance
                                     .insertPlaylistDownload(widget.playlist!);
@@ -366,11 +563,19 @@ class _ActionMoreState extends State<ActionMore> {
                                         playlistId: widget.playlist!.id);
                               } else if (widget.album != null) {
                                 await DownloadRepository.instance
-                                    .insertAlbumDownload(widget.album!);
+                                    .insertAlbumDownload(widget.album!,
+                                        track: track);
                                 await DownloadRepository.instance
                                     .insertTrackDownload(
                                         track: track, album: widget.album);
                               }
+                              await FlutterDownloader.enqueue(
+                                url: '${track.preview}',
+                                savedDir: externalDir!.path,
+                                fileName: 'track-${track.id}.mp3',
+                                showNotification: false,
+                                openFileFromNotification: false,
+                              );
                               ToastCommon.showCustomText(
                                   content: 'Add track to downloaded list.');
                             } else {

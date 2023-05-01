@@ -30,7 +30,7 @@ class DownloadViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void loadTrackDownload() async {
+  Future<void> loadTrackDownload() async {
     await DownloadRepository.instance
         .getAllTrackDownloads()
         .then((value) => setTrackDownload(value))

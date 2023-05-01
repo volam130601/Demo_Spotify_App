@@ -88,7 +88,9 @@ class _AlbumDetailDownloadState extends State<AlbumDetailDownload> {
                     children: [
                       Text(
                           CommonUtils.formatReleaseDate(
-                              widget.albumDownload.releaseDate!),
+                              (widget.albumDownload.releaseDate != null)
+                                  ? widget.albumDownload.releaseDate!
+                                  : DateTime.now().toString()),
                           style: Theme.of(context).textTheme.titleMedium),
                       paddingHeight(1.5),
                       Row(

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
@@ -89,4 +91,6 @@ class CommonUtils {
     }
     return formatSize(totalSize);
   }
+
 }
+

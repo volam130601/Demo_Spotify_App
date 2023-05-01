@@ -16,7 +16,8 @@ import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
 import '../../../view_models/download_view_modal.dart';
 import '../../../widgets/action/action_download_track.dart';
-import '../../../widgets/list_tile_custom.dart';
+import '../../../widgets/list_tile_custom/list_tile_custom.dart';
+import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
 
 class AlbumDetail extends StatefulWidget {
@@ -129,7 +130,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          return playlistTile(context, tracks[index], album);
+                          return TrackTileItem(track:tracks[index],album: album);
                         },
                         childCount: tracks.length,
                       ),
@@ -326,17 +327,4 @@ class _AlbumDetailState extends State<AlbumDetail> {
     );
   }
 
-  Widget playlistTile(BuildContext context, Track track, Album album) {
-    return Consumer<DownloadViewModel>(
-      builder: (context, value, child) {
-        final bool isDownloaded =
-            value.trackDownloads.any((item) => item.id == track.id!);
-        return TrackTileItem(
-          track: track,
-          album: album,
-          isDownloaded: isDownloaded,
-        );
-      },
-    );
-  }
 }

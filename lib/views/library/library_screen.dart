@@ -8,7 +8,7 @@ import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/views/library/add_playlist.dart';
 import 'package:demo_spotify_app/views/library/favorite_screen.dart';
-import 'package:demo_spotify_app/widgets/list_tile_custom.dart';
+import 'package:demo_spotify_app/widgets/list_tile_custom/list_tile_custom.dart';
 import 'package:demo_spotify_app/widgets/tab_bar/tab_bar_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

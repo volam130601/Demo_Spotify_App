@@ -24,16 +24,6 @@ class PlaylistNewService {
     return _db.collection(collectionName).doc(id).delete();
   }
 
-  Future<void> deleteItemByPlaylistId(String playlistId, String userId) {
-    return _db
-        .collection(collectionName)
-        .where('id', isEqualTo: playlistId)
-        .get()
-        .then((QuerySnapshot snapshot) {
-      snapshot.docs.first.reference.delete();
-    });
-  }
-
   Future<void> deleteAll() {
     return _db.collection(collectionName).get().then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
@@ -52,15 +42,21 @@ class PlaylistNewService {
   }
 
 //TODO: Fix bug render tracks with Stream builder
-
- /* Future<List<Track>> getPlaylistNewByPlaylistIdAndUserId(
-      String playlistId) async {
-    await _db
+  Stream<List<Track>> getPlaylistNewByPlaylistIdAndUserId(String playlistId ,String userId) {
+    return _db
         .collection(collectionName)
-        .where('id', isEqualTo: playlistId)
-        .get()
-        .then((QuerySnapshot snapshot) {
-         return snapshot.docs.first.reference;
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          List<Track> tracks = [];
+          for (var e in snapshot.docs) {
+            if(e.id == playlistId) {
+              tracks.addAll(PlaylistNew.fromSnapshot(e).tracks!);
+            }
+          }
+          return tracks;
         });
-  }*/
+  }
+
+
 }
