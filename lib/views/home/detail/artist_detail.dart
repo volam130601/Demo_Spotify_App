@@ -1,16 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
+import '../../../data/network/firebase/follow_artist_service.dart';
 import '../../../data/response/status.dart';
 import '../../../models/album.dart';
 import '../../../models/artist.dart';
+import '../../../models/firebase/follow_artist.dart';
 import '../../../models/playlist.dart';
 import '../../../models/track.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
+import '../../../utils/toast_utils.dart';
 import '../../../view_models/artist_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
 import '../../../widgets/play_control/play_button.dart';
@@ -180,7 +184,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
       slivers: [
         buildSliverAppBar(context, artist),
         buildHeaderBody(context, artist),
-        actionWidget(context, artist),
+        SliverToBoxAdapter(child: actionWidget(context, artist)),
         trackPopular(context),
         albumPopularReleases(context),
         featuringListViewWidget(context, artist),
@@ -588,37 +592,71 @@ class _ArtistDetailState extends State<ArtistDetail> {
   }
 
   Widget actionWidget(BuildContext context, Artist artist) {
-    return SliverToBoxAdapter(
-      child: Row(
-        children: [
-          const SizedBox(width: defaultPadding),
-          OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white)),
-            child: Text(
-              'Following',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-          ),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-          const Expanded(child: SizedBox()),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
-          PlayButton(
-            tracks: Provider.of<TrackPlayViewModel>(context, listen: false)
-                .tracksPlayControl
-                .data!,
-            artist: artist,
-            artistId: artist.id,
-          ),
-          const SizedBox(width: defaultPadding)
-        ],
-      ),
+    return Row(
+      children: [
+        const SizedBox(width: defaultPadding),
+        StreamBuilder(
+          stream: FollowArtistService.instance
+              .getFollowArtistByUserId(CommonUtils.userId),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return OutlinedButton(
+                onPressed: () {},
+                style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.white)),
+                child: Text(
+                  'Following',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              );
+            }
+            FollowArtist? followArtist = snapshot.data;
+            List<Artist>? artists = followArtist!.artists;
+            bool checkFollowing =
+                artists!.any((element) => element.id == widget.artistId);
+
+            return checkFollowing
+                ? ElevatedButton(
+                    onPressed: () {
+                      Artist temp = artists.firstWhere((element) => element.id == widget.artistId);
+                      followArtist.artists!.remove(temp);
+                      FollowArtistService.instance.updateItem(followArtist);
+                      ToastCommon.showCustomText(
+                        content:
+                            'Remove ${artist.name} from follow artist',
+                      );
+                    },
+                    child: Text('Following',
+                        style: Theme.of(context).textTheme.titleLarge))
+                : OutlinedButton(
+                    onPressed: () {
+                      followArtist.artists!.add(artist);
+                      FollowArtistService.instance.updateItem(followArtist);
+                      ToastCommon.showCustomText(
+                          content: 'Following artist ${artist.name}');
+                    },
+                    style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white)),
+                    child: Text('Following',
+                        style: Theme.of(context).textTheme.titleLarge));
+          },
+        ),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+        const Expanded(child: SizedBox()),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
+        PlayButton(
+          tracks: Provider.of<TrackPlayViewModel>(context, listen: false)
+              .tracksPlayControl
+              .data!,
+          artist: artist,
+          artistId: artist.id,
+        ),
+        const SizedBox(width: defaultPadding)
+      ],
     );
   }
 
   SliverToBoxAdapter buildHeaderBody(BuildContext context, Artist artist) {
-    final formatter = NumberFormat('#,###');
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -626,7 +664,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${formatter.format(4417313)} monthly listeners',
+            Text(
+                '${CommonUtils.convertToShorthand(artist.nbFan!.toInt())} monthly listeners',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall

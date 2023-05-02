@@ -1,9 +1,7 @@
-import 'dart:math';
-
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import '../models/album.dart';
 import '../models/artist.dart';
@@ -44,7 +42,6 @@ class CommonUtils {
     return '${hours}h ${remainingMinutes}min';
   }
 
-
   static String subStringTrackId(String str) {
     int lastIndexOfDash = str.lastIndexOf('-');
     return str.substring(lastIndexOfDash + 1, str.length - 4);
@@ -84,13 +81,24 @@ class CommonUtils {
     return '$size MB';
   }
 
-  static Future<String> getSizeInBytesOfTrackDownload(List<Track> tracks) async {
-    int totalSize=  0;
+  static Future<String> getSizeInBytesOfTrackDownload(
+      List<Track> tracks) async {
+    int totalSize = 0;
     for (var track in tracks) {
       totalSize += await getFileSize(track.preview.toString());
     }
     return formatSize(totalSize);
   }
 
+  static String convertToShorthand(int num) {
+    String shorthand;
+    if (num >= 1000000) {
+      shorthand = '${(num / 1000000).toStringAsFixed(1)}M';
+    } else if (num >= 1000) {
+      shorthand = '${(num / 1000).toStringAsFixed(1)}K';
+    } else {
+      shorthand = num.toString();
+    }
+    return shorthand;
+  }
 }
-

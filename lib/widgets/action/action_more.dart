@@ -24,7 +24,6 @@ import '../../models/playlist.dart';
 import '../../repository/local/download_repository.dart';
 import '../../utils/colors.dart';
 import '../../view_models/download_view_modal.dart';
-import '../../view_models/layout_screen_view_model.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/artist_detail.dart';
 import '../../views/layout_screen.dart';
@@ -150,7 +149,8 @@ class _ActionMoreState extends State<ActionMore> {
               title: playlistNew.title,
               isDownloading: playlistNew.isDownloading,
               isPrivate: playlistNew.isDownloading,
-              picture: (tracks.isNotEmpty) ? tracks.first.album!.coverBig: null,
+              picture:
+                  (tracks.isNotEmpty) ? tracks.first.album!.coverBig : null,
               releaseDate: playlistNew.releaseDate,
               userId: playlistNew.userId,
               tracks: tracks,
@@ -293,19 +293,24 @@ class _ActionMoreState extends State<ActionMore> {
                       }
                       List<PlaylistNew>? playlistNews = snapshot.data!;
 
-                      if(_searchText.isNotEmpty) {
-                        List<PlaylistNew>? result =  playlistNews.where((element) => element.title!.contains(_searchText)).toList();
-                         return SizedBox(
-                           height: result.length * (50 + 16),
-                           child: ListView.builder(
-                             physics: const BouncingScrollPhysics(),
-                             itemCount: result.length,
-                             itemBuilder: (context, index) {
-                               return AddTrackToPlaylistTileItem(
-                                   playlistNew: result[index], track: widget.track,);
-                             },
-                           ),
-                         );
+                      if (_searchText.isNotEmpty) {
+                        List<PlaylistNew>? result = playlistNews
+                            .where((element) =>
+                                element.title!.contains(_searchText))
+                            .toList();
+                        return SizedBox(
+                          height: result.length * (50 + 16),
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: result.length,
+                            itemBuilder: (context, index) {
+                              return AddTrackToPlaylistTileItem(
+                                playlistNew: result[index],
+                                track: widget.track,
+                              );
+                            },
+                          ),
+                        );
                       }
                       playlistNews.sort((a, b) => a.title!.compareTo(b.title!));
                       return SizedBox(
@@ -315,7 +320,9 @@ class _ActionMoreState extends State<ActionMore> {
                           itemCount: playlistNews.length,
                           itemBuilder: (context, index) {
                             return AddTrackToPlaylistTileItem(
-                              playlistNew: playlistNews[index], track: widget.track,);
+                              playlistNew: playlistNews[index],
+                              track: widget.track,
+                            );
                           },
                         ),
                       );

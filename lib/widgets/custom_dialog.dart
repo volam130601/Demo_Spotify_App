@@ -1,5 +1,5 @@
 import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
-import 'package:demo_spotify_app/widgets/slide_animation_page_route.dart';
+import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 

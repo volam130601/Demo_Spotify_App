@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
 
 import '../../../models/firebase/playlist_new.dart';
 import '../../../models/track.dart';
@@ -41,22 +40,20 @@ class PlaylistNewService {
             snapshot.docs.map((doc) => PlaylistNew.fromSnapshot(doc)).toList());
   }
 
-//TODO: Fix bug render tracks with Stream builder
-  Stream<List<Track>> getPlaylistNewByPlaylistIdAndUserId(String playlistId ,String userId) {
+  Stream<List<Track>> getPlaylistNewByPlaylistIdAndUserId(
+      String playlistId, String userId) {
     return _db
         .collection(collectionName)
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((snapshot) {
-          List<Track> tracks = [];
-          for (var e in snapshot.docs) {
-            if(e.id == playlistId) {
-              tracks.addAll(PlaylistNew.fromSnapshot(e).tracks!);
-            }
-          }
-          return tracks;
-        });
+      List<Track> tracks = [];
+      for (var e in snapshot.docs) {
+        if (e.id == playlistId) {
+          tracks.addAll(PlaylistNew.fromSnapshot(e).tracks!);
+        }
+      }
+      return tracks;
+    });
   }
-
-
 }

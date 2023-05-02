@@ -23,6 +23,7 @@ import '../../widgets/container_null_value.dart';
 import '../../widgets/selection_title.dart';
 import '../layout_screen.dart';
 import 'download_screen.dart';
+import 'artist/follow_artist_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({Key? key}) : super(key: key);
@@ -324,6 +325,25 @@ class _LibraryScreenState extends State<LibraryScreen>
                     return const LayoutScreen(
                       index: 4,
                       screen: FavoriteSongScreen(),
+                    );
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            };
+          }
+          if (categoryLibraries[index].code == CategoryLibrary.artist) {
+            onTap = () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const LayoutScreen(
+                      index: 4,
+                      screen: FollowArtistScreen(),
                     );
                   },
                   transitionDuration: Duration.zero,

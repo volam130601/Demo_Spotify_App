@@ -2,8 +2,6 @@ import 'package:demo_spotify_app/data/network/firebase/favorite_song_service.dar
 import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
-import 'package:demo_spotify_app/widgets/list_tile_custom/list_tile_custom.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -11,11 +9,12 @@ import 'package:provider/provider.dart';
 
 import '../../models/album.dart';
 import '../../models/track.dart';
+import '../../utils/common_utils.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/multi_control_player_view_model.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/list_tile_custom/track_tile_item.dart';
-import '../../widgets/slide_animation_page_route.dart';
+import '../../widgets/navigator/slide_animation_page_route.dart';
 import '../home/play_control/track_play.dart';
 
 class FavoriteSongScreen extends StatefulWidget {
@@ -76,10 +75,8 @@ class FavoriteSongBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final favoriteSongService = FavoriteSongService.instance;
-    String userId = FirebaseAuth.instance.currentUser!.uid;
     return StreamBuilder(
-      stream: favoriteSongService.getItemsByUserId(userId),
+      stream: FavoriteSongService.instance.getItemsByUserId(CommonUtils.userId),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');

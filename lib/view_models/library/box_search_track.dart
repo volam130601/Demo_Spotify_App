@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
-import 'package:demo_spotify_app/widgets/list_tile_custom/list_tile_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/recent_search_service.dart';
 import '../../models/category/category_search.dart';
 import '../../models/firebase/playlist_new.dart';
 import '../../models/track.dart';
@@ -28,7 +26,6 @@ class _BoxSearchTrackState extends State<BoxSearchTrack> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
   final FocusNode _focusNode = FocusNode();
-  final RecentSearchService _recentSearchService = RecentSearchService();
 
   String categoryCode = CategorySearch.tracks;
   Timer? _debounce;

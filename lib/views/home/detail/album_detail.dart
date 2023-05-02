@@ -14,9 +14,7 @@ import '../../../models/firebase/favorite_album.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
-import '../../../view_models/download_view_modal.dart';
 import '../../../widgets/action/action_download_track.dart';
-import '../../../widgets/list_tile_custom/list_tile_custom.dart';
 import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
 
@@ -125,12 +123,13 @@ class _AlbumDetailState extends State<AlbumDetail> {
                     buildAppBar(value, context, album),
                     buildSelectionTitle(context, album),
                     SliverToBoxAdapter(
-                      child: actions(tracks, album , value),
+                      child: actions(tracks, album, value),
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
-                          return TrackTileItem(track:tracks[index],album: album);
+                          return TrackTileItem(
+                              track: tracks[index], album: album);
                         },
                         childCount: tracks.length,
                       ),
@@ -326,5 +325,4 @@ class _AlbumDetailState extends State<AlbumDetail> {
       ],
     );
   }
-
 }

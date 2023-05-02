@@ -19,7 +19,7 @@ import '../utils/common_utils.dart';
 import '../utils/constants/default_constant.dart';
 import '../view_models/download_view_modal.dart';
 import '../widgets/play_control/seekbar.dart';
-import '../widgets/slide_animation_page_route.dart';
+import '../widgets/navigator/slide_animation_page_route.dart';
 import 'home/play_control/track_play.dart';
 
 class LayoutScreen extends StatefulWidget {

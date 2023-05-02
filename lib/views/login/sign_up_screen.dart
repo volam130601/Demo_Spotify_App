@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import '../../data/network/firebase/user_service.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../widgets/custom_dialog.dart';
-import '../../widgets/slide_animation_page_route.dart';
+import '../../widgets/navigator/slide_animation_page_route.dart';
 import 'components/form_input.dart';
 import 'main_login_screen.dart';
 

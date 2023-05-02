@@ -10,7 +10,7 @@ import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/multi_control_player_view_model.dart';
 import '../../widgets/selection_title.dart';
-import '../../widgets/slide_animation_page_route.dart';
+import '../../widgets/navigator/slide_animation_page_route.dart';
 import '../home/play_control/track_play.dart';
 
 class GenreDetail extends StatefulWidget {

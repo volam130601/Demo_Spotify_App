@@ -1,10 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
 
 import '../../data/network/firebase/auth_google_service.dart';
-import '../../utils/constants/default_constant.dart';
 import '../../utils/routes/route_name.dart';
 import '../../utils/toast_utils.dart';
 
@@ -95,7 +93,6 @@ class _SettingScreenState extends State<SettingScreen> {
               subTitle: (isCheck)
                   ? 'You are logged in as Lam Vo'
                   : 'You want to sign in spotify app.'),
-
         ],
       ),
     );

@@ -13,7 +13,7 @@ import '../../data/network/firebase/user_service.dart';
 import '../../models/firebase/user.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../utils/routes/route_name.dart';
-import '../../widgets/slide_animation_page_route.dart';
+import '../../widgets/navigator/slide_animation_page_route.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);

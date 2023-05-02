@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/views/library/library_screen.dart';
-import 'package:demo_spotify_app/widgets/list_tile_custom/list_tile_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -67,7 +67,8 @@ class _AddPlaylistDetailScreenState extends State<AddPlaylistDetailScreen> {
                               reverseTransitionDuration: Duration.zero,
                             ),
                           );
-                          print('remove this playlist');
+                          ToastCommon.showCustomText(
+                              content: 'remove this playlist');
                         },
                         child: const ListTile(
                           leading: Icon(Icons.remove_circle),
