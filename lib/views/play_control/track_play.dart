@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
-import 'package:demo_spotify_app/views/home/play_control/play_control.dart';
+import 'package:demo_spotify_app/views/play_control/play_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:just_audio/just_audio.dart';

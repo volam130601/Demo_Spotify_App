@@ -15,7 +15,7 @@ import '../../view_models/multi_control_player_view_model.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../widgets/navigator/slide_animation_page_route.dart';
-import '../home/play_control/track_play.dart';
+import '../play_control/track_play.dart';
 
 class FavoriteSongScreen extends StatefulWidget {
   const FavoriteSongScreen({Key? key}) : super(key: key);

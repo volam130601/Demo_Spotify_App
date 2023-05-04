@@ -11,7 +11,7 @@ import '../../../view_models/multi_control_player_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
 import '../../../widgets/navigator/slide_animation_page_route.dart';
 import '../../../widgets/selection_title.dart';
-import '../play_control/track_play.dart';
+import '../../play_control/track_play.dart';
 
 class TrackListView extends StatelessWidget {
   const TrackListView({Key? key}) : super(key: key);
