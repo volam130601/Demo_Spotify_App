@@ -69,6 +69,7 @@ dependencies:
   google_sign_in: ^6.1.0
   permission_handler: ^10.2.0
   uuid: ^3.0.7
+  shimmer: ^2.0.0
 
 
 dev_dependencies:

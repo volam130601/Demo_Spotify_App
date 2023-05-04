@@ -160,6 +160,9 @@ class _AddPlaylistDetailScreenState extends State<AddPlaylistDetailScreen> {
               SliverToBoxAdapter(
                 child: body,
               ),
+              SliverToBoxAdapter(
+                child: paddingHeight(10),
+              ),
             ],
           );
         },

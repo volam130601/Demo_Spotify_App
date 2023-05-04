@@ -6,7 +6,6 @@ import 'package:demo_spotify_app/views/home/tab_view/tracks_view.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/constants/default_constant.dart';
@@ -21,12 +20,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    setIsLoading();
     Provider.of<DownloadViewModel>(context, listen: false).loadTrackDownload();
     Provider.of<HomeViewModel>(context, listen: false)
       ..fetchChartPlaylistsApi()
@@ -35,55 +31,41 @@ class _HomeScreenState extends State<HomeScreen> {
       ..fetchChartArtistsApi();
   }
 
-  Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        body: Center(
-          child: LoadingAnimationWidget.staggeredDotsWave(
-            color: Colors.white,
-            size: 40,
-          ),
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: Consumer<HomeViewModel>(
-          builder: (context, value, child) {
-            return Container(
-              padding: const EdgeInsets.only(top: defaultPadding),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    paddingHeight(1),
-                    const HeaderBody(),
-                    paddingHeight(1),
-                    buildHomeRecentSearch(),
-                    const PlaylistView(),
-                    paddingHeight(2),
-                    const AlbumListView(),
-                    paddingHeight(2),
-                    const TrackListView(),
-                    paddingHeight(2),
-                    const ArtistListView(),
-                    paddingHeight(8),
-                  ],
+    return Scaffold(
+      body: Consumer<HomeViewModel>(
+        builder: (context, value, child) {
+          return Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: defaultPadding),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      paddingHeight(1),
+                      const HeaderBody(),
+                      paddingHeight(1),
+                      buildHomeRecentSearch(),
+                      const PlaylistView(),
+                      paddingHeight(2),
+                      const AlbumListView(),
+                      paddingHeight(2),
+                      const TrackListView(),
+                      paddingHeight(2),
+                      const ArtistListView(),
+                      paddingHeight(8),
+                    ],
+                  ),
                 ),
               ),
-            );
-          },
-        ),
-      );
-    }
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Padding buildHomeRecentSearch() {

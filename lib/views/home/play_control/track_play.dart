@@ -17,41 +17,43 @@ class TrackPlay extends StatefulWidget {
 }
 
 class _TrackPlayState extends State<TrackPlay> {
+  double _dragDistance = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<MultiPlayerViewModel>(builder: (context, value, child) {
-        return Stack(
-          children: [
-            buildImageBackground(context, value),
-            Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: Colors.black45,
-            ),
-            Positioned(
-              bottom: 50,
-              left: 0,
-              right: 0,
-              child: buildPlayControlBox(),
-            ),
-            Positioned(
-                left: 0, right: 0, top: 20, child: buildHeader(context, value)),
-          ],
+        return GestureDetector(
+          onVerticalDragDown: (details) {
+            _dragDistance = 0;
+          },
+          onVerticalDragUpdate: (details) {
+            _dragDistance += details.delta.dy.abs();
+          },
+          onVerticalDragEnd: (details) {
+            if (_dragDistance > 100) {
+              Navigator.pop(context);
+            }
+          },
+          child: Stack(
+            children: [
+              buildImageBackground(context, value),
+              Container(
+                height: double.infinity,
+                width: double.infinity,
+                color: Colors.black45,
+              ),
+              const Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: PlayControl()
+              ),
+              Positioned(
+                  left: 0, right: 0, top: 20, child: buildHeader(context, value)),
+            ],
+          ),
         );
       }),
-    );
-  }
-
-  SizedBox buildPlayControlBox() {
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SizedBox(height: 200, width: 400, child: PlayControl())
-        ],
-      ),
     );
   }
 
