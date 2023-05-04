@@ -11,7 +11,7 @@ import '../../models/album.dart';
 import '../../models/track.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/multi_control_player_view_model.dart';
+import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../widgets/navigator/slide_animation_page_route.dart';

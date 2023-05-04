@@ -3,7 +3,7 @@ import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
-import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/widgets/container_null_value.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';

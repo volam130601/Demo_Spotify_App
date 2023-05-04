@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import '../../../../utils/colors.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../utils/common_utils.dart';
-import '../../../view_models/multi_control_player_view_model.dart';
+import '../../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../../widgets/play_control/play_button.dart';
 import '../../../models/track.dart';
 

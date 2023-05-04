@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/multi_control_player_view_model.dart';
+import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../widgets/selection_title.dart';
 import '../../widgets/navigator/slide_animation_page_route.dart';
 import '../play_control/track_play.dart';

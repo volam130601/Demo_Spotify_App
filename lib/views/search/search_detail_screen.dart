@@ -18,7 +18,7 @@ import '../../models/firebase/recent_search.dart';
 import '../../models/track.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/multi_control_player_view_model.dart';
+import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../view_models/track_play_view_model.dart';
 import '../../widgets/search_tile_item.dart';
 import '../home/detail/album_detail.dart';

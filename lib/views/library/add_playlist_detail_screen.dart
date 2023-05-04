@@ -13,7 +13,7 @@ import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/firebase/playlist_new.dart';
 import '../../models/track.dart';
 import '../../view_models/library/box_search_track.dart';
-import '../../view_models/multi_control_player_view_model.dart';
+import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../widgets/list_tile_custom/track_tile_item.dart';
 import '../layout_screen.dart';
 

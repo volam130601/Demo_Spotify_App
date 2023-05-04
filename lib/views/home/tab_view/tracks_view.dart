@@ -7,7 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import '../../../data/response/status.dart';
 import '../../../models/track.dart';
 import '../../../utils/constants/default_constant.dart';
-import '../../../view_models/multi_control_player_view_model.dart';
+import '../../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../../view_models/track_play_view_model.dart';
 import '../../../widgets/navigator/slide_animation_page_route.dart';
 import '../../../widgets/selection_title.dart';

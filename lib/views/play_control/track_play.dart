@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/views/play_control/play_control.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
@@ -18,6 +18,7 @@ class TrackPlay extends StatefulWidget {
 
 class _TrackPlayState extends State<TrackPlay> {
   double _dragDistance = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,13 +44,12 @@ class _TrackPlayState extends State<TrackPlay> {
                 color: Colors.black45,
               ),
               const Positioned(
-                bottom: 20,
-                left: 0,
-                right: 0,
-                child: PlayControl()
-              ),
+                  bottom: 20, left: 0, right: 0, child: PlayControl()),
               Positioned(
-                  left: 0, right: 0, top: 20, child: buildHeader(context, value)),
+                  left: 0,
+                  right: 0,
+                  top: 20,
+                  child: buildHeader(context, value)),
             ],
           ),
         );
