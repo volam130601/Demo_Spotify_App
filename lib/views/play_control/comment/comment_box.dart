@@ -8,168 +8,89 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../utils/constants/default_constant.dart';
-import '../../models/firebase/comment.dart';
-
+import '../../../../utils/constants/default_constant.dart';
+import '../../../models/firebase/comment/comment.dart';
+import '../../../models/firebase/comment/comment_reply.dart';
+import '../../../view_models/comment_view_model.dart';
+import 'comment_action.dart';
+import 'comment_like_button.dart';
+//TODO: continue modal comment , delete comment, edit comment
 //TODO: Show paging , lazy loading, hide reply
-class CommentBoxScreen extends StatefulWidget {
+class CommentBoxScreen extends StatelessWidget {
   const CommentBoxScreen({Key? key, required this.trackId}) : super(key: key);
   final String trackId;
 
   @override
-  State<CommentBoxScreen> createState() => _CommentBoxScreenState();
-}
-
-class _CommentBoxScreenState extends State<CommentBoxScreen> {
-  final _commentController = TextEditingController();
-  final _focusNode = FocusNode();
-  bool _isShowAvatar = true;
-  bool _isReply = false;
-  bool _isReplyOfChild = false;
-  Comment _comment = Comment();
-  CommentReply _commentReply = CommentReply();
-  int totalComment = 0;
-
-  @override
-  void dispose() {
-    super.dispose();
-    _focusNode.dispose();
-    _commentController.dispose();
-  }
-
-  void setShowAvatar(newValue) {
-    setState(() {
-      _isShowAvatar = newValue;
-    });
-  }
-
-  void clearInput(bool isClear) {
-    setShowAvatar(true);
-    _focusNode.unfocus();
-    if (isClear) {
-      _commentController.clear();
-      setState(() {
-        _isReply = false;
-        _isReplyOfChild = false;
-      });
-    }
-  }
-
-  void setCommentReply(Comment comment) {
-    setState(() {
-      _isReply = true;
-      _comment = comment;
-    });
-  }
-
-  void setCommentReplyOfChild(Comment comment, CommentReply commentReply) {
-    setState(() {
-      _isReplyOfChild = true;
-      _comment = comment;
-      _commentReply = commentReply;
-    });
-  }
-
-  void pushComment() {
-    CommentService.instance.addCommentOfTrack(
-        content: _commentController.text, trackId: widget.trackId);
-  }
-
-  void pushCommentReply() {
-    CommentService.instance.addCommentReplyOfParentComment(
-      content: _commentController.text,
-      comment: _comment,
-    );
-  }
-
-  void pushCommentReplyOfChild() {
-    CommentService.instance.addCommentReplyOfChildComment(
-        content: _commentController.text,
-        comment: _comment,
-        commentReply: _commentReply);
-  }
-
-  void onPressEnterInput() {
-    if (_isReply) {
-      pushCommentReply();
-    } else if (_isReplyOfChild) {
-      pushCommentReplyOfChild();
-    } else {
-      pushComment();
-    }
-    clearInput(true);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height - kToolbarHeight;
-    final width = MediaQuery.of(context).size.width;
-    Widget body;
-    body = StreamBuilder(
-      stream: CommentService.instance.getCommentsByTrackId(widget.trackId),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Scaffold(
-            body: Center(
-              child: LoadingAnimationWidget.staggeredDotsWave(
-                color: Colors.white,
-                size: 40,
+    return Consumer<CommentViewModel>(
+      builder: (context, value, child) => StreamBuilder(
+        stream: CommentService.instance.getCommentsByTrackId(trackId),
+        builder: (context, snapshot) {
+          final height = MediaQuery.of(context).size.height - kToolbarHeight;
+          final width = MediaQuery.of(context).size.width;
+          Widget body;
+          if (!snapshot.hasData) {
+            body = Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            );
+          }
+          List<Comment>? comments = snapshot.data;
+
+          if (comments!.isEmpty) {
+            body = buildNullComment(context, height, width);
+          } else {
+            int temp =
+                comments.fold<int>(0, (acc, item) => acc + item.total!.toInt());
+            value.setTotalComment(temp);
+            body = buildCommentContent(context, height, width, comments, value);
+          }
+          return GestureDetector(
+            onTap: () {
+              value.clearInput(false);
+            },
+            child: Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  onPressed: () async {
+                    value.clearInput(true);
+                    await Future.delayed(const Duration(milliseconds: 300));
+                    // ignore: use_build_context_synchronously
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(Icons.arrow_back),
+                ),
+                title: Text(
+                  '${CommonUtils.convertToShorthand(value.totalComment)} comment',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              body: SizedBox(
+                width: width,
+                child: Stack(
+                  children: [
+                    body,
+                    buildInputComment(context, value),
+                  ],
+                ),
               ),
             ),
           );
-        }
-        List<Comment>? comments = snapshot.data;
-
-        if (comments!.isEmpty) {
-          return buildNullComment(context, height, width);
-        } else {
-          int temp = 0;
-          for (var item in comments) {
-            temp += item.total!.toInt();
-          }
-          totalComment = temp;
-          return buildCommentContent(context, height, width, comments);
-        }
-      },
-    );
-    return GestureDetector(
-      onTap: () {
-        clearInput(false);
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () async {
-              clearInput(true);
-              await Future.delayed(const Duration(milliseconds: 300));
-              // ignore: use_build_context_synchronously
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back),
-          ),
-          title: Text(
-            '${CommonUtils.convertToShorthand(totalComment)} comment',
-            style: Theme.of(context).textTheme.titleMedium,
-            textAlign: TextAlign.center,
-          ),
-        ),
-        body: SizedBox(
-          width: width,
-          child: Stack(
-            children: [
-              body,
-              buildInputComment(context),
-            ],
-          ),
-        ),
+        },
       ),
     );
   }
 
   Widget buildCommentContent(BuildContext context, double height, double width,
-      List<Comment> comments) {
+      List<Comment> comments, CommentViewModel value) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: SizedBox(
@@ -187,7 +108,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildCommentParent(comment, context),
+                    buildCommentParent(comment, context, value),
                     paddingHeight(1),
                     // ignore: prefer_is_empty
                     if (commentReplies!.length > 0) ...{
@@ -195,7 +116,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                           .map((index) {
                         CommentReply commentReply = commentReplies[index];
                         return buildCommentReply(
-                            comment, commentReply, context);
+                            comment, commentReply, context, value);
                       })
                     }
                   ],
@@ -207,7 +128,8 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
     );
   }
 
-  Padding buildCommentParent(Comment comment, BuildContext context) {
+  Padding buildCommentParent(
+      Comment comment, BuildContext context, CommentViewModel value) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
       child: Row(
@@ -247,23 +169,23 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                 ),
                 paddingHeight(0.5),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Ionicons.heart_outline,
-                      color: Colors.grey,
-                      size: 16,
-                    ),
-                    const Text(
-                      ' | ',
-                      style: TextStyle(color: Colors.grey),
+                    CommentLikeParentButton(comment: comment),
+                    const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                      child: Text(
+                        '|',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                     InkWell(
                       onTap: () async {
-                        setCommentReply(comment);
+                        value.setCommentReply(comment);
                         await Future.delayed(const Duration(milliseconds: 100));
-                        setState(() {
-                          FocusScope.of(context).requestFocus(_focusNode);
-                        });
+                        // ignore: use_build_context_synchronously
+                        FocusScope.of(context).requestFocus(value.focusNode);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -283,21 +205,16 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
               ],
             ),
           ),
-          const SizedBox(
-            width: 20,
-            height: 30,
-            child: Icon(
-              Icons.more_vert,
-              size: 16,
-            ),
-          )
+          CommentAction(
+            comment: comment,
+          ),
         ],
       ),
     );
   }
 
-  Padding buildCommentReply(
-      Comment comment, CommentReply commentReply, BuildContext context) {
+  Padding buildCommentReply(Comment comment, CommentReply commentReply,
+      BuildContext context, CommentViewModel value) {
     return Padding(
       padding: const EdgeInsets.only(
           left: defaultPadding + 48,
@@ -352,22 +269,22 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                 paddingHeight(0.5),
                 Row(
                   children: [
-                    const Icon(
-                      Ionicons.heart_outline,
-                      color: Colors.grey,
-                      size: 16,
-                    ),
-                    const Text(
-                      ' | ',
-                      style: TextStyle(color: Colors.grey),
+                    CommentLikeChildButton(
+                        comment: comment, commentReply: commentReply),
+                    const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                      child: Text(
+                        '|',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                     GestureDetector(
                       onTap: () async {
-                        setCommentReplyOfChild(comment, commentReply);
+                        value.setCommentReplyOfChild(comment, commentReply);
                         await Future.delayed(const Duration(milliseconds: 100));
-                        setState(() {
-                          FocusScope.of(context).requestFocus(_focusNode);
-                        });
+                        // ignore: use_build_context_synchronously
+                        FocusScope.of(context).requestFocus(value.focusNode);
                       },
                       child: Text(
                         'Reply',
@@ -420,7 +337,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
     );
   }
 
-  Positioned buildInputComment(BuildContext context) {
+  Positioned buildInputComment(BuildContext context, CommentViewModel value) {
     return Positioned(
       bottom: 0,
       left: 0,
@@ -429,7 +346,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
         color: ColorsConsts.scaffoldColorDark,
         child: Column(
           children: [
-            if (_isReply) ...{
+            if (value.isReply) ...{
               SizedBox(
                 height: 30,
                 child: Padding(
@@ -446,7 +363,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                       ),
                       paddingWidth(1),
                       Text(
-                        _comment.user!.name.toString(),
+                        value.comment.user!.name.toString(),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ],
@@ -454,7 +371,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                 ),
               ),
             },
-            if (_isReplyOfChild) ...{
+            if (value.isReplyOfChild) ...{
               SizedBox(
                 height: 30,
                 child: Padding(
@@ -471,7 +388,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                       ),
                       paddingWidth(1),
                       Text(
-                        _commentReply.user!.name.toString(),
+                        value.commentReply.user!.name.toString(),
                         style: Theme.of(context).textTheme.titleSmall,
                       ),
                     ],
@@ -483,7 +400,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
               height: 60,
               child: Row(
                 children: [
-                  if (_isShowAvatar) ...{
+                  if (value.isShowAvatar) ...{
                     Container(
                       margin: const EdgeInsets.only(left: defaultPadding),
                       height: 40,
@@ -510,7 +427,7 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                               border: Border.all(
                                   width: 1, color: Colors.grey.shade500)),
                           child: TextField(
-                            focusNode: _focusNode,
+                            focusNode: value.focusNode,
                             decoration: InputDecoration(
                                 hintText: "Enter comment...",
                                 hintStyle: Theme.of(context)
@@ -519,30 +436,33 @@ class _CommentBoxScreenState extends State<CommentBoxScreen> {
                                     ?.copyWith(color: Colors.grey),
                                 border: InputBorder.none),
                             textInputAction: TextInputAction.done,
-                            controller: _commentController,
+                            controller: value.commentController,
                             maxLines: 1,
-                            onSubmitted: (value) => onPressEnterInput(),
-                            onTap: () => setShowAvatar(false),
+                            onSubmitted: (newValue) =>
+                                value.onPressEnterInput(trackId),
+                            onTap: () => value.setShowAvatar(false),
                           ),
                         ),
-                        Positioned(
-                          right: 5,
-                          child: GestureDetector(
-                            onTap: () => onPressEnterInput(),
-                            child: Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Icon(
-                                Ionicons.chevron_forward,
-                                color: Colors.black,
+                        if (!value.isShowAvatar) ...{
+                          Positioned(
+                            right: 5,
+                            child: GestureDetector(
+                              onTap: () => value.onPressEnterInput(trackId),
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Icon(
+                                  Ionicons.chevron_forward,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                        }
                       ],
                     ),
                   )

@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:demo_spotify_app/models/firebase/comment.dart';
+import 'package:demo_spotify_app/models/firebase/comment/comment.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
+
+import '../../../models/firebase/comment/comment_like.dart';
+import '../../../models/firebase/comment/comment_reply.dart';
+import '../../../models/firebase/comment/user_comment.dart';
 
 class CommentService {
   CommentService._();
@@ -17,10 +22,10 @@ class CommentService {
     Comment comment = Comment(
         trackId: trackId,
         content: content,
-        commentReplies: [],
-        createTime: DateTime.now().toString(),
-        like: 0,
         total: 1,
+        commentReplies: [],
+        commentLikes: [],
+        createTime: DateTime.now().toString(),
         user: UserComment(
             id: user!.uid.toString(),
             name: user.displayName,
@@ -40,7 +45,7 @@ class CommentService {
           id: user!.uid.toString(),
           name: user.displayName,
           photoURL: user.photoURL),
-      like: 0,
+      commentLikes: [],
       createTime: DateTime.now().toString(),
     ));
     return _db
@@ -63,7 +68,7 @@ class CommentService {
           id: user!.uid.toString(),
           name: user.displayName,
           photoURL: user.photoURL),
-      like: 0,
+      commentLikes: [],
       createTime: DateTime.now().toString(),
     ));
     return _db
@@ -102,4 +107,64 @@ class CommentService {
       return comments.isNotEmpty ? comments.reversed.toList() : [];
     });
   }
+
+  ///Begin: Comment Like
+  Future<void> likeOfParentByUserId({required Comment comment}) {
+    var uuid = const Uuid();
+    comment.commentLikes!.add(CommentLike(
+      id: uuid.v4(),
+      userId: CommonUtils.userId,
+    ));
+    return _db
+        .collection(collectionName)
+        .doc(comment.id)
+        .update(comment.toMap());
+  }
+
+  Future<void> dislikeOfParentByUserId(
+      {required Comment comment, required CommentLike commentLike}) {
+    comment.commentLikes!.remove(commentLike);
+    return _db
+        .collection(collectionName)
+        .doc(comment.id)
+        .update(comment.toMap());
+  }
+
+  Future<void> likeOfChildByUserId(
+      {required Comment comment,
+        required CommentReply commentReply}) {
+    var uuid = const Uuid();
+    comment.commentReplies?.forEach((element) {
+      if(element == commentReply) {
+        element.commentLikes!.add(CommentLike(
+          id: uuid.v4(),
+          userId: CommonUtils.userId,
+        ));
+        return;
+      }
+    });
+    return _db
+        .collection(collectionName)
+        .doc(comment.id)
+        .update(comment.toMap());
+  }
+
+  Future<void> dislikeOfChildByUserId(
+      {required Comment comment,
+      required CommentReply commentReply,
+      required CommentLike commentLike}) {
+    comment.commentReplies?.forEach((element) {
+      if(element == commentReply) {
+        element.commentLikes!.remove(commentLike);
+        return;
+      }
+    });
+    comment.commentLikes!.remove(commentLike);
+    return _db
+        .collection(collectionName)
+        .doc(comment.id)
+        .update(comment.toMap());
+  }
+
+  ///End: Comment Like
 }

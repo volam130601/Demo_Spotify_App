@@ -1,4 +1,4 @@
-import 'package:demo_spotify_app/views/play_control/comment_box.dart';
+import 'package:demo_spotify_app/views/play_control/comment/comment_box.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';

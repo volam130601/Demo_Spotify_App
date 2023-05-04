@@ -9,6 +9,7 @@ import '../models/track.dart';
 
 class CommonUtils {
   static final String userId = FirebaseAuth.instance.currentUser!.uid;
+  static final User user = FirebaseAuth.instance.currentUser!;
 
   static List<Track> convertTrackDownloadsToTracks(
           List<TrackDownload> trackDownloads) =>
