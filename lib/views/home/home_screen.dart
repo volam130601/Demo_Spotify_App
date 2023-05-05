@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
 import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ..fetchChartAlbumsApi()
       ..fetchChartTracksApi()
       ..fetchChartArtistsApi();
+    Provider.of<SignInViewModel>(context, listen: false).fetchLogin();
   }
 
   @override

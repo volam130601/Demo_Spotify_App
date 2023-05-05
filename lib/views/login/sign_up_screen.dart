@@ -177,8 +177,7 @@ class _SignUpFreeState extends State<SignUpFree> {
         email: _email,
         password: _password,
       );
-      final UserService userService = UserService();
-      userService.addItem(
+      UserService.instance.addUsers(
         Users(
           id: userCredential.user!.uid,
           displayName: _fullName,

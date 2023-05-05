@@ -1,12 +1,13 @@
 import 'dart:developer';
 
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
 import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../data/network/firebase/user_service.dart';
@@ -74,7 +75,7 @@ class LoginScreen extends StatelessWidget {
                           .push(SlideRightPageRoute(page: const SignUpFree()));
                     },
                   ),
-                  buildButtonCommon(
+                  /*buildButtonCommon(
                     context,
                     title: 'Continue with phone number',
                     icon: const Icon(
@@ -83,7 +84,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     isOutline: true,
                     onPressed: () {},
-                  ),
+                  ),*/
                   buildButtonCommon(
                     context,
                     title: 'Continue with Google',
@@ -98,22 +99,28 @@ class LoginScreen extends StatelessWidget {
                             await AuthGoogle().signInWithGoogle();
                         // User signed in successfully
                         final user = userCredential.user;
-
-                        await UserService().addItem(Users(
+                        Users users = Users(
                             id: user!.uid,
                             displayName: user.displayName.toString(),
                             email: user.email.toString(),
-                            photoUrl: user.photoURL.toString()));
+                            photoUrl: user.photoURL.toString());
+                        await UserService.instance.addUsers(users);
+                        //TODO: fix bug login : load user
                         // ignore: use_build_context_synchronously
-                        Navigator.of(context).pushReplacementNamed(RoutesName.home);
-                        ToastCommon.showCustomText(content: 'Login with google is success');
+                        Provider.of<SignInViewModel>(context, listen: false)
+                            .user = users;
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context)
+                            .pushReplacementNamed(RoutesName.home);
+                        ToastCommon.showCustomText(
+                            content: 'Login with google is success');
                       } catch (e) {
                         // Error signing in
                         log('>>>>Login ERROR');
                       }
                     },
                   ),
-                  buildButtonCommon(
+                  /*buildButtonCommon(
                     context,
                     title: 'Continue with Facebook',
                     icon: SvgPicture.asset(
@@ -122,7 +129,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     isOutline: true,
                     onPressed: () {},
-                  ),
+                  ),*/
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).push(

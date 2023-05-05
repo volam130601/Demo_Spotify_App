@@ -1,39 +1,23 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
+import 'package:demo_spotify_app/views/settings/profile_screen.dart';
+import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../utils/routes/route_name.dart';
 import '../../utils/toast_utils.dart';
 
-class SettingScreen extends StatefulWidget {
+class SettingScreen extends StatelessWidget {
   const SettingScreen({Key? key}) : super(key: key);
 
   @override
-  State<SettingScreen> createState() => _SettingScreenState();
-}
-
-class _SettingScreenState extends State<SettingScreen> {
-  final _auth = FirebaseAuth.instance;
-  bool isCheck = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (_auth.currentUser != null) {
-      setState(() {
-        isCheck = true;
-      });
-    } else {
-      setState(() {
-        isCheck = false;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    User? user = _auth.currentUser;
+    final signInProvider = Provider.of<SignInViewModel>(context, listen: false);
+    bool isCheckUser = signInProvider.user.id != null;
     return Scaffold(
       appBar: AppBar(
         leading: const SizedBox(),
@@ -49,15 +33,20 @@ class _SettingScreenState extends State<SettingScreen> {
           InkWell(
             onTap: () {},
             child: ListTile(
+              onTap: () {
+                Navigator.of(context)
+                    .push(SlideRightPageRoute(page: const ProfileScreen()));
+              },
               leading: CircleAvatar(
                 radius: 30,
-                backgroundImage: CachedNetworkImageProvider((isCheck &&
-                        user!.photoURL != null)
-                    ? '${user.photoURL}'
+                backgroundImage: CachedNetworkImageProvider((isCheckUser)
+                    ? '${signInProvider.user.photoUrl}'
                     : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
               ),
               title: Text(
-                (isCheck) ? '${user!.displayName}' : 'Your name',
+                (isCheckUser)
+                    ? '${signInProvider.user.displayName}'
+                    : 'Your name',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               subtitle: Text(
@@ -77,20 +66,19 @@ class _SettingScreenState extends State<SettingScreen> {
           const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
           SettingItem(
               onTap: () {
-                if (isCheck) {
-                  _auth.signOut();
+                if (isCheckUser) {
+                  FirebaseAuth.instance.signOut();
                   AuthGoogle().signOut();
+                  signInProvider.signOut();
+                  Provider.of<LayoutScreenViewModel>(context, listen: false).setPageIndex(0);
                   Navigator.of(context).pushNamed(RoutesName.login);
-                  setState(() {
-                    isCheck = false;
-                  });
                   ToastCommon.showCustomText(content: 'Log out is success.');
                 } else {
                   Navigator.of(context).pushNamed(RoutesName.login);
                 }
               },
-              title: (isCheck) ? 'Log out' : 'Log in',
-              subTitle: (isCheck)
+              title: (isCheckUser) ? 'Log out' : 'Log in',
+              subTitle: (isCheckUser)
                   ? 'You are logged in as Lam Vo'
                   : 'You want to sign in spotify app.'),
         ],
