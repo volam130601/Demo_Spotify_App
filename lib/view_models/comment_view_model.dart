@@ -12,10 +12,9 @@ class CommentViewModel with ChangeNotifier {
   bool _isReplyOfChild = false;
   Comment _comment = Comment();
   CommentReply _commentReply = CommentReply();
-  int _totalComment = 0;
 
   void clearInput(bool isClear) {
-    setShowAvatar(true);
+    _isShowAvatar = true;
     focusNode.unfocus();
     if (isClear) {
       commentController.clear();
@@ -86,13 +85,6 @@ class CommentViewModel with ChangeNotifier {
 
   void setShowAvatar(newValue) {
     _isShowAvatar = newValue;
-    notifyListeners();
-  }
-
-  int get totalComment => _totalComment;
-
-  void setTotalComment(int value) {
-    _totalComment = value;
     notifyListeners();
   }
 }

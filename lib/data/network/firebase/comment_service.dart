@@ -78,13 +78,36 @@ class CommentService {
   }
 
   Future<void> editContentCommentByUserId(Comment item) {
-    return _db.collection(collectionName).doc(item.id).update(item.toMap());
+    return _db.collection(collectionName)
+        .doc(item.id)
+        .update(item.toMap());
+  }
+
+  ///Begin: Delete
+  Future<void> deleteCommentParent(Comment comment) {
+    return _db.collection(collectionName)
+        .doc(comment.id)
+        .delete();
+  }
+
+  Future<void> deleteCommentChild(Comment comment, CommentReply commentReply) {
+    return _db.collection(collectionName)
+        .doc(comment.id)
+        .get()
+        .then((snapshot) {
+          Comment comment = Comment.fromSnapshot(snapshot);
+          comment.commentReplies!.removeWhere((element) => element.id == commentReply.id);
+
+          return _db
+              .collection(collectionName)
+              .doc(comment.id)
+              .update(comment.toMap());
+    });
   }
 
   Future<void> deleteItem(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
-
   Future<void> deleteAll() {
     return _db.collection(collectionName).get().then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
@@ -92,7 +115,9 @@ class CommentService {
       }
     });
   }
+  ///End: Delete
 
+  ///Begin: Get comments, get total comment
   Stream<List<Comment>> getCommentsByTrackId(String trackId) {
     return _db
         .collection(collectionName)
@@ -107,6 +132,20 @@ class CommentService {
       return comments.isNotEmpty ? comments.reversed.toList() : [];
     });
   }
+
+  Future<int> getTotalCommentByTrackId(String trackId) async {
+    return _db
+        .collection(collectionName)
+        .where('trackId', isEqualTo: trackId)
+        .get()
+        .then((value) {
+      List<Comment> comments =
+          value.docs.map((doc) => Comment.fromSnapshot(doc)).toList();
+      int total = comments.fold(0, (sum, item) => sum + item.total!);
+      return total;
+    });
+  }
+  ///End: Get comments, get total comment
 
   ///Begin: Comment Like
   Future<void> likeOfParentByUserId({required Comment comment}) {
@@ -131,11 +170,10 @@ class CommentService {
   }
 
   Future<void> likeOfChildByUserId(
-      {required Comment comment,
-        required CommentReply commentReply}) {
+      {required Comment comment, required CommentReply commentReply}) {
     var uuid = const Uuid();
     comment.commentReplies?.forEach((element) {
-      if(element == commentReply) {
+      if (element == commentReply) {
         element.commentLikes!.add(CommentLike(
           id: uuid.v4(),
           userId: CommonUtils.userId,
@@ -154,7 +192,7 @@ class CommentService {
       required CommentReply commentReply,
       required CommentLike commentLike}) {
     comment.commentReplies?.forEach((element) {
-      if(element == commentReply) {
+      if (element == commentReply) {
         element.commentLikes!.remove(commentLike);
         return;
       }

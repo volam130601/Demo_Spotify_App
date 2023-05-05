@@ -17,75 +17,96 @@ import '../../../models/firebase/comment/comment_reply.dart';
 import '../../../view_models/comment_view_model.dart';
 import 'comment_action.dart';
 import 'comment_like_button.dart';
-//TODO: continue modal comment , delete comment, edit comment
-//TODO: Show paging , lazy loading, hide reply
+
 class CommentBoxScreen extends StatelessWidget {
   const CommentBoxScreen({Key? key, required this.trackId}) : super(key: key);
   final String trackId;
 
+  void buttonCommentReply(
+      Comment comment, BuildContext context, CommentViewModel value) async {
+    value.setCommentReply(comment);
+    await Future.delayed(const Duration(milliseconds: 100));
+    // ignore: use_build_context_synchronously
+    FocusScope.of(context).requestFocus(value.focusNode);
+  }
+
+  void buttonCommentReplyOfChild(Comment comment, CommentReply commentReply,
+      BuildContext context, CommentViewModel value) async {
+    value.setCommentReplyOfChild(comment, commentReply);
+    await Future.delayed(const Duration(milliseconds: 100));
+    // ignore: use_build_context_synchronously
+    FocusScope.of(context).requestFocus(value.focusNode);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<CommentViewModel>(
-      builder: (context, value, child) => StreamBuilder(
-        stream: CommentService.instance.getCommentsByTrackId(trackId),
-        builder: (context, snapshot) {
-          final height = MediaQuery.of(context).size.height - kToolbarHeight;
-          final width = MediaQuery.of(context).size.width;
-          Widget body;
-          if (!snapshot.hasData) {
-            body = Scaffold(
-              body: Center(
-                child: LoadingAnimationWidget.staggeredDotsWave(
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-            );
-          }
-          List<Comment>? comments = snapshot.data;
-
-          if (comments!.isEmpty) {
-            body = buildNullComment(context, height, width);
-          } else {
-            int temp =
-                comments.fold<int>(0, (acc, item) => acc + item.total!.toInt());
-            value.setTotalComment(temp);
-            body = buildCommentContent(context, height, width, comments, value);
-          }
-          return GestureDetector(
-            onTap: () {
-              value.clearInput(false);
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                leading: IconButton(
-                  onPressed: () async {
-                    value.clearInput(true);
-                    await Future.delayed(const Duration(milliseconds: 300));
-                    // ignore: use_build_context_synchronously
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                title: Text(
-                  '${CommonUtils.convertToShorthand(value.totalComment)} comment',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              body: SizedBox(
-                width: width,
-                child: Stack(
-                  children: [
-                    body,
-                    buildInputComment(context, value),
-                  ],
-                ),
+    return StreamBuilder(
+      stream: CommentService.instance.getCommentsByTrackId(trackId),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+        if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white,
+                size: 40,
               ),
             ),
           );
-        },
-      ),
+        }
+        return Consumer<CommentViewModel>(
+          builder: (context, value, child) {
+            final height = MediaQuery.of(context).size.height - kToolbarHeight;
+            final width = MediaQuery.of(context).size.width;
+            List<Comment>? comments = snapshot.data;
+            Widget body;
+            int totalComment = 0;
+            if (comments!.isEmpty) {
+              body = buildNullComment(context, height, width);
+            } else {
+              int temp = comments.fold<int>(
+                  0, (acc, item) => acc + item.total!.toInt());
+              totalComment = temp;
+              body =
+                  buildCommentContent(context, height, width, comments, value);
+            }
+            return GestureDetector(
+              onTap: () {
+                value.clearInput(false);
+              },
+              child: Scaffold(
+                appBar: AppBar(
+                  leading: IconButton(
+                    onPressed: () async {
+                      value.clearInput(true);
+                      await Future.delayed(const Duration(milliseconds: 300));
+                      // ignore: use_build_context_synchronously
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  title: Text(
+                    '${CommonUtils.convertToShorthand(totalComment)} comment',
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                body: SizedBox(
+                  width: width,
+                  child: Stack(
+                    children: [
+                      body,
+                      buildInputComment(context, value),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -115,7 +136,7 @@ class CommentBoxScreen extends StatelessWidget {
                       ...Iterable<int>.generate(commentReplies.length)
                           .map((index) {
                         CommentReply commentReply = commentReplies[index];
-                        return buildCommentReply(
+                        return buildCommentChild(
                             comment, commentReply, context, value);
                       })
                     }
@@ -181,12 +202,7 @@ class CommentBoxScreen extends StatelessWidget {
                       ),
                     ),
                     InkWell(
-                      onTap: () async {
-                        value.setCommentReply(comment);
-                        await Future.delayed(const Duration(milliseconds: 100));
-                        // ignore: use_build_context_synchronously
-                        FocusScope.of(context).requestFocus(value.focusNode);
-                      },
+                      onTap: () => buttonCommentReply(comment, context, value),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: defaultPadding / 2),
@@ -207,13 +223,14 @@ class CommentBoxScreen extends StatelessWidget {
           ),
           CommentAction(
             comment: comment,
+            contextParent: context,
           ),
         ],
       ),
     );
   }
 
-  Padding buildCommentReply(Comment comment, CommentReply commentReply,
+  Padding buildCommentChild(Comment comment, CommentReply commentReply,
       BuildContext context, CommentViewModel value) {
     return Padding(
       padding: const EdgeInsets.only(
@@ -280,12 +297,8 @@ class CommentBoxScreen extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () async {
-                        value.setCommentReplyOfChild(comment, commentReply);
-                        await Future.delayed(const Duration(milliseconds: 100));
-                        // ignore: use_build_context_synchronously
-                        FocusScope.of(context).requestFocus(value.focusNode);
-                      },
+                      onTap: () => buttonCommentReplyOfChild(
+                          comment, commentReply, context, value),
                       child: Text(
                         'Reply',
                         style: Theme.of(context)
@@ -299,14 +312,10 @@ class CommentBoxScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(
-            width: 20,
-            height: 30,
-            child: Icon(
-              Icons.more_vert,
-              size: 16,
-            ),
-          )
+          CommentAction(
+              comment: comment,
+              commentReply: commentReply,
+              contextParent: context)
         ],
       ),
     );
