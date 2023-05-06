@@ -16,7 +16,6 @@ import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
 import '../../../view_models/home/artist_view_model.dart';
-import '../../../view_models/track_play/track_play_view_model.dart';
 import '../../../widgets/play_control/play_button.dart';
 import '../../../widgets/selection_title.dart';
 
@@ -30,34 +29,20 @@ class ArtistDetail extends StatefulWidget {
 
 class _ArtistDetailState extends State<ArtistDetail> {
   final ScrollController _scrollController = ScrollController();
-
   late bool isShow = false;
   late bool isShowTitle = false;
-  bool isLoading = true;
 
   @override
   void initState() {
     Provider.of<ArtistViewModel>(context, listen: false)
       ..fetchArtistApi(widget.artistId)
-      ..fetchTrackPopularByArtistID(widget.artistId, 0, 5)
+      ..fetchTrackPopularByArtistID(widget.artistId, 0, 10000)
       ..fetchAlbumPopularByArtistID(widget.artistId, 0, 4)
       ..fetchPlaylistByArtistID(widget.artistId, 0, 5)
-      ..fetchTrackRadiosByArtistID(widget.artistId, 0, 5)
       ..fetchArtistRelatedByArtistID(widget.artistId, 0, 5);
-
-    Provider.of<TrackPlayViewModel>(context, listen: false)
-        .fetchTracksPlayControl(artistID: widget.artistId, index: 0, limit: 20);
-    setIsLoading();
 
     _scrollController.addListener(_onScrollEvent);
     super.initState();
-  }
-
-  Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -116,66 +101,60 @@ class _ArtistDetailState extends State<ArtistDetail> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        body: Center(
-          child: LoadingAnimationWidget.staggeredDotsWave(
-            color: Colors.white,
-            size: 40,
-          ),
-        ),
-      );
-    } else {
-      return Consumer<ArtistViewModel>(
-        builder: (context, value, _) {
-          switch (value.artist.status) {
-            case Status.LOADING:
-              return Scaffold(
-                body: Center(
-                  child: LoadingAnimationWidget.staggeredDotsWave(
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-              );
-            case Status.COMPLETED:
-              Artist? artist = value.artist.data;
-              if (artist != null) {
-                return Scaffold(
-                  body: Stack(
-                    children: [
-                      buildCustomScrollView(context, artist),
-                      if (isShow) ...{
-                        Positioned(
-                          top: 60,
-                          right: 15,
-                          child: SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: const CircleBorder(),
-                                  padding: const EdgeInsets.all(0),
-                                ),
-                                onPressed: () {},
-                                child: const Icon(Icons.play_arrow)),
+    return Consumer<ArtistViewModel>(
+      builder: (context, value, _) {
+        if(value.artist.status == Status.LOADING ||
+            value.trackList.status == Status.LOADING ||
+            value.albumList.status == Status.LOADING ||
+            value.playlistList.status == Status.LOADING ||
+            value.artistList.status == Status.LOADING
+        ) {
+          return Scaffold(
+            body: Center(
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          );
+        }
+        if(value.artist.status == Status.COMPLETED) {
+          Artist? artist = value.artist.data;
+          return Scaffold(
+            body: Stack(
+              children: [
+                buildCustomScrollView(context, artist!),
+                if (isShow) ...{
+                  Positioned(
+                    top: 60,
+                    right: 15,
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            padding: const EdgeInsets.all(0),
                           ),
-                        )
-                      },
-                    ],
-                  ),
-                );
-              } else {
-                return Text(value.artist.toString());
-              }
-            case Status.ERROR:
-              return Text(value.artist.toString());
-            default:
-              return const Text('Default Switch');
-          }
-        },
-      );
-    }
+                          onPressed: () {},
+                          child: const Icon(Icons.play_arrow)),
+                    ),
+                  )
+                },
+              ],
+            ),
+          );
+        }
+        return Scaffold(
+          body: Center(
+            child: LoadingAnimationWidget.staggeredDotsWave(
+              color: Colors.white,
+              size: 40,
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget buildCustomScrollView(BuildContext context, Artist artist) {
@@ -201,8 +180,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
       builder: (context, value, _) {
         switch (value.trackList.status) {
           case Status.LOADING:
-            return Scaffold(
-              body: Center(
+            return SliverToBoxAdapter(
+              child: Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
                   color: Colors.white,
                   size: 40,
@@ -218,7 +197,9 @@ class _ArtistDetailState extends State<ArtistDetail> {
                   children: [
                     const SelectionTitle(title: 'Popular'),
                     SizedBox(
-                      height: 60 * tracks.length.toDouble() + 50,
+                      height: (tracks.length < 5)
+                          ? (60 * tracks.length.toDouble())
+                          : (60 * 5),
                       child: ListView.builder(
                         padding: const EdgeInsets.all(0),
                         physics: const NeverScrollableScrollPhysics(),
@@ -292,7 +273,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
                             ],
                           ),
                         ),
-                        itemCount: tracks.length,
+                        itemCount: tracks.length < 5 ? tracks.length : 5,
                       ),
                     )
                   ],
@@ -319,8 +300,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
       builder: (context, value, _) {
         switch (value.albumList.status) {
           case Status.LOADING:
-            return Scaffold(
-              body: Center(
+            return SliverToBoxAdapter(
+              child: Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
                   color: Colors.white,
                   size: 40,
@@ -437,8 +418,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
       builder: (context, value, _) {
         switch (value.playlistList.status) {
           case Status.LOADING:
-            return Scaffold(
-              body: Center(
+            return SliverToBoxAdapter(
+              child: Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
                   color: Colors.white,
                   size: 40,
@@ -517,8 +498,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
       builder: (context, value, _) {
         switch (value.artistList.status) {
           case Status.LOADING:
-            return Scaffold(
-              body: Center(
+            return SliverToBoxAdapter(
+              child: Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
                   color: Colors.white,
                   size: 40,
@@ -592,67 +573,79 @@ class _ArtistDetailState extends State<ArtistDetail> {
   }
 
   Widget actionWidget(BuildContext context, Artist artist) {
-    return Row(
-      children: [
-        const SizedBox(width: defaultPadding),
-        StreamBuilder(
-          stream: FollowArtistService.instance
-              .getFollowArtistByUserId(CommonUtils.userId),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white)),
-                child: Text(
-                  'Following',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              );
-            }
-            FollowArtist? followArtist = snapshot.data;
-            List<Artist>? artists = followArtist!.artists;
-            bool checkFollowing =
-                artists!.any((element) => element.id == widget.artistId);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+      child: Row(
+        children: [
+          StreamBuilder(
+            stream: FollowArtistService.instance
+                .getFollowArtistByUserId(CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return OutlinedButton(
+                  onPressed: () {},
+                  style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.white)),
+                  child: Text(
+                    'Following',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                );
+              }
+              FollowArtist? followArtist = snapshot.data;
+              List<Artist>? artists = followArtist!.artists;
+              bool checkFollowing =
+                  artists!.any((element) => element.id == widget.artistId);
 
-            return checkFollowing
-                ? ElevatedButton(
-                    onPressed: () {
-                      Artist temp = artists.firstWhere((element) => element.id == widget.artistId);
-                      followArtist.artists!.remove(temp);
-                      FollowArtistService.instance.updateItem(followArtist);
-                      ToastCommon.showCustomText(
-                        content:
-                            'Remove ${artist.name} from follow artist',
-                      );
-                    },
-                    child: Text('Following',
-                        style: Theme.of(context).textTheme.titleLarge))
-                : OutlinedButton(
-                    onPressed: () {
-                      followArtist.artists!.add(artist);
-                      FollowArtistService.instance.updateItem(followArtist);
-                      ToastCommon.showCustomText(
-                          content: 'Following artist ${artist.name}');
-                    },
-                    style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.white)),
-                    child: Text('Following',
-                        style: Theme.of(context).textTheme.titleLarge));
-          },
-        ),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-        const Expanded(child: SizedBox()),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
-        PlayButton(
-          tracks: Provider.of<TrackPlayViewModel>(context, listen: false)
-              .tracksPlayControl
-              .data!,
-          artist: artist,
-          artistId: artist.id,
-        ),
-        const SizedBox(width: defaultPadding)
-      ],
+              return checkFollowing
+                  ? ElevatedButton(
+                      onPressed: () {
+                        Artist temp = artists.firstWhere(
+                            (element) => element.id == widget.artistId);
+                        followArtist.artists!.remove(temp);
+                        FollowArtistService.instance.updateItem(followArtist);
+                        ToastCommon.showCustomText(
+                          content: 'Remove ${artist.name} from follow artist',
+                        );
+                      },
+                      child: Text('Following',
+                          style: Theme.of(context).textTheme.titleLarge))
+                  : OutlinedButton(
+                      onPressed: () {
+                        followArtist.artists!.add(artist);
+                        FollowArtistService.instance.updateItem(followArtist);
+                        ToastCommon.showCustomText(
+                            content: 'Following artist ${artist.name}');
+                      },
+                      style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Colors.white)),
+                      child: Text('Following',
+                          style: Theme.of(context).textTheme.titleLarge));
+            },
+          ),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+          const Spacer(),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
+          Consumer<ArtistViewModel>(
+            builder: (context, value, child) {
+              switch (value.trackList.status) {
+                case Status.LOADING:
+                  return const PlayButton(tracks: []);
+                case Status.COMPLETED:
+                  return PlayButton(
+                    tracks: value.trackList.data!,
+                    artist: artist,
+                    artistId: artist.id,
+                  );
+                case Status.ERROR:
+                  return Text(value.trackList.toString());
+                default:
+                  return const Text('Default Switch');
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 

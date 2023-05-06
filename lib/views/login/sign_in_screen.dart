@@ -1,10 +1,6 @@
-import 'package:demo_spotify_app/utils/routes/route_name.dart';
-import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/login/main_login_screen.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
-import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

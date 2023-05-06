@@ -3,6 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../../data/network/firebase/auth_google_service.dart';
 import '../../models/firebase/user.dart';
 import '../../utils/routes/route_name.dart';
 import '../../utils/toast_utils.dart';
@@ -62,6 +63,24 @@ class SignInViewModel with ChangeNotifier {
         isCanSignIn = false;
       }
       ToastCommon.showCustomText(content: errorMessage);
+    }
+  }
+
+  Future<void> signInWithGoogle(BuildContext context) async {
+    {
+      try {
+        final navigator = Navigator.of(context);
+        UserCredential userCredential = await AuthGoogle().signInWithGoogle();
+        await UserService.instance.addUsers(Users(
+            id: userCredential.user!.uid,
+            displayName: userCredential.user!.displayName.toString(),
+            email: userCredential.user!.email.toString(),
+            photoUrl: userCredential.user!.photoURL.toString()));
+        navigator.pushReplacementNamed(RoutesName.home);
+        ToastCommon.showCustomText(content: 'Login with google is success');
+      } catch (e) {
+        ToastCommon.showCustomText(content: 'Login with google is ERROR');
+      }
     }
   }
 

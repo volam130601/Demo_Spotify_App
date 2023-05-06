@@ -14,6 +14,7 @@ class AlbumViewModel with ChangeNotifier {
 
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
   ApiResponse<Album> albumDetail = ApiResponse.loading();
+  int albumId = 0;
 
   setTracks(ApiResponse<List<Track>> response) {
     tracks = response;
@@ -33,9 +34,10 @@ class AlbumViewModel with ChangeNotifier {
             setTracks(ApiResponse.error(error.toString())));
   }
 
-  Future<void> fetchAlbumById(int albumID) async {
+  Future<void> fetchAlbumById(int albumId) async {
+    checkAlbumId(albumId);
     await _albumDetail
-        .getAlbumById(albumID)
+        .getAlbumById(albumId)
         .then((value) => setAlbumDetail(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
             setAlbumDetail(ApiResponse.error(error.toString())));
@@ -54,7 +56,15 @@ class AlbumViewModel with ChangeNotifier {
       String totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(
           value.where((element) => element.preview != '').toList());
       return setTotalSizeDownload(totalSize);
-    }).onError((error, stackTrace) =>
-        log('Error fetch total size download'));
+    }).onError((error, stackTrace) => log('Error fetch total size download'));
+  }
+
+  void checkAlbumId(int currentAlbumId) {
+    if (albumId != currentAlbumId) {
+      tracks = ApiResponse.loading();
+      albumDetail = ApiResponse.loading();
+      albumId = currentAlbumId;
+      totalSizeDownload = '';
+    }
   }
 }

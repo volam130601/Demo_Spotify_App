@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:demo_spotify_app/data/response/api_response.dart';
 import 'package:flutter/material.dart';
 
@@ -70,15 +68,5 @@ class HomeViewModel with ChangeNotifier {
         .then((value) => setChartArtists(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
             setChartArtists(ApiResponse.error(error.toString())));
-  }
-
-
-  String randomSearchKey() {
-    String searchKey = '';
-    Random random = Random();
-    for (int i = 0; i < 3; i++) {
-      searchKey += String.fromCharCode(random.nextInt(26) + 65);
-    }
-    return searchKey;
   }
 }

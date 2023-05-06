@@ -5,8 +5,8 @@ import 'package:demo_spotify_app/repository/remote/playlist_repository.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../data/response/api_response.dart';
-import '../models/track.dart';
+import '../../data/response/api_response.dart';
+import '../../models/track.dart';
 
 class PlaylistViewModel with ChangeNotifier {
   final _tracks = PlaylistRepository();
@@ -14,6 +14,8 @@ class PlaylistViewModel with ChangeNotifier {
 
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
   ApiResponse<Playlist> playlistDetail = ApiResponse.loading();
+
+  int playlistId = 0;
   String totalSizeDownload = '';
 
   setTracks(ApiResponse<List<Track>> response) {
@@ -40,9 +42,10 @@ class PlaylistViewModel with ChangeNotifier {
         (error, stackTrace) => setTracks(ApiResponse.error(error.toString())));
   }
 
-  Future<void> fetchPlaylistById(int playlistId) async {
+  Future<void> fetchPlaylistById(int currentPlaylistId) async {
+    checkPlaylistId(currentPlaylistId);
     await _playlistDetail
-        .getPlaylistByID(playlistId)
+        .getPlaylistByID(currentPlaylistId)
         .then((value) => setPlaylistDetail(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
             setPlaylistDetail(ApiResponse.error(error.toString())));
@@ -57,5 +60,14 @@ class PlaylistViewModel with ChangeNotifier {
           value.where((element) => element.preview != '').toList());
       return setTotalSizeDownload(totalSize);
     }).onError((error, stackTrace) => log('Error fetch total size download'));
+  }
+
+  void checkPlaylistId(int currentPlaylistId) {
+    if (playlistId != currentPlaylistId) {
+      tracks = ApiResponse.loading();
+      playlistDetail = ApiResponse.loading();
+      playlistId = currentPlaylistId;
+      totalSizeDownload = '';
+    }
   }
 }

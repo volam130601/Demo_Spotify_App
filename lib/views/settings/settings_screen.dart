@@ -37,22 +37,16 @@ class SettingScreen extends StatelessWidget {
               const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
               SettingItem(
                   onTap: () {
+                    Navigator.of(context)
+                        .pushReplacementNamed(RoutesName.login);
+                    ToastCommon.showCustomText(content: 'Log out is success.');
                     FirebaseAuth.instance.signOut();
-                    if (isCheckUser) {
-                      AuthGoogle().signOut();
-                      value.signOut();
-                      Provider.of<LayoutScreenViewModel>(context, listen: false)
-                          .clear();
-                      Provider.of<MultiPlayerViewModel>(context, listen: false)
-                          .clear();
-                      Navigator.of(context)
-                          .pushReplacementNamed(RoutesName.login);
-                      ToastCommon.showCustomText(
-                          content: 'Log out is success.');
-                    } else {
-                      Navigator.of(context)
-                          .pushReplacementNamed(RoutesName.login);
-                    }
+                    AuthGoogle().signOut();
+                    value.signOut();
+                    Provider.of<LayoutScreenViewModel>(context, listen: false)
+                        .clear();
+                    Provider.of<MultiPlayerViewModel>(context, listen: false)
+                        .clear();
                   },
                   title: (isCheckUser) ? 'Log out' : 'Log in',
                   subTitle: (isCheckUser)

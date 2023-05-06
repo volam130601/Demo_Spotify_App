@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_spotify_app/models/firebase/user.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 
 class UserService {
   UserService._();
@@ -15,9 +14,7 @@ class UserService {
   }
 
   Future<void> editProfile({required Users user}) {
-    return _db.collection(collectionName)
-        .doc(user.id)
-        .update(user.toJson());
+    return _db.collection(collectionName).doc(user.id).update(user.toJson());
   }
 
   Future<Users> getUser(String email) async {

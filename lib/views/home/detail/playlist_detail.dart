@@ -4,7 +4,7 @@ import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
-import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/playlist_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
@@ -34,24 +34,17 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   final ScrollController _scrollController = ScrollController();
   late bool isCheckScrollExtendAfter = false;
   late bool isShow = false;
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     Provider.of<PlaylistViewModel>(context, listen: false)
+        .fetchTotalSizeDownload(widget.playlistId, 0, 10000);
+    Provider.of<PlaylistViewModel>(context, listen: false)
       ..fetchPlaylistById(widget.playlistId)
       ..fetchTracksByPlaylistId(widget.playlistId, 0, 10000);
 
-    setIsLoading();
     _scrollController.addListener(_onScrollEvent);
-  }
-
-  void setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -85,92 +78,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          buildPlaylistBody(context),
-          isLoading
-              ? Scaffold(
-                  body: Center(
-                    child: LoadingAnimationWidget.staggeredDotsWave(
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                )
-              : const SizedBox(),
-        ],
-      ),
-    );
-  }
-
-  Widget buildPlaylistBody(BuildContext context) {
-    return Consumer<PlaylistViewModel>(builder: (context, value, _) {
-      switch (value.tracks.status) {
-        case Status.LOADING:
-          return Scaffold(
-            body: Center(
-              child: LoadingAnimationWidget.staggeredDotsWave(
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
-          );
-        case Status.COMPLETED:
-          List<Track>? tracks = value.tracks.data;
-          Playlist? playlist = value.playlistDetail.data;
-          if (playlist != null && tracks != null) {
-            return Stack(
-              children: [
-                CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    buildAppBar(context, playlist),
-                    buildHeaderBody(context, playlist),
-                    SliverToBoxAdapter(
-                      child: playlistActions(tracks, playlist, value),
-                    ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          return InkWell(
-                            child: TrackTileItem(
-                              track: tracks[index],
-                              playlist: playlist,
-                            ),
-                            onTap: () {
-                              var value = Provider.of<MultiPlayerViewModel>(
-                                  context,
-                                  listen: false);
-                              int? currentPlaylistId = playlist.id;
-                              if (currentPlaylistId != value.getPlaylistId) {
-                                value.initState(
-                                    tracks: tracks,
-                                    playlistId: playlist.id,
-                                    index: index);
-                              } else {
-                                value.player.seek(Duration.zero, index: index);
-                              }
-                            },
-                          );
-                        },
-                        childCount: tracks.length,
-                      ),
-                    ),
-                    SliverToBoxAdapter(child: paddingHeight(8)),
-                  ],
-                ),
-                if (isShow) ...{
-                  Positioned(
-                      top: 80,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                          color: ColorsConsts.scaffoldColorDark,
-                          child: playlistActions(tracks, playlist, value))),
-                }
-              ],
-            );
-          } else {
+      body: Consumer<PlaylistViewModel>(builder: (context, value, _) {
+        switch (value.tracks.status) {
+          case Status.LOADING:
             return Scaffold(
               body: Center(
                 child: LoadingAnimationWidget.staggeredDotsWave(
@@ -179,15 +89,81 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                 ),
               ),
             );
-          }
-        case Status.ERROR:
-          return SliverToBoxAdapter(
-            child: Text(value.tracks.toString()),
-          );
-        default:
-          return const Text('Default Switch');
-      }
-    });
+          case Status.COMPLETED:
+            List<Track>? tracks = value.tracks.data;
+            Playlist? playlist = value.playlistDetail.data;
+            if (playlist != null && tracks != null) {
+              return Stack(
+                children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      buildAppBar(context, playlist),
+                      buildHeaderBody(context, playlist),
+                      SliverToBoxAdapter(
+                        child: playlistActions(tracks, playlist, value),
+                      ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            return InkWell(
+                              child: TrackTileItem(
+                                track: tracks[index],
+                                playlist: playlist,
+                              ),
+                              onTap: () {
+                                var value = Provider.of<MultiPlayerViewModel>(
+                                    context,
+                                    listen: false);
+                                int? currentPlaylistId = playlist.id;
+                                if (currentPlaylistId != value.getPlaylistId) {
+                                  value.initState(
+                                      tracks: tracks,
+                                      playlistId: playlist.id,
+                                      index: index);
+                                } else {
+                                  value.player
+                                      .seek(Duration.zero, index: index);
+                                }
+                              },
+                            );
+                          },
+                          childCount: tracks.length,
+                        ),
+                      ),
+                      SliverToBoxAdapter(child: paddingHeight(8)),
+                    ],
+                  ),
+                  if (isShow) ...{
+                    Positioned(
+                        top: 80,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                            color: ColorsConsts.scaffoldColorDark,
+                            child: playlistActions(tracks, playlist, value))),
+                  }
+                ],
+              );
+            } else {
+              return Scaffold(
+                body: Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              );
+            }
+          case Status.ERROR:
+            return SliverToBoxAdapter(
+              child: Text(value.tracks.toString()),
+            );
+          default:
+            return const Text('Default Switch');
+        }
+      }),
+    );
   }
 
   SliverToBoxAdapter buildHeaderBody(BuildContext context, Playlist playlist) {

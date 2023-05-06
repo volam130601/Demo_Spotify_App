@@ -1,10 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
-import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
-import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
-import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
-import 'package:demo_spotify_app/views/home/tab_view/tracks_view.dart';
+import 'package:demo_spotify_app/views/home/view/playlists_view.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';
@@ -13,6 +9,9 @@ import 'package:provider/provider.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/download_view_modal.dart';
 import '../../view_models/home/home_view_model.dart';
+import 'view/albums_view.dart';
+import 'view/artists_view.dart';
+import 'view/tracks_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);

@@ -1,18 +1,16 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:demo_spotify_app/utils/theme_data.dart';
-import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
-import 'package:demo_spotify_app/view_models/home/artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/comment_view_model.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
+import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/home/home_view_model.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/library/follow_artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
-import 'package:demo_spotify_app/view_models/login/sign_up_view_model.dart';
-import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/playlist_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
-import 'package:demo_spotify_app/view_models/setting/profile_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/layout/layout_screen.dart';
@@ -63,6 +61,21 @@ class _MyAppState extends State<MyApp> {
       isLoading = false;
     });
   }
+  List<SingleChildWidget> providers = [
+    ChangeNotifierProvider(create: (_) => SignInViewModel()),
+    ChangeNotifierProvider(create: (_) => HomeViewModel()),
+    ChangeNotifierProvider(create: (_) => TrackPlayViewModel()),
+    ChangeNotifierProvider(create: (_) => AlbumViewModel()),
+    ChangeNotifierProvider(create: (_) => PlaylistViewModel()),
+    ChangeNotifierProvider(create: (_) => ArtistViewModel()),
+    ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
+    ChangeNotifierProvider(create: (_) => SearchViewModel()),
+    ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
+    ChangeNotifierProvider(create: (_) => DownloadViewModel()),
+    ChangeNotifierProvider(create: (_) => LibraryViewModel()),
+    ChangeNotifierProvider(create: (_) => FollowArtistViewModel()),
+    ChangeNotifierProvider(create: (_) => CommentViewModel()),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -90,18 +103,3 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-List<SingleChildWidget> providers = [
-  ChangeNotifierProvider(create: (_) => SignInViewModel()),
-  ChangeNotifierProvider(create: (_) => HomeViewModel()),
-  ChangeNotifierProvider(create: (_) => TrackPlayViewModel()),
-  ChangeNotifierProvider(create: (_) => AlbumViewModel()),
-  ChangeNotifierProvider(create: (_) => PlaylistViewModel()),
-  ChangeNotifierProvider(create: (_) => ArtistViewModel()),
-  ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
-  ChangeNotifierProvider(create: (_) => SearchViewModel()),
-  ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
-  ChangeNotifierProvider(create: (_) => DownloadViewModel()),
-  ChangeNotifierProvider(create: (_) => LibraryViewModel()),
-  ChangeNotifierProvider(create: (_) => FollowArtistViewModel()),
-  ChangeNotifierProvider(create: (_) => CommentViewModel()),
-];

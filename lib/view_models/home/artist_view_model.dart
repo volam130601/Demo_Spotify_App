@@ -11,16 +11,14 @@ class ArtistViewModel with ChangeNotifier {
   final _artist = ArtistRepository();
   final _artistList = ArtistRepository();
   final _trackList = ArtistRepository();
-  final _radioList = ArtistRepository();
   final _albumList = ArtistRepository();
   final _playlistList = ArtistRepository();
 
   ApiResponse<Artist> artist = ApiResponse.loading();
-  ApiResponse<List<Artist>> artistList = ApiResponse.loading();
   ApiResponse<List<Track>> trackList = ApiResponse.loading();
-  ApiResponse<List<Track>> radioList = ApiResponse.loading();
   ApiResponse<List<Album>> albumList = ApiResponse.loading();
   ApiResponse<List<Playlist>> playlistList = ApiResponse.loading();
+  ApiResponse<List<Artist>> artistList = ApiResponse.loading();
 
   setArtist(ApiResponse<Artist> response) {
     artist = response;
@@ -37,11 +35,6 @@ class ArtistViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  setRadioList(ApiResponse<List<Track>> response) {
-    radioList = response;
-    notifyListeners();
-  }
-
   setAlbumList(ApiResponse<List<Album>> response) async {
     albumList = response;
     notifyListeners();
@@ -53,6 +46,7 @@ class ArtistViewModel with ChangeNotifier {
   }
 
   Future<void> fetchArtistApi(int artistID) async {
+    checkArtistId(artistID);
     await _artist
         .getArtistByID(artistID)
         .then((value) => setArtist(ApiResponse.completed(value)))
@@ -78,15 +72,6 @@ class ArtistViewModel with ChangeNotifier {
             setTrackList(ApiResponse.error(error.toString())));
   }
 
-  Future<void> fetchTrackRadiosByArtistID(
-      int artistID, int index, int limit) async {
-    await _radioList
-        .getTrackRadiosByArtistID(artistID, index, limit)
-        .then((value) => setRadioList(ApiResponse.completed(value)))
-        .onError((error, stackTrace) =>
-            setRadioList(ApiResponse.error(error.toString())));
-  }
-
   Future<void> fetchAlbumPopularByArtistID(
       int artistID, int index, int limit) async {
     await _albumList
@@ -103,5 +88,18 @@ class ArtistViewModel with ChangeNotifier {
         .then((value) => setPlaylistList(ApiResponse.completed(value)))
         .onError((error, stackTrace) =>
             setPlaylistList(ApiResponse.error(error.toString())));
+  }
+
+  int artistId = 0;
+
+  void checkArtistId(int currentArtistId) {
+    if (artistId != currentArtistId) {
+      artist = ApiResponse.loading();
+      artistList = ApiResponse.loading();
+      trackList = ApiResponse.loading();
+      albumList = ApiResponse.loading();
+      playlistList = ApiResponse.loading();
+      artistId = currentArtistId;
+    }
   }
 }

@@ -2,14 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/album.dart';
 import '../../models/playlist.dart';
 import '../../models/track.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/playlist_view_model.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/playlist_detail.dart';
 import '../../views/layout/layout_screen.dart';
@@ -23,8 +21,6 @@ class PlaylistTileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Provider.of<PlaylistViewModel>(context, listen: false)
-            .fetchTotalSizeDownload(playlist.id!, 0, 10000);
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -274,7 +270,8 @@ class PlaylistNewTileItem extends StatelessWidget {
 }
 
 class AddTrackToPlaylistTileItem extends StatelessWidget {
-  const AddTrackToPlaylistTileItem({Key? key, required this.playlistNew,required this.track})
+  const AddTrackToPlaylistTileItem(
+      {Key? key, required this.playlistNew, required this.track})
       : super(key: key);
   final PlaylistNew playlistNew;
   final Track track;
@@ -296,7 +293,9 @@ class AddTrackToPlaylistTileItem extends StatelessWidget {
           tracks: tracks,
           userName: playlistNew.userName,
         ));
-        ToastCommon.showCustomText(content: 'Add track ${track.title} to playlist ${playlistNew.title} is success!');
+        ToastCommon.showCustomText(
+            content:
+                'Add track ${track.title} to playlist ${playlistNew.title} is success!');
         Navigator.pop(context);
       },
       child: Container(
@@ -312,19 +311,19 @@ class AddTrackToPlaylistTileItem extends StatelessWidget {
                 height: 50,
                 child: (playlistNew.picture != null)
                     ? CachedNetworkImage(
-                  imageUrl: playlistNew.picture.toString(),
-                  placeholder: (context, url) => Image.asset(
-                    'assets/images/music_default.jpg',
-                    fit: BoxFit.cover,
-                  ),
-                  errorWidget: (context, url, error) =>
-                  const Icon(Icons.error),
-                  fit: BoxFit.cover,
-                )
+                        imageUrl: playlistNew.picture.toString(),
+                        placeholder: (context, url) => Image.asset(
+                          'assets/images/music_default.jpg',
+                          fit: BoxFit.cover,
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
+                        fit: BoxFit.cover,
+                      )
                     : Image.asset(
-                  'assets/images/music_default.jpg',
-                  fit: BoxFit.cover,
-                ),
+                        'assets/images/music_default.jpg',
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
             paddingWidth(0.5),
@@ -346,8 +345,8 @@ class AddTrackToPlaylistTileItem extends StatelessWidget {
                               .textTheme
                               .titleSmall
                               ?.copyWith(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w500),
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ],
@@ -361,4 +360,3 @@ class AddTrackToPlaylistTileItem extends StatelessWidget {
     );
   }
 }
-

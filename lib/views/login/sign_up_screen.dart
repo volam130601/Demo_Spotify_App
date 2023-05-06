@@ -24,16 +24,9 @@ class _SignUpFreeState extends State<SignUpFree> {
   final SignUpViewModel signUpViewModel = SignUpViewModel();
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    print(1);
-  }
-  @override
   void dispose() {
     super.dispose();
     signUpViewModel.dispose();
-    print(2);
   }
 
   @override

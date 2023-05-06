@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../data/response/status.dart';
-import '../../../view_models/playlist_view_model.dart';
+import '../../../view_models/home/playlist_view_model.dart';
 import '../../../widgets/selection_title.dart';
 import '../detail/playlist_detail.dart';
 

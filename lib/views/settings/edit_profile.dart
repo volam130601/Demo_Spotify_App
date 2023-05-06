@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
-import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/view_models/setting/profile_view_model.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,6 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     var value = Provider.of<SignInViewModel>(context, listen: false);
     if (value.user.displayName != null) {
@@ -48,7 +46,7 @@ class _EditProfileState extends State<EditProfile> {
         child: Consumer2<SignInViewModel, ProfileViewModel>(
           builder: (context, signInValue, profileValue, child) {
             return Scaffold(
-              appBar: buildAppBar(context,signInValue , profileValue),
+              appBar: buildAppBar(context, signInValue, profileValue),
               body: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -138,7 +136,8 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-  AppBar buildAppBar(BuildContext context, SignInViewModel signInValue, ProfileViewModel profileValue) {
+  AppBar buildAppBar(BuildContext context, SignInViewModel signInValue,
+      ProfileViewModel profileValue) {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,

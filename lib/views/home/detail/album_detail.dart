@@ -26,12 +26,10 @@ class AlbumDetail extends StatefulWidget {
   State<AlbumDetail> createState() => _AlbumDetailState();
 }
 
-//TODO: play track index of album
 class _AlbumDetailState extends State<AlbumDetail> {
   final ScrollController _scrollController = ScrollController();
   late bool isShow = false;
   late bool isCheckScrollExtendAfter = false;
-  bool isLoading = true;
 
   @override
   void initState() {
@@ -41,15 +39,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
       ..fetchAlbumById(widget.albumId)
       ..fetchTracksByAlbumId(widget.albumId);
 
-    setIsLoading();
     _scrollController.addListener(_onScrollEvent);
-  }
-
-  Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
-    setState(() {
-      isLoading = false;
-    });
   }
 
   void setIsShow(newValue) {
@@ -81,119 +71,102 @@ class _AlbumDetailState extends State<AlbumDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          buildAlbumDetailBody(context),
-          isLoading
-              ? Scaffold(
-                  body: Center(
-                    child: LoadingAnimationWidget.staggeredDotsWave(
-                      color: Colors.white,
-                      size: 40,
-                    ),
+      body: Consumer<AlbumViewModel>(
+        builder: (context, value, _) {
+          switch (value.tracks.status) {
+            case Status.LOADING:
+              return Scaffold(
+                body: Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.white,
+                    size: 40,
                   ),
-                )
-              : const SizedBox(),
-        ],
+                ),
+              );
+            case Status.COMPLETED:
+              Album? album = value.albumDetail.data;
+              List<Track>? tracks = value.tracks.data;
+              if (album != null && tracks != null) {
+                return Stack(children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      buildAppBar(value, context, album),
+                      buildSelectionTitle(context, album),
+                      SliverToBoxAdapter(
+                        child: actions(tracks, album, value),
+                      ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                            return TrackTileItem(
+                                track: tracks[index], album: album);
+                          },
+                          childCount: tracks.length,
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: defaultPadding,
+                              vertical: defaultPadding),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  CommonUtils.formatReleaseDate(
+                                      album.releaseDate.toString()),
+                                  style: Theme.of(context).textTheme.titleMedium),
+                              paddingHeight(1.5),
+                              Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        album.artist!.pictureSmall.toString()),
+                                    radius: 20,
+                                  ),
+                                  paddingWidth(1.5),
+                                  Text(album.artist!.name.toString(),
+                                      style:
+                                      Theme.of(context).textTheme.titleMedium)
+                                ],
+                              ),
+                              paddingHeight(5),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  if (isShow) ...{
+                    Positioned(
+                        top: 80,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                            color: ColorsConsts.scaffoldColorDark,
+                            child: actions(tracks, album, value))),
+                  }
+                ]);
+              }
+              return Scaffold(
+                body: Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              );
+            case Status.ERROR:
+              return Text(value.tracks.toString());
+            default:
+              return const Text('Default Switch');
+          }
+        },
       ),
     );
   }
 
-  Widget buildAlbumDetailBody(BuildContext context) {
-    return Consumer<AlbumViewModel>(
-      builder: (context, value, _) {
-        switch (value.tracks.status) {
-          case Status.LOADING:
-            return Scaffold(
-              body: Center(
-                child: LoadingAnimationWidget.staggeredDotsWave(
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-            );
-          case Status.COMPLETED:
-            Album? album = value.albumDetail.data;
-            List<Track>? tracks = value.tracks.data;
-            if (album != null && tracks != null) {
-              return Stack(children: [
-                CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    buildAppBar(value, context, album),
-                    buildSelectionTitle(context, album),
-                    SliverToBoxAdapter(
-                      child: actions(tracks, album, value),
-                    ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          return TrackTileItem(
-                              track: tracks[index], album: album);
-                        },
-                        childCount: tracks.length,
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: defaultPadding,
-                            vertical: defaultPadding),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                CommonUtils.formatReleaseDate(
-                                    album.releaseDate.toString()),
-                                style: Theme.of(context).textTheme.titleMedium),
-                            paddingHeight(1.5),
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  backgroundImage: CachedNetworkImageProvider(
-                                      album.artist!.pictureSmall.toString()),
-                                  radius: 20,
-                                ),
-                                paddingWidth(1.5),
-                                Text(album.artist!.name.toString(),
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium)
-                              ],
-                            ),
-                            paddingHeight(5),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                if (isShow) ...{
-                  Positioned(
-                      top: 80,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                          color: ColorsConsts.scaffoldColorDark,
-                          child: actions(tracks, album, value))),
-                }
-              ]);
-            }
-            return Scaffold(
-              body: Center(
-                child: LoadingAnimationWidget.staggeredDotsWave(
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-            );
-          case Status.ERROR:
-            return Text(value.tracks.toString());
-          default:
-            return const Text('Default Switch');
-        }
-      },
-    );
-  }
 
   SliverToBoxAdapter buildSelectionTitle(BuildContext context, Album album) {
     return SliverToBoxAdapter(
@@ -272,7 +245,6 @@ class _AlbumDetailState extends State<AlbumDetail> {
               }
               final isAddedFavoriteAlbum = snapshot.data!
                   .any((element) => element.albumId == album.id.toString());
-
               return isAddedFavoriteAlbum
                   ? IconButton(
                       onPressed: () {

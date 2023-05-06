@@ -59,7 +59,7 @@ class MultiPlayerViewModel with ChangeNotifier {
       if (index != null) {
         player.seek(Duration.zero, index: index);
       }
-
+      player.play();
       notifyListeners();
     } catch (e) {
       // Catch load errors: 404, invalid url...
