@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../data/network/firebase/user_service.dart';
 import '../../models/firebase/user.dart';
+import '../../utils/common_utils.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../utils/routes/route_name.dart';
 import '../../widgets/navigator/slide_animation_page_route.dart';
@@ -75,16 +76,6 @@ class LoginScreen extends StatelessWidget {
                           .push(SlideRightPageRoute(page: const SignUpFree()));
                     },
                   ),
-                  /*buildButtonCommon(
-                    context,
-                    title: 'Continue with phone number',
-                    icon: const Icon(
-                      Ionicons.phone_portrait_outline,
-                      color: Colors.white,
-                    ),
-                    isOutline: true,
-                    onPressed: () {},
-                  ),*/
                   buildButtonCommon(
                     context,
                     title: 'Continue with Google',
@@ -93,43 +84,8 @@ class LoginScreen extends StatelessWidget {
                       width: 20,
                     ),
                     isOutline: true,
-                    onPressed: () async {
-                      try {
-                        UserCredential userCredential =
-                            await AuthGoogle().signInWithGoogle();
-                        // User signed in successfully
-                        final user = userCredential.user;
-                        Users users = Users(
-                            id: user!.uid,
-                            displayName: user.displayName.toString(),
-                            email: user.email.toString(),
-                            photoUrl: user.photoURL.toString());
-                        await UserService.instance.addUsers(users);
-                        //TODO: fix bug login : load user
-                        // ignore: use_build_context_synchronously
-                        Provider.of<SignInViewModel>(context, listen: false)
-                            .user = users;
-                        // ignore: use_build_context_synchronously
-                        Navigator.of(context)
-                            .pushReplacementNamed(RoutesName.home);
-                        ToastCommon.showCustomText(
-                            content: 'Login with google is success');
-                      } catch (e) {
-                        // Error signing in
-                        log('>>>>Login ERROR');
-                      }
-                    },
+                    onPressed: () => signInWithGoogle(context),
                   ),
-                  /*buildButtonCommon(
-                    context,
-                    title: 'Continue with Facebook',
-                    icon: SvgPicture.asset(
-                      'assets/icons/facebook_logo.svg',
-                      width: 20,
-                    ),
-                    isOutline: true,
-                    onPressed: () {},
-                  ),*/
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).push(
@@ -147,6 +103,31 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> signInWithGoogle(BuildContext context) async {
+    {
+      try {
+        UserCredential userCredential = await AuthGoogle().signInWithGoogle();
+        // User signed in successfully
+        final user = userCredential.user;
+        Users users = Users(
+            id: user!.uid,
+            displayName: user.displayName.toString(),
+            email: user.email.toString(),
+            photoUrl: user.photoURL.toString());
+        await UserService.instance.addUsers(users);
+        //TODO: fix bug login : load user
+        // ignore: use_build_context_synchronously
+        Provider.of<SignInViewModel>(context, listen: false).user = users;
+        // ignore: use_build_context_synchronously
+        Navigator.of(context).pushReplacementNamed(RoutesName.home);
+        ToastCommon.showCustomText(content: 'Login with google is success');
+      } catch (e) {
+        // Error signing in
+        log('>>>>Login ERROR');
+      }
+    }
   }
 
   Container buildButtonCommon(BuildContext context,

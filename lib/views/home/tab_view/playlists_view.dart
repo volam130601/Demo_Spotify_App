@@ -1,7 +1,7 @@
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
-import 'package:demo_spotify_app/view_models/home_view_model.dart';
-import 'package:demo_spotify_app/views/layout_screen.dart';
+import 'package:demo_spotify_app/view_models/home/home_view_model.dart';
+import 'package:demo_spotify_app/views/layout/layout_screen.dart';
 import 'package:demo_spotify_app/widgets/card_item_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

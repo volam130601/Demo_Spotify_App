@@ -4,8 +4,8 @@ import 'package:demo_spotify_app/repository/remote/album_repository.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:flutter/material.dart';
 
-import '../repository/remote/artist_repository.dart';
-import '../repository/remote/track_repository.dart';
+import '../../repository/remote/artist_repository.dart';
+import '../../repository/remote/track_repository.dart';
 
 class TrackPlayViewModel with ChangeNotifier {
   final _tracks = TrackRepository();

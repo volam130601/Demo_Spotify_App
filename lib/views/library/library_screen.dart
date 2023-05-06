@@ -6,6 +6,7 @@ import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/library/add_playlist.dart';
 import 'package:demo_spotify_app/views/library/favorite_screen.dart';
 import 'package:demo_spotify_app/widgets/list_tile_custom/list_tile_custom.dart';
@@ -13,6 +14,7 @@ import 'package:demo_spotify_app/widgets/tab_bar/tab_bar_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
 import '../../data/network/firebase/favorite_album_service.dart';
 import '../../models/artist.dart';
@@ -21,7 +23,7 @@ import '../../models/firebase/favorite_album.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/selection_title.dart';
-import '../layout_screen.dart';
+import '../layout/layout_screen.dart';
 import 'download_screen.dart';
 import 'artist/follow_artist_screen.dart';
 
@@ -64,7 +66,8 @@ class _LibraryScreenState extends State<LibraryScreen>
     return Scaffold(
       appBar: buildAppBar(context),
       body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        headerSliverBuilder: (context, innerBoxIsScrolled) =>
+        [
           SliverToBoxAdapter(
             child: SizedBox(
               height: 200,
@@ -92,7 +95,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     bottom: defaultPadding / 2,
                     right: defaultPadding),
                 indicatorPadding:
-                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               ),
             ),
             pinned: true,
@@ -118,7 +121,7 @@ class _LibraryScreenState extends State<LibraryScreen>
             image: 'assets/images/library/album_none.png',
             title: 'You haven\'t created any albums yet.',
             subtitle:
-                'Find and click the favorite button for the album to add it to the library.',
+            'Find and click the favorite button for the album to add it to the library.',
           );
         }
         List<FavoriteAlbum>? albumFavorite = snapshot.data!;
@@ -177,7 +180,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     decoration: BoxDecoration(
                       color: Colors.grey.shade800,
                       borderRadius:
-                          BorderRadius.circular(defaultBorderRadius / 2),
+                      BorderRadius.circular(defaultBorderRadius / 2),
                     ),
                     child: const Center(
                       child: Icon(Ionicons.add, size: 30),
@@ -186,7 +189,10 @@ class _LibraryScreenState extends State<LibraryScreen>
                   paddingWidth(0.5),
                   Text(
                     'Add playlist',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleMedium,
                   ),
                 ],
               ),
@@ -235,7 +241,8 @@ class _LibraryScreenState extends State<LibraryScreen>
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: playlistNews.length,
                   itemBuilder: (context, index) {
-                    return PlaylistNewTileItem(playlistNew: playlistNews[index]);
+                    return PlaylistNewTileItem(
+                        playlistNew: playlistNews[index]);
                   },
                 ),
               );
@@ -253,19 +260,36 @@ class _LibraryScreenState extends State<LibraryScreen>
       leadingWidth: 0,
       title: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: CachedNetworkImageProvider((isCheck &&
-                    _auth.currentUser != null)
-                ? '${_auth.currentUser!.photoURL}'
-                : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
-            backgroundColor:
-                Colors.grey, // fallback color if the image is not available
+          Consumer<SignInViewModel>(
+            builder: (context, value, child) =>
+            (value.user.photoUrl != null)
+                ? CircleAvatar(
+                radius: 20,
+                backgroundImage:
+                CachedNetworkImageProvider(value.user.photoUrl!))
+                : CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.red,
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  value.user.displayName!.substring(0, 1).toUpperCase(),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.black),
+                ),
+              ),
+            ),
           ),
           paddingWidth(0.5),
           Text(
             'Your Library',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .headlineSmall,
           )
         ],
       ),
@@ -371,7 +395,8 @@ class _LibraryScreenState extends State<LibraryScreen>
                   paddingHeight(1),
                   Text(
                     categoryLibraries[index].title,
-                    style: Theme.of(context)
+                    style: Theme
+                        .of(context)
                         .textTheme
                         .titleSmall
                         ?.copyWith(color: Colors.white),

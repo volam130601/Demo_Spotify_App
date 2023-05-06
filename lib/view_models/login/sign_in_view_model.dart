@@ -1,5 +1,4 @@
 import 'package:demo_spotify_app/data/network/firebase/user_service.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,9 +8,6 @@ import '../../utils/routes/route_name.dart';
 import '../../utils/toast_utils.dart';
 
 class SignInViewModel with ChangeNotifier {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
   Users user = Users();
   String email = '';
   String password = '';
@@ -20,10 +16,15 @@ class SignInViewModel with ChangeNotifier {
   bool isCanSignIn = false;
 
   void fetchLogin() {
-    UserService.instance.getUser(CommonUtils.userId).then((value) {
-      user = value;
-      notifyListeners();
-    });
+    final currentUser = FirebaseAuth.instance.currentUser!;
+    if (currentUser.email != null) {
+      UserService.instance
+          .getUser(FirebaseAuth.instance.currentUser!.email.toString())
+          .then((value) {
+        user = value;
+        notifyListeners();
+      });
+    }
   }
 
   void signOut() {
@@ -38,12 +39,12 @@ class SignInViewModel with ChangeNotifier {
 
   Future<void> signIn(BuildContext context) async {
     try {
+      final navigator = Navigator.of(context);
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pushReplacementNamed(RoutesName.home);
+      navigator.pushReplacementNamed(RoutesName.home);
       ToastCommon.showCustomText(content: 'Login success');
     } on FirebaseAuthException catch (e) {
       String errorMessage;
@@ -61,7 +62,6 @@ class SignInViewModel with ChangeNotifier {
         isCanSignIn = false;
       }
       ToastCommon.showCustomText(content: errorMessage);
-      notifyListeners();
     }
   }
 

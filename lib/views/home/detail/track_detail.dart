@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/track.dart';
-import 'package:demo_spotify_app/view_models/home_view_model.dart';
-import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/home_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/home/detail/album_detail.dart';
-import 'package:demo_spotify_app/views/layout_screen.dart';
+import 'package:demo_spotify_app/views/layout/layout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';

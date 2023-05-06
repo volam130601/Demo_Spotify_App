@@ -15,8 +15,8 @@ import '../../../models/track.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
-import '../../../view_models/artist_view_model.dart';
-import '../../../view_models/track_play_view_model.dart';
+import '../../../view_models/home/artist_view_model.dart';
+import '../../../view_models/track_play/track_play_view_model.dart';
 import '../../../widgets/play_control/play_button.dart';
 import '../../../widgets/selection_title.dart';
 

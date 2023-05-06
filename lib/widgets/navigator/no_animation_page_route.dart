@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../views/layout_screen.dart';
+import '../../views/layout/layout_screen.dart';
 
 class DefaultPageRoute extends PageRouteBuilder {
   final Widget page;

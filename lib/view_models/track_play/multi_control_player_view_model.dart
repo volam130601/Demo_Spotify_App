@@ -11,8 +11,8 @@ import '../../models/track.dart';
 import '../../widgets/play_control/seekbar.dart';
 
 class MultiPlayerViewModel with ChangeNotifier {
+  AudioPlayer _player = AudioPlayer();
   dynamic _playlist = ConcatenatingAudioSource(children: []);
-  final AudioPlayer _player = AudioPlayer();
   bool isCheckPlayer = false;
   int _playlistId = 0;
   int _albumId = 0;
@@ -113,9 +113,15 @@ class MultiPlayerViewModel with ChangeNotifier {
     isCheckPlayer = true;
   }
 
-  void clearPlaylist() {
+  void clear() {
+    _player = AudioPlayer();
     _playlist = ConcatenatingAudioSource(children: []);
     isCheckPlayer = false;
+    _playlistId = 0;
+    _albumId = 0;
+    _artistId = 0;
+    _album = Album();
+    _artist = Artist();
   }
 
   Stream<PositionData> get positionDataStream =>

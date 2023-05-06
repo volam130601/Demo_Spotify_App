@@ -12,7 +12,7 @@ import '../../utils/constants/default_constant.dart';
 import '../../view_models/playlist_view_model.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/playlist_detail.dart';
-import '../../views/layout_screen.dart';
+import '../../views/layout/layout_screen.dart';
 import '../../views/library/add_playlist_detail_screen.dart';
 
 class PlaylistTileItem extends StatelessWidget {

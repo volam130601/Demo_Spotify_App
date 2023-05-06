@@ -9,7 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/firebase/playlist_new.dart';
-import '../layout_screen.dart';
+import '../layout/layout_screen.dart';
 import 'add_playlist_detail_screen.dart';
 
 class AddPlaylistScreen extends StatefulWidget {

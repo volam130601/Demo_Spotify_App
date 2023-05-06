@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:demo_spotify_app/data/response/api_response.dart';
 import 'package:flutter/material.dart';
 
-import '../models/album.dart';
-import '../models/artist.dart';
-import '../models/playlist.dart';
-import '../models/track.dart';
-import '../repository/remote/chart_repository.dart';
+import '../../models/album.dart';
+import '../../models/artist.dart';
+import '../../models/playlist.dart';
+import '../../models/track.dart';
+import '../../repository/remote/chart_repository.dart';
 
 class HomeViewModel with ChangeNotifier {
   final _chartPlaylist = ChartRepository();

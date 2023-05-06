@@ -26,7 +26,7 @@ import '../../utils/colors.dart';
 import '../../view_models/download_view_modal.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/artist_detail.dart';
-import '../../views/layout_screen.dart';
+import '../../views/layout/layout_screen.dart';
 import '../../views/library/add_playlist.dart';
 import '../list_tile_custom/list_tile_custom.dart';
 

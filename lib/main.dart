@@ -1,19 +1,21 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:demo_spotify_app/utils/theme_data.dart';
-import 'package:demo_spotify_app/view_models/album_view_model.dart';
-import 'package:demo_spotify_app/view_models/artist_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/comment_view_model.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
-import 'package:demo_spotify_app/view_models/home_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/home_view_model.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/library/follow_artist_view_model.dart';
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
+import 'package:demo_spotify_app/view_models/login/sign_up_view_model.dart';
 import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
+import 'package:demo_spotify_app/view_models/setting/profile_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
-import 'package:demo_spotify_app/view_models/track_play_view_model.dart';
-import 'package:demo_spotify_app/views/layout_screen.dart';
+import 'package:demo_spotify_app/view_models/track_play/track_play_view_model.dart';
+import 'package:demo_spotify_app/views/layout/layout_screen.dart';
 import 'package:demo_spotify_app/views/login/main_login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,7 +30,6 @@ import 'utils/routes/route_name.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',

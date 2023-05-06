@@ -15,7 +15,7 @@ import '../../models/track.dart';
 import '../../view_models/library/box_search_track.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../widgets/list_tile_custom/track_tile_item.dart';
-import '../layout_screen.dart';
+import '../layout/layout_screen.dart';
 
 class AddPlaylistDetailScreen extends StatefulWidget {
   const AddPlaylistDetailScreen({Key? key, required this.playlistNew})

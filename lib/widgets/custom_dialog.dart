@@ -66,7 +66,7 @@ class CustomDiaLog extends StatelessWidget {
                 ),
                 onPressed: () {
                   Navigator.of(context)
-                      .push(SlideRightPageRoute(page: const SignInScreen()));
+                      .pushReplacement(SlideRightPageRoute(page: const SignInScreen()));
                 },
               ),
               TextButton(

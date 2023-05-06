@@ -37,4 +37,8 @@ class LayoutScreenViewModel with ChangeNotifier {
     _pageIndex = newValue;
     notifyListeners();
   }
+  void clear(){
+     _isShowBottomBar = true;
+     _pageIndex = 0;
+  }
 }

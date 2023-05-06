@@ -3,10 +3,10 @@ import 'dart:developer';
 import 'package:demo_spotify_app/repository/remote/album_repository.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../data/response/api_response.dart';
-import '../models/album.dart';
-import '../models/track.dart';
-import '../utils/common_utils.dart';
+import '../../data/response/api_response.dart';
+import '../../models/album.dart';
+import '../../models/track.dart';
+import '../../utils/common_utils.dart';
 
 class AlbumViewModel with ChangeNotifier {
   final _tracks = AlbumRepository();

@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
-import 'package:demo_spotify_app/view_models/album_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';

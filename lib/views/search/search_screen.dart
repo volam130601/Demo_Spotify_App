@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/genre/genre_search.dart';
 import 'package:demo_spotify_app/view_models/search_view_model.dart';
-import 'package:demo_spotify_app/views/layout_screen.dart';
+import 'package:demo_spotify_app/views/layout/layout_screen.dart';
 import 'package:demo_spotify_app/views/search/genre_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -35,6 +35,10 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       isLoading = false;
     });
+  }
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override

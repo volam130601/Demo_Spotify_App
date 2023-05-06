@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/album_download.dart';
-import 'package:demo_spotify_app/view_models/album_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
 import 'package:demo_spotify_app/views/library/widgets/album_detail_download.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import '../../../repository/local/download_repository.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../widgets/container_null_value.dart';
-import '../../layout_screen.dart';
+import '../../layout/layout_screen.dart';
 
 class TabAlbum extends StatefulWidget {
   const TabAlbum({Key? key}) : super(key: key);

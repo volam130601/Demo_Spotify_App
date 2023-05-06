@@ -14,19 +14,18 @@ class UserService {
     return _db.collection(collectionName).doc(item.id).set(item.toJson());
   }
 
-  Future<void> editProfile(String name) {
-    final item = CommonUtils.user;
-    Users user =
-        Users(displayName: name, email: item.email!, photoUrl: item.photoURL!);
-    return _db.collection(collectionName).doc(user.id).update(user.toJson());
+  Future<void> editProfile({required Users user}) {
+    return _db.collection(collectionName)
+        .doc(user.id)
+        .update(user.toJson());
   }
 
-  Future<Users> getUser(String userId) async {
+  Future<Users> getUser(String email) async {
     return _db
         .collection(collectionName)
-        .doc(userId)
+        .where('email', isEqualTo: email)
         .get()
-        .then((snapshot) => Users.fromJson(snapshot));
+        .then((snapshot) => Users.fromJson(snapshot.docs.first));
   }
 
   Stream<List<Users>> getItems() {

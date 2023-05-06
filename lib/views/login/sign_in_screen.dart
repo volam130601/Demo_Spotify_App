@@ -1,6 +1,8 @@
 import 'package:demo_spotify_app/utils/routes/route_name.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
+import 'package:demo_spotify_app/views/login/main_login_screen.dart';
+import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +21,28 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _formSignInKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _scrollController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<SignInViewModel>(
       builder: (context, value, child) => Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          leading: IconButton(
+            onPressed: () => Navigator.of(context).pushReplacement(
+                SlideRightPageRoute(page: const LoginScreen())),
+            icon: const Icon(Icons.arrow_back),
+          ),
+        ),
         body: SingleChildScrollView(
           controller: _scrollController,
           child: Padding(
@@ -38,14 +56,14 @@ class _SignInScreenState extends State<SignInScreen> {
                 children: [
                   FormInput(
                     title: 'E-Mail or username',
-                    controller: value.emailController,
+                    controller: _emailController,
                     validator: value.validatorEmail,
                     onChanged: (newValue) => value.email = newValue.trim(),
                     scrollController: _scrollController,
                   ),
                   FormInput(
                     title: 'Password',
-                    controller: value.passwordController,
+                    controller: _passwordController,
                     validator: value.validatorPassword,
                     onChanged: (v) {
                       value.password = v.trim();

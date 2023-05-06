@@ -25,4 +25,9 @@ class Users {
       photoUrl: data['photoUrl'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Users{id: $id, displayName: $displayName, email: $email, photoUrl: $photoUrl}';
+  }
 }

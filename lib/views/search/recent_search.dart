@@ -14,11 +14,11 @@ import '../../models/playlist.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
-import '../../view_models/track_play_view_model.dart';
+import '../../view_models/track_play/track_play_view_model.dart';
 import '../home/detail/album_detail.dart';
 import '../home/detail/artist_detail.dart';
 import '../home/detail/playlist_detail.dart';
-import '../layout_screen.dart';
+import '../layout/layout_screen.dart';
 
 class RecentSearch extends StatefulWidget {
   const RecentSearch({Key? key}) : super(key: key);

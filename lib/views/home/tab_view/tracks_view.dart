@@ -1,4 +1,4 @@
-import 'package:demo_spotify_app/view_models/home_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/home_view_model.dart';
 import 'package:demo_spotify_app/widgets/card_item_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +8,7 @@ import '../../../data/response/status.dart';
 import '../../../models/track.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../view_models/track_play/multi_control_player_view_model.dart';
-import '../../../view_models/track_play_view_model.dart';
+import '../../../view_models/track_play/track_play_view_model.dart';
 import '../../../widgets/navigator/slide_animation_page_route.dart';
 import '../../../widgets/selection_title.dart';
 import '../../play_control/track_play.dart';
