@@ -1,13 +1,19 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/views/play_control/play_control.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import '../../../utils/constants/default_constant.dart';
+import '../../data/network/firebase/favorite_song_service.dart';
+import '../../models/artist.dart';
+import '../../models/track.dart';
+import '../../widgets/action/action_more.dart';
 
 class TrackPlay extends StatefulWidget {
   const TrackPlay({Key? key}) : super(key: key);
@@ -43,8 +49,27 @@ class _TrackPlayState extends State<TrackPlay> {
                 width: double.infinity,
                 color: Colors.black45,
               ),
-              const Positioned(
-                  bottom: 20, left: 0, right: 0, child: PlayControl()),
+              StreamBuilder<SequenceState?>(
+                stream: value.player.sequenceStateStream,
+                builder: (context, snapshot) {
+                  final state = snapshot.data;
+                  if (state?.sequence.isEmpty ?? true) {
+                    return const Icon(Ionicons.heart_outline);
+                  }
+                  final metadata = state!.currentSource!.tag as MediaItem;
+                  Track track = value.currentTracks.firstWhere(
+                      (element) => element.id == int.parse(metadata.id),
+                      orElse: () => Track());
+                  return Positioned(
+                      bottom: 20,
+                      left: 0,
+                      right: 0,
+                      child: PlayControl(
+                        track: track,
+                        album: value.getAlbum,
+                      ));
+                },
+              ),
               Positioned(
                   left: 0,
                   right: 0,
@@ -74,6 +99,9 @@ class _TrackPlayState extends State<TrackPlay> {
         } else {
           image = value.getAlbum.artist!.pictureSmall as String;
         }
+        Track track = value.currentTracks.firstWhere(
+            (element) => element.id == int.parse(metadata.id),
+            orElse: () => Track());
         return Column(
           children: [
             IconButton(
@@ -131,14 +159,41 @@ class _TrackPlayState extends State<TrackPlay> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    width: 40,
-                    child: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.more_vert,
-                        )),
-                  )
+                  StreamBuilder(
+                    stream: FavoriteSongService.instance.getItemsByUserId(
+                        FirebaseAuth.instance.currentUser!.uid),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData) {
+                        return SizedBox(
+                          width: 50,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                elevation: 0,
+                                backgroundColor: Colors.transparent,
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.all(0)),
+                            onPressed: () {},
+                            child: const Icon(Icons.more_vert),
+                          ),
+                        );
+                      }
+                      if(value.getAlbum.id != null) {
+                        track.album = value.getAlbum;
+                        return ActionMore(
+                          track: track,
+                          album: value.getAlbum,
+                        );
+                      }
+                      return ActionMore(
+                        track: track,
+                        album: track.album,
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

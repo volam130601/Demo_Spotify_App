@@ -35,16 +35,12 @@ class ActionMore extends StatefulWidget {
     Key? key,
     required this.track,
     this.playlist,
-    this.isDownloaded = false,
     this.album,
-    this.isAddedFavorite,
     this.playlistNew,
   }) : super(key: key);
   final Track track;
   final Playlist? playlist;
   final Album? album;
-  final bool? isDownloaded;
-  final bool? isAddedFavorite;
   final PlaylistNew? playlistNew;
 
   @override
@@ -76,59 +72,8 @@ class _ActionMoreState extends State<ActionMore> {
   @override
   Widget build(BuildContext context) {
     Track? track = widget.track;
-    Widget downloadTileItem;
-    Widget addFavoriteTileItem;
     Widget addPlaylistTileItem;
-    if (widget.isDownloaded == true) {
-      downloadTileItem = buildModalTileItem(
-        context,
-        title: 'Delete downloaded track',
-        icon: const Icon(Ionicons.trash_outline),
-        onTap: () async {
-          Navigator.pop(context);
-          DownloadRepository.instance.deleteTrackDownload(track.id!);
-          Provider.of<DownloadViewModel>(context, listen: false)
-              .removeTrackDownload(track.id!.toInt());
-          TrackDownload trackDownload = await DownloadRepository.instance
-              .getTrackById(track.id!.toString());
-          await FlutterDownloader.remove(
-              taskId: trackDownload.taskId.toString(),
-              shouldDeleteContent: true);
-          ToastCommon.showCustomText(content: 'Deleted from memory');
-        },
-      );
-    } else {
-      downloadTileItem = buildModalTileItem(
-        context,
-        title: 'Download this song',
-        icon: const Icon(Icons.download_outlined),
-        onTap: () async {
-          Navigator.pop(context);
-          int totalSize =
-              await CommonUtils.getFileSize(track.preview.toString());
-          // ignore: use_build_context_synchronously
-          buildShowModalDownloadThisSong(context, track, totalSize);
-        },
-      );
-    }
-    if (widget.isAddedFavorite == true) {
-      addFavoriteTileItem = buildModalTileItem(
-        context,
-        title: 'Added to the library',
-        icon: Icon(
-          Icons.favorite,
-          color: ColorsConsts.primaryColorDark,
-        ),
-        onTap: removeFavoriteTrack(track),
-      );
-    } else {
-      addFavoriteTileItem = buildModalTileItem(
-        context,
-        title: 'Add to the library',
-        icon: const Icon(Icons.favorite_border_sharp),
-        onTap: addFavoriteTrack(track),
-      );
-    }
+
     if (widget.playlistNew != null) {
       addPlaylistTileItem = buildModalTileItem(
         context,
@@ -179,8 +124,7 @@ class _ActionMoreState extends State<ActionMore> {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          buildShowModalMore(context, track, downloadTileItem,
-              addFavoriteTileItem, addPlaylistTileItem);
+          buildShowModalMore(context, track, addPlaylistTileItem);
         },
         style: ElevatedButton.styleFrom(
             elevation: 0,
@@ -285,8 +229,8 @@ class _ActionMoreState extends State<ActionMore> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * .5,
                   child: StreamBuilder(
-                    stream: PlaylistNewService.instance
-                        .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
+                    stream: PlaylistNewService.instance.getItemsByUserId(
+                        FirebaseAuth.instance.currentUser!.uid),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const SizedBox();
@@ -338,17 +282,13 @@ class _ActionMoreState extends State<ActionMore> {
   }
 
   Future<dynamic> buildShowModalMore(
-      BuildContext context,
-      Track track,
-      Widget downloadTileItem,
-      Widget addFavoriteTileItem,
-      Widget addPlaylistTileItem) {
+      BuildContext context, Track track, Widget addPlaylistTileItem) {
     return showModalBottomSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       context: context,
-      builder: (_) {
-        return Container(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => Container(
           height: MediaQuery.of(context).size.height * .5,
           decoration: BoxDecoration(
             color: Colors.grey.shade900,
@@ -364,8 +304,94 @@ class _ActionMoreState extends State<ActionMore> {
                 paddingHeight(0.5),
                 buildHeaderModal(track, context),
                 buildDivider(),
-                downloadTileItem,
-                addFavoriteTileItem,
+                Selector<DownloadViewModel, bool>(
+                  selector: (context, viewModel) {
+                    final bool isDownloaded = viewModel.trackDownloads
+                        .any((item) => item.id == track.id!);
+                    return isDownloaded;
+                  },
+                  builder: (context, isDownloaded, child) {
+                    if (isDownloaded == true) {
+                      return buildModalTileItem(
+                        context,
+                        title: 'Delete downloaded track',
+                        icon: const Icon(Ionicons.trash_outline),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          DownloadRepository.instance
+                              .deleteTrackDownload(track.id!);
+                          Provider.of<DownloadViewModel>(context, listen: false)
+                              .removeTrackDownload(track.id!.toInt());
+                          TrackDownload trackDownload = await DownloadRepository
+                              .instance
+                              .getTrackById(track.id!.toString());
+                          await FlutterDownloader.remove(
+                              taskId: trackDownload.taskId.toString(),
+                              shouldDeleteContent: true);
+                          ToastCommon.showCustomText(
+                              content: 'Deleted from memory');
+                        },
+                      );
+                    } else {
+                      return buildModalTileItem(
+                        context,
+                        title: 'Download this song',
+                        icon: const Icon(Icons.download_outlined),
+                        onTap: () async {
+                          Navigator.pop(context);
+                          int totalSize = await CommonUtils.getFileSize(
+                              track.preview.toString());
+                          // ignore: use_build_context_synchronously
+                          buildShowModalDownloadThisSong(
+                              context, track, totalSize);
+                        },
+                      );
+                    }
+                  },
+                ),
+                StreamBuilder(
+                  stream: FavoriteSongService.instance
+                      .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (!snapshot.hasData) {
+                      return Row(
+                        children: [
+                          SizedBox(
+                            width: 50,
+                            child: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Ionicons.heart_outline),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    Track track = widget.track;
+                    final isAddedFavorite = snapshot.data!.any(
+                        (element) => element.trackId == track.id.toString());
+                    if (isAddedFavorite == true) {
+                      return buildModalTileItem(
+                        context,
+                        title: 'Added to the library',
+                        icon: Icon(
+                          Icons.favorite,
+                          color: ColorsConsts.primaryColorDark,
+                        ),
+                        onTap: removeFavoriteTrack(track),
+                      );
+                    } else {
+                      return buildModalTileItem(
+                        context,
+                        title: 'Add to the library',
+                        icon: const Icon(Icons.favorite_border_sharp),
+                        onTap: addFavoriteTrack(track),
+                      );
+                    }
+                  },
+                ),
                 addPlaylistTileItem,
                 buildModalTileItem(
                   context,
@@ -386,7 +412,10 @@ class _ActionMoreState extends State<ActionMore> {
                             Animation<double> animation2) {
                           return LayoutScreen(
                             index: 4,
-                            screen: AlbumDetail(albumId: track.album!.id!),
+                            screen: AlbumDetail(
+                                albumId: (track.album != null)
+                                    ? track.album!.id!
+                                    : widget.album!.id!),
                           );
                         },
                         transitionDuration: Duration.zero,
@@ -427,8 +456,8 @@ class _ActionMoreState extends State<ActionMore> {
               ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -621,7 +650,7 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  SizedBox buildHeaderModal(Track? track, BuildContext context) {
+  SizedBox buildHeaderModal(Track track, BuildContext context) {
     return SizedBox(
       height: 60,
       child: ListTile(
@@ -631,9 +660,9 @@ class _ActionMoreState extends State<ActionMore> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(defaultBorderRadius),
             child: CachedNetworkImage(
-              imageUrl: (widget.album != null)
-                  ? '${widget.album!.coverMedium}'
-                  : '${track!.album!.coverSmall}',
+              imageUrl: (track.album != null)
+                  ? '${track.album!.coverMedium}'
+                  : '${widget.album!.coverMedium}',
               fit: BoxFit.cover,
               placeholder: (context, url) => Image.asset(
                 'assets/images/music_default.jpg',
@@ -644,7 +673,7 @@ class _ActionMoreState extends State<ActionMore> {
           ),
         ),
         title: Text(
-          '${track!.title}',
+          '${track.title}',
           style: Theme.of(context).textTheme.titleMedium,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
