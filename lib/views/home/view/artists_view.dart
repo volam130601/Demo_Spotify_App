@@ -9,7 +9,7 @@ import '../../../data/response/status.dart';
 import '../../../models/artist.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../widgets/selection_title.dart';
-import '../detail/artist_detail.dart';
+import '../detail/artist/artist_detail.dart';
 
 class ArtistListView extends StatelessWidget {
   const ArtistListView({Key? key}) : super(key: key);

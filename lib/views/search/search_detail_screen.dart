@@ -22,7 +22,7 @@ import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../view_models/track_play/track_play_view_model.dart';
 import '../../widgets/search_tile_item.dart';
 import '../home/detail/album_detail.dart';
-import '../home/detail/artist_detail.dart';
+import '../home/detail/artist/artist_detail.dart';
 import '../home/detail/playlist_detail.dart';
 import '../layout/layout_screen.dart';
 
