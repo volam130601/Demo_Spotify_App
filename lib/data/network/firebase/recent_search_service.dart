@@ -5,7 +5,7 @@ class RecentSearchService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'recent_search';
 
-  Future<void> addItem(RecentSearchItem item) {
+  Future<void> addRecentSearch(RecentSearchItem item) {
     return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
@@ -25,7 +25,7 @@ class RecentSearchService {
     });
   }
 
-  Future<bool> isCheckExists(String itemId, String userId) async {
+  Future<bool> isCheckExists(int itemId, String userId) async {
     QuerySnapshot querySnapshot = await _db
         .collection(collectionName)
         .where('itemId', isEqualTo: itemId)

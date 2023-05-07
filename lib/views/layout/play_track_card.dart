@@ -17,143 +17,147 @@ class PLayTrackCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double widthScreen = MediaQuery.of(context).size.width;
-    final providerMultiPlayer =
-        Provider.of<MultiPlayerViewModel>(context, listen: true);
-    Widget? playMusicCard;
-    if (providerMultiPlayer.isCheckPlayer) {
-      playMusicCard = InkWell(
-        onTap: () {
-          Navigator.of(context)
-              .push(SlideTopPageRoute(page: const TrackPlay()));
-        },
-        child: Container(
-          height: 60,
-          width: widthScreen,
-          decoration: BoxDecoration(
-              color: Colors.grey.shade800,
-              borderRadius: BorderRadius.circular(defaultBorderRadius / 2)),
-          margin: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-          padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-          child: Stack(
-            children: [
-              StreamBuilder<SequenceState?>(
-                stream: providerMultiPlayer.player.sequenceStateStream,
-                builder: (context, snapshot) {
-                  final state = snapshot.data;
-                  if (state?.sequence.isEmpty ?? true) {
-                    return const SizedBox();
-                  }
-                  final metadata = state!.currentSource!.tag as MediaItem;
+    return Consumer<MultiPlayerViewModel>(
+      builder: (context, value, child) {
+        if (value.isCheckPlayer) {
+          return InkWell(
+            onTap: () {
+              Navigator.of(context)
+                  .push(SlideTopPageRoute(page: const TrackPlay()));
+            },
+            child: Container(
+              height: 60,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade800,
+                  borderRadius: BorderRadius.circular(defaultBorderRadius / 2)),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+              child: Stack(
+                children: [
+                  StreamBuilder<SequenceState?>(
+                    stream: value.player.sequenceStateStream,
+                    builder: (context, snapshot) {
+                      final state = snapshot.data;
+                      if (state?.sequence.isEmpty ?? true) {
+                        return const SizedBox();
+                      }
+                      final metadata = state!.currentSource!.tag as MediaItem;
 
-                  return Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(defaultBorderRadius / 2),
-                        ),
-                        child: CachedNetworkImage(
-                          imageUrl: metadata.artUri.toString(),
-                          placeholder: (context, url) => Image.asset(
-                            'assets/images/music_default.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(width: defaultPadding / 2),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              metadata.title,
-                              style: Theme.of(context).textTheme.titleMedium,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                      return Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                  defaultBorderRadius / 2),
                             ),
-                            Text(
-                              metadata.artist.toString(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: Colors.grey),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
-                      ),
-                      StreamBuilder<PlayerState>(
-                        stream: providerMultiPlayer.player.playerStateStream,
-                        builder: (context, snapshot) {
-                          final playerState = snapshot.data;
-                          final processingState = playerState?.processingState;
-                          final playing = playerState?.playing;
-                          if (processingState == ProcessingState.loading ||
-                              processingState == ProcessingState.buffering) {
-                            return Center(
-                              child: LoadingAnimationWidget.staggeredDotsWave(
-                                color: Colors.white,
-                                size: 28,
+                            child: CachedNetworkImage(
+                              imageUrl: metadata.artUri.toString(),
+                              placeholder: (context, url) => Image.asset(
+                                'assets/images/music_default.jpg',
+                                fit: BoxFit.cover,
                               ),
-                            );
-                          } else if (playing != true) {
-                            return IconButton(
-                              onPressed: providerMultiPlayer.player.play,
-                              icon: const Icon(Icons.play_arrow, size: 32),
-                            );
-                          } else if (processingState !=
-                              ProcessingState.completed) {
-                            return IconButton(
-                              onPressed: providerMultiPlayer.player.pause,
-                              icon: const Icon(Ionicons.pause, size: 32),
-                            );
-                          } else {
-                            return IconButton(
-                              onPressed: () => providerMultiPlayer.player
-                                  .seek(Duration.zero),
-                              icon: const Icon(Icons.replay, size: 32),
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  );
-                },
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: defaultPadding / 2),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  metadata.title,
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                Text(
+                                  metadata.artist.toString(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(color: Colors.grey),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
+                          ),
+                          StreamBuilder<PlayerState>(
+                            stream: value.player.playerStateStream,
+                            builder: (context, snapshot) {
+                              final playerState = snapshot.data;
+                              final processingState =
+                                  playerState?.processingState;
+                              final playing = playerState?.playing;
+                              if (processingState == ProcessingState.loading ||
+                                  processingState ==
+                                      ProcessingState.buffering) {
+                                return Center(
+                                  child:
+                                      LoadingAnimationWidget.staggeredDotsWave(
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                );
+                              } else if (playing != true) {
+                                return IconButton(
+                                  onPressed: value.player.play,
+                                  icon: const Icon(Icons.play_arrow, size: 32),
+                                );
+                              } else if (processingState !=
+                                  ProcessingState.completed) {
+                                return IconButton(
+                                  onPressed: value.player.pause,
+                                  icon: const Icon(Ionicons.pause, size: 32),
+                                );
+                              } else {
+                                return IconButton(
+                                  onPressed: () =>
+                                      value.player.seek(Duration.zero),
+                                  icon: const Icon(Icons.replay, size: 32),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  Positioned(
+                    bottom: 2,
+                    left: 0,
+                    right: 0,
+                    child: StreamBuilder<PositionData>(
+                      stream: value.positionDataStream,
+                      builder: (context, snapshot) {
+                        final positionData = snapshot.data;
+                        return SeekBar(
+                          duration: positionData?.duration ?? Duration.zero,
+                          position: positionData?.position ?? Duration.zero,
+                          bufferedPosition:
+                              positionData?.bufferedPosition ?? Duration.zero,
+                          onChangeEnd: value.player.seek,
+                          isShow: false,
+                        );
+                      },
+                    ),
+                  )
+                ],
               ),
-              Positioned(
-                bottom: 2,
-                left: 0,
-                right: 0,
-                child: StreamBuilder<PositionData>(
-                  stream: providerMultiPlayer.positionDataStream,
-                  builder: (context, snapshot) {
-                    final positionData = snapshot.data;
-                    return SeekBar(
-                      duration: positionData?.duration ?? Duration.zero,
-                      position: positionData?.position ?? Duration.zero,
-                      bufferedPosition:
-                          positionData?.bufferedPosition ?? Duration.zero,
-                      onChangeEnd: providerMultiPlayer.player.seek,
-                      isShow: false,
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    } else {
-      playMusicCard = const SizedBox();
-    }
-    return playMusicCard;
+            ),
+          );
+        }
+        return const SizedBox();
+      },
+    );
   }
 }

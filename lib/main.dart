@@ -1,6 +1,7 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:demo_spotify_app/utils/theme_data.dart';
-import 'package:demo_spotify_app/view_models/comment_view_model.dart';
+import 'package:demo_spotify_app/view_models/search/genre_detail_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/comment_view_model.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
 import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
 import 'package:demo_spotify_app/view_models/home/artist_view_model.dart';
@@ -10,7 +11,7 @@ import 'package:demo_spotify_app/view_models/library/follow_artist_view_model.da
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/view_models/home/playlist_view_model.dart';
-import 'package:demo_spotify_app/view_models/search_view_model.dart';
+import 'package:demo_spotify_app/view_models/search/search_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/layout/layout_screen.dart';
@@ -73,6 +74,8 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ArtistViewModel()),
         ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
         ChangeNotifierProvider(create: (_) => SearchViewModel()),
+        ChangeNotifierProvider(
+            create: (_) => GenreDetailViewModel(MultiPlayerViewModel())),
         ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
         ChangeNotifierProvider(create: (_) => DownloadViewModel()),
         ChangeNotifierProvider(create: (_) => LibraryViewModel()),
@@ -100,4 +103,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-

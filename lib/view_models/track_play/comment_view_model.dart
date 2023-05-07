@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
-import '../data/network/firebase/comment_service.dart';
-import '../models/firebase/comment/comment.dart';
-import '../models/firebase/comment/comment_reply.dart';
+import '../../data/network/firebase/comment_service.dart';
+import '../../models/firebase/comment/comment.dart';
+import '../../models/firebase/comment/comment_reply.dart';
 
 class CommentViewModel with ChangeNotifier {
   final TextEditingController commentController = TextEditingController();

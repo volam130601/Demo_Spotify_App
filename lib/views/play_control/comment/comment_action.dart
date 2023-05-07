@@ -1,7 +1,7 @@
 import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
-import 'package:demo_spotify_app/view_models/comment_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/comment_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

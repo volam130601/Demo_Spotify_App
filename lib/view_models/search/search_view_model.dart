@@ -7,15 +7,14 @@ import 'package:demo_spotify_app/repository/remote/genre_repository.dart';
 import 'package:demo_spotify_app/repository/remote/search_repository.dart';
 import 'package:flutter/material.dart';
 
-import '../models/genre/genre.dart';
-import '../models/track.dart';
+import '../../models/genre/genre.dart';
+import '../../models/track.dart';
 
 class SearchViewModel with ChangeNotifier {
   final _tracks = SearchRepository();
   final _albums = SearchRepository();
   final _artists = SearchRepository();
   final _playlists = SearchRepository();
-
   final _genres = GenreRepository();
 
   ApiResponse<List<Track>> tracks = ApiResponse.loading();

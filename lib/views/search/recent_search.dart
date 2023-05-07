@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/views/search/search_detail_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +82,7 @@ class _RecentSearchState extends State<RecentSearch> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+              padding: const EdgeInsets.only(left: defaultPadding, bottom: defaultPadding),
               child: Text(
                 'Recent searches',
                 style: Theme.of(context)
@@ -103,7 +104,7 @@ class _RecentSearchState extends State<RecentSearch> {
             ),
             Padding(
               padding:
-              const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               child: TextButton(
                 onPressed: () {
                   _recentSearchService.deleteAll();
@@ -129,9 +130,9 @@ class _RecentSearchState extends State<RecentSearch> {
     if (item.type == 'track') {
       onTap = () async {
         var trackPlayVM =
-        Provider.of<TrackPlayViewModel>(context, listen: false);
+            Provider.of<TrackPlayViewModel>(context, listen: false);
         var multiPlayerVM =
-        Provider.of<MultiPlayerViewModel>(context, listen: false);
+            Provider.of<MultiPlayerViewModel>(context, listen: false);
         showBottomBar(context);
         await trackPlayVM.fetchTracksPlayControl(
           albumID: item.albumSearch!.id as int,
@@ -149,8 +150,14 @@ class _RecentSearchState extends State<RecentSearch> {
         await multiPlayerVM.initState(
             tracks: trackPlayVM.tracksPlayControl.data!,
             albumId: item.albumSearch!.id as int,
+            album: Album(
+              id: item.albumSearch!.id,
+              title: item.albumSearch!.title,
+              coverMedium: item.albumSearch!.coverMedium,
+              coverXl: item.albumSearch!.coverXl,
+            ),
             artist: artist,
-            index: trackIndex); // continue
+            index: trackIndex);
       };
     } else if (item.type == 'artist') {
       onTap = () {
@@ -264,6 +271,7 @@ class _RecentSearchState extends State<RecentSearch> {
                 });
               }
               _recentSearchService.deleteItem(item.id!);
+              ToastCommon.showCustomText(content: 'Remove recent search is success');
             },
             icon: const Icon(Ionicons.close),
           ),

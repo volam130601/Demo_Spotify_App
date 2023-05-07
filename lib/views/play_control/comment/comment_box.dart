@@ -14,7 +14,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../../utils/constants/default_constant.dart';
 import '../../../models/firebase/comment/comment.dart';
 import '../../../models/firebase/comment/comment_reply.dart';
-import '../../../view_models/comment_view_model.dart';
+import '../../../view_models/track_play/comment_view_model.dart';
 import 'comment_action.dart';
 import 'comment_like_button.dart';
 

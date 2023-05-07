@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/genre/genre_search.dart';
-import 'package:demo_spotify_app/view_models/search_view_model.dart';
+import 'package:demo_spotify_app/view_models/search/search_view_model.dart';
 import 'package:demo_spotify_app/views/layout/layout_screen.dart';
 import 'package:demo_spotify_app/views/search/genre_detail_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,22 +20,13 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    setIsLoading();
     Provider.of<SearchViewModel>(context, listen: false)
         .fetchGenreSearchesApi();
   }
 
-  Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    setState(() {
-      isLoading = false;
-    });
-  }
   @override
   void dispose() {
     super.dispose();
@@ -43,113 +34,103 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        body: Center(
-          child: LoadingAnimationWidget.staggeredDotsWave(
-            color: Colors.white,
-            size: 40,
-          ),
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: Consumer<SearchViewModel>(
-          builder: (context, value, child) {
-            switch (value.genreSearches.status) {
-              case Status.LOADING:
-                return Scaffold(
-                  body: Center(
-                    child: LoadingAnimationWidget.staggeredDotsWave(
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                );
-              case Status.COMPLETED:
-                return buildBody(context, value);
-              case Status.ERROR:
-                return Text(value.genreSearches.toString());
-              default:
-                return const Text('Default Switch');
-            }
-          },
-        ),
-      );
-    }
-  }
-
-  CustomScrollView buildBody(BuildContext context, SearchViewModel value) {
-    List<GenreSearch>? genreSearches = value.genreSearches.data;
-    return CustomScrollView(
-      slivers: [
-        buildHeaderBody(context),
-        SliverPadding(
-          padding: const EdgeInsets.only(
-              top: defaultPadding,
-              left: defaultPadding,
-              right: defaultPadding,
-              bottom: defaultPadding * 6),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 3 / 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation1,
-                            Animation<double> animation2) {
-                          return LayoutScreen(
-                              index: 4,
-                              screen: GenreDetail(
-                                genreSearch: genreSearches[index],
-                              ));
-                        },
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: CachedNetworkImageProvider(
-                                genreSearches[index]
-                                    .radios![0]
-                                    .pictureMedium
-                                    .toString()),
-                            fit: BoxFit.cover),
-                        borderRadius:
-                            BorderRadius.circular(defaultBorderRadius / 2)),
-                    child: Center(
-                      child: Text(
-                        '${genreSearches[index].title}',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(color: Colors.grey.shade300),
-                      ),
-                    ),
-                  ),
-                );
-              },
-              childCount: genreSearches!.length,
-            ),
-          ),
-        ),
-      ],
+    return Consumer<SearchViewModel>(
+      builder: (context, value, child) {
+        switch (value.genreSearches.status) {
+          case Status.LOADING:
+            return Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ),
+            );
+          case Status.COMPLETED:
+            List<GenreSearch> genreSearches = value.genreSearches.data!;
+            return Scaffold(
+              body: CustomScrollView(
+                slivers: [
+                  buildHeader(context),
+                  buildBrowserAll(genreSearches),
+                ],
+              ),
+            );
+          case Status.ERROR:
+            return Text(value.genreSearches.toString());
+          default:
+            return const Text('Default Switch');
+        }
+      },
     );
   }
 
-  SliverPadding buildHeaderBody(BuildContext context) {
+  SliverPadding buildBrowserAll(List<GenreSearch> genreSearches) {
+    return SliverPadding(
+      padding: const EdgeInsets.only(
+          top: defaultPadding,
+          left: defaultPadding,
+          right: defaultPadding,
+          bottom: defaultPadding * 9),
+      sliver: SliverGrid(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 3 / 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (BuildContext context, int index) {
+            return InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (BuildContext context,
+                        Animation<double> animation1,
+                        Animation<double> animation2) {
+                      return LayoutScreen(
+                          index: 4,
+                          screen: GenreDetail(
+                            genreSearch: genreSearches[index],
+                          ));
+                    },
+                    transitionDuration: Duration.zero,
+                    reverseTransitionDuration: Duration.zero,
+                  ),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey,
+                    image: DecorationImage(
+                        image: CachedNetworkImageProvider(genreSearches[index]
+                            .radios![0]
+                            .pictureMedium
+                            .toString()),
+                        fit: BoxFit.cover,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(defaultBorderRadius / 2)),
+                child: Center(
+                  child: Text(
+                    '${genreSearches[index].title}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: Colors.grey.shade300),
+                  ),
+                ),
+              ),
+            );
+          },
+          childCount: genreSearches.length,
+        ),
+      ),
+    );
+  }
+
+  SliverPadding buildHeader(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
       sliver: SliverToBoxAdapter(
@@ -170,7 +151,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     style: IconButton.styleFrom(
                       padding: const EdgeInsets.all(0),
                     ),
-                    icon: const Icon(Icons.camera_alt_outlined))
+                    icon: const Icon(Ionicons.scan_outline))
               ],
             ),
             buildBoxSearchBtn(context),
