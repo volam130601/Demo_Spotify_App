@@ -84,4 +84,20 @@ class ArtistRepository {
     final List<dynamic> items = response['data'];
     return items.map((item) => Playlist.fromJson(item)).toList();
   }
+
+  Future<List<Artist>> getChartArtists() async {
+    var url = Uri.https(AppUrl.baseURL, '/chart/0/artists', {'index': '0', 'limit' : '100'});
+    final response = await _apiServices.getGetApiResponse(url);
+    final List<dynamic> items = response['data'];
+    return items.map((item) => Artist.fromJson(item)).toList();
+  }
+
+  Future<List<Artist>> getSearchArtists(
+      String searchKey, int index, int limit) async {
+    var url = Uri.https(AppUrl.baseURL, '/search/artist',
+        {'q': searchKey, 'limit': '$limit', 'index': '$index'});
+    final response = await _apiServices.getGetApiResponse(url);
+    final List<dynamic> items = response['data'];
+    return items.map((item) => Artist.fromJson(item)).toList();
+  }
 }

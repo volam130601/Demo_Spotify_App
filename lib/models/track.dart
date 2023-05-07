@@ -117,6 +117,9 @@ class Track {
     if (artist != null) {
       data["artist"] = artist?.toJson();
     }
+    if (album != null) {
+      data["album"] = album?.toJson();
+    }
     data["type"] = type;
     return data;
   }

@@ -1,14 +1,31 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
+import 'package:demo_spotify_app/data/network/firebase/playlist_new_service.dart';
+import 'package:demo_spotify_app/models/album.dart';
+import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
+import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
+import 'package:demo_spotify_app/models/playlist.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
+import 'package:demo_spotify_app/views/library/add_playlist.dart';
+import 'package:demo_spotify_app/views/library/favorite_screen.dart';
+import 'package:demo_spotify_app/widgets/list_tile_custom/list_tile_custom.dart';
+import 'package:demo_spotify_app/widgets/tab_bar/tab_bar_custom.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
+import '../../data/network/firebase/favorite_album_service.dart';
+import '../../models/artist.dart';
 import '../../models/category/category_library.dart';
+import '../../models/firebase/favorite_album.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/selection_title.dart';
-import '../layout_screen.dart';
+import '../layout/layout_screen.dart';
 import 'download_screen.dart';
+import 'artist/follow_artist_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({Key? key}) : super(key: key);
@@ -48,13 +65,11 @@ class _LibraryScreenState extends State<LibraryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) =>
+        [
+          SliverToBoxAdapter(
+            child: SizedBox(
               height: 200,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,170 +79,177 @@ class _LibraryScreenState extends State<LibraryScreen>
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  height: 50,
-                  width: 180,
-                  child: TabBar(
-                    controller: _tabController,
-                    tabs: const [
-                      Tab(text: 'Playlist'),
-                      Tab(text: 'Album'),
-                    ],
-                    labelColor: Colors.white,
-                    indicatorSize: TabBarIndicatorSize.label,
-                    padding: const EdgeInsets.only(
-                        top: defaultPadding / 2,
-                        bottom: defaultPadding / 2,
-                        right: defaultPadding),
-                    indicatorPadding: const EdgeInsets.symmetric(
-                        horizontal: defaultPadding / 2),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.more_vert,
-                    size: 20,
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 200 + (70 * 8),
-              child: TabBarView(
+          ),
+          SliverPersistentHeader(
+            delegate: StickyTabBarLibraryDelegate(
+              child: TabBar(
                 controller: _tabController,
-                physics: const BouncingScrollPhysics(
-                    decelerationRate: ScrollDecelerationRate.fast),
-                children: [buildTabPlaylist(context), buildTabAlbum(context)],
+                tabs: const [
+                  Tab(text: 'Playlist'),
+                  Tab(text: 'Album'),
+                ],
+                labelColor: Colors.white,
+                indicatorSize: TabBarIndicatorSize.label,
+                padding: const EdgeInsets.only(
+                    top: defaultPadding / 2,
+                    bottom: defaultPadding / 2,
+                    right: defaultPadding),
+                indicatorPadding:
+                const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               ),
             ),
-          ],
+            pinned: true,
+          )
+        ],
+        body: TabBarView(
+          controller: _tabController,
+          physics: const BouncingScrollPhysics(
+              decelerationRate: ScrollDecelerationRate.fast),
+          children: [buildTabPlaylist(context), buildTabAlbum(context)],
         ),
       ),
     );
   }
 
   Widget buildTabAlbum(BuildContext context) {
-    return const ContainerNullValue(
-      image: 'assets/images/library/album_none.png',
-      title: 'You haven\'t created any albums yet.',
-      subtitle:
-          'Find and click the favorite button for the album to add it to the library.',
+    return StreamBuilder(
+      stream: FavoriteAlbumService.instance
+          .getAlbumItemsByUserId(userId: CommonUtils.userId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const ContainerNullValue(
+            image: 'assets/images/library/album_none.png',
+            title: 'You haven\'t created any albums yet.',
+            subtitle:
+            'Find and click the favorite button for the album to add it to the library.',
+          );
+        }
+        List<FavoriteAlbum>? albumFavorite = snapshot.data!;
+        List<Album> albums = [];
+        for (var item in albumFavorite) {
+          albums.add(
+            Album(
+                id: int.tryParse(item.albumId.toString()),
+                title: item.title,
+                artist: Artist(name: item.artistName),
+                coverMedium: item.coverMedium),
+          );
+        }
+        return SizedBox(
+          height: albums.length * (50 + 16),
+          child: ListView.builder(
+            itemCount: albums.length,
+            itemBuilder: (context, index) {
+              return AlbumTileItem(album: albums[index]);
+            },
+          ),
+        );
+      },
     );
   }
 
-  Container buildTabPlaylist(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: defaultPadding),
-      child: SizedBox(
-        height: 70 * 8,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(
-              decelerationRate: ScrollDecelerationRate.fast),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onTap: () {},
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                      vertical: defaultPadding / 4, horizontal: defaultPadding),
-                  leading: Container(
+  Widget buildTabPlaylist(BuildContext context) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const AddPlaylistScreen();
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                  horizontal: defaultPadding, vertical: defaultPadding / 2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade800,
                       borderRadius:
-                          BorderRadius.circular(defaultBorderRadius / 2),
+                      BorderRadius.circular(defaultBorderRadius / 2),
                     ),
                     child: const Center(
                       child: Icon(Ionicons.add, size: 30),
                     ),
                   ),
-                  title: Text(
+                  paddingWidth(0.5),
+                  Text(
                     'Add playlist',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleMedium,
                   ),
-                ),
+                ],
               ),
-              paddingHeight(1.5),
-              Padding(
-                padding: const EdgeInsets.only(left: defaultPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Playlist suggest',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    Text(
-                      'Heard a lot',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w400),
-                    ),
-                  ],
-                ),
-              ),
-              paddingHeight(1),
-              ...Iterable<int>.generate(5).map(
-                (e) => SizedBox(
-                  height: 70,
-                  child: InkWell(
-                    onTap: () {},
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: defaultPadding),
-                      leading: Stack(children: [
-                        Container(
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius / 2),
-                            image: const DecorationImage(
-                              image:
-                                  AssetImage('assets/images/music_default.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 50,
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius / 2),
-                            image: const DecorationImage(
-                              image: CachedNetworkImageProvider(
-                                  'https://e-cdns-images.dzcdn.net/images/playlist/7ff3e69ac26739df33ff53cf31e7259b/250x250-000000-80-0-0.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ]),
-                      title: Text(
-                        'Giai điệu chữa lành',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      subtitle: Text(
-                        'Spotify',
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Colors.grey, fontWeight: FontWeight.w400),
-                      ),
-                      trailing: IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Ionicons.heart_outline),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          StreamBuilder(
+            stream: FavoritePlaylistService.instance
+                .getPlaylistItemsByUserId(userId: CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox();
+              }
+              List<FavoritePlaylist>? playlistFavorite = snapshot.data!;
+              List<Playlist> playlists = [];
+              for (var item in playlistFavorite) {
+                playlists.add(Playlist(
+                    id: int.tryParse(item.playlistId.toString()),
+                    title: item.title,
+                    user: UserPlaylist(name: item.userName.toString()),
+                    pictureMedium: item.pictureMedium));
+              }
+              return SizedBox(
+                height: playlists.length * (50 + 16),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: playlists.length,
+                  itemBuilder: (context, index) {
+                    return PlaylistTileItem(playlist: playlists[index]);
+                  },
+                ),
+              );
+            },
+          ),
+          StreamBuilder(
+            stream: PlaylistNewService.instance
+                .getItemsByUserId(CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox();
+              }
+              List<PlaylistNew>? playlistNews = snapshot.data!;
+              playlistNews.sort((a, b) => a.title!.compareTo(b.title!));
+              return SizedBox(
+                height: playlistNews.length * (50 + 16),
+                child: ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: playlistNews.length,
+                  itemBuilder: (context, index) {
+                    return PlaylistNewTileItem(
+                        playlistNew: playlistNews[index]);
+                  },
+                ),
+              );
+            },
+          ),
+          paddingHeight(8),
+        ],
       ),
     );
   }
@@ -238,19 +260,36 @@ class _LibraryScreenState extends State<LibraryScreen>
       leadingWidth: 0,
       title: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: CachedNetworkImageProvider((isCheck &&
-                    _auth.currentUser != null)
-                ? '${_auth.currentUser!.photoURL}'
-                : 'https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg'),
-            backgroundColor:
-                Colors.grey, // fallback color if the image is not available
+          Consumer<SignInViewModel>(
+            builder: (context, value, child) =>
+            (value.user.photoUrl != null)
+                ? CircleAvatar(
+                radius: 20,
+                backgroundImage:
+                CachedNetworkImageProvider(value.user.photoUrl!))
+                : CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.red,
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  value.user.displayName!.substring(0, 1).toUpperCase(),
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(color: Colors.black),
+                ),
+              ),
+            ),
           ),
           paddingWidth(0.5),
           Text(
             'Your Library',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .headlineSmall,
           )
         ],
       ),
@@ -299,6 +338,44 @@ class _LibraryScreenState extends State<LibraryScreen>
               );
             };
           }
+          if (categoryLibraries[index].code == CategoryLibrary.favoriteSong) {
+            onTap = () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const LayoutScreen(
+                      index: 4,
+                      screen: FavoriteSongScreen(),
+                    );
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            };
+          }
+          if (categoryLibraries[index].code == CategoryLibrary.artist) {
+            onTap = () {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (BuildContext context,
+                      Animation<double> animation1,
+                      Animation<double> animation2) {
+                    return const LayoutScreen(
+                      index: 4,
+                      screen: FollowArtistScreen(),
+                    );
+                  },
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            };
+          }
           return GestureDetector(
             onTap: onTap ?? () {},
             child: Container(
@@ -318,7 +395,8 @@ class _LibraryScreenState extends State<LibraryScreen>
                   paddingHeight(1),
                   Text(
                     categoryLibraries[index].title,
-                    style: Theme.of(context)
+                    style: Theme
+                        .of(context)
                         .textTheme
                         .titleSmall
                         ?.copyWith(color: Colors.white),

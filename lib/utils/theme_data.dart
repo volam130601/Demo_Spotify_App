@@ -25,6 +25,11 @@ class Styles {
       appBarTheme: const AppBarTheme(
         elevation: 0.0,
       ),
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith ((Set  states) {
+          return const Color(0xFFAFAFAF);
+        }),
+      ),
       textTheme: const TextTheme(
         headlineSmall: TextStyle(fontWeight: FontWeight.bold),
         headlineMedium: TextStyle(fontWeight: FontWeight.bold),

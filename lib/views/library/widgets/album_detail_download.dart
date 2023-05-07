@@ -11,7 +11,7 @@ import '../../../repository/local/download_repository.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/common_utils.dart';
 import '../../../utils/constants/default_constant.dart';
-import '../../../view_models/downloader/download_view_modal.dart';
+import '../../../view_models/download_view_modal.dart';
 import '../../../widgets/play_control/play_button.dart';
 
 class AlbumDetailDownload extends StatefulWidget {
@@ -88,7 +88,9 @@ class _AlbumDetailDownloadState extends State<AlbumDetailDownload> {
                     children: [
                       Text(
                           CommonUtils.formatReleaseDate(
-                              widget.albumDownload.releaseDate!),
+                              (widget.albumDownload.releaseDate != null)
+                                  ? widget.albumDownload.releaseDate!
+                                  : DateTime.now().toString()),
                           style: Theme.of(context).textTheme.titleMedium),
                       paddingHeight(1.5),
                       Row(

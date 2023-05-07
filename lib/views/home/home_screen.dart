@@ -1,18 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/utils/toast_utils.dart';
-import 'package:demo_spotify_app/views/home/tab_view/albums_view.dart';
-import 'package:demo_spotify_app/views/home/tab_view/artists_view.dart';
-import 'package:demo_spotify_app/views/home/tab_view/playlists_view.dart';
-import 'package:demo_spotify_app/views/home/tab_view/tracks_view.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
+import 'package:demo_spotify_app/views/home/view/playlists_view.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/constants/default_constant.dart';
-import '../../view_models/downloader/download_view_modal.dart';
-import '../../view_models/home_view_model.dart';
+import '../../view_models/download_view_modal.dart';
+import '../../view_models/home/home_view_model.dart';
+import 'view/albums_view.dart';
+import 'view/artists_view.dart';
+import 'view/tracks_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,69 +21,53 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    setIsLoading();
     Provider.of<DownloadViewModel>(context, listen: false).loadTrackDownload();
     Provider.of<HomeViewModel>(context, listen: false)
       ..fetchChartPlaylistsApi()
       ..fetchChartAlbumsApi()
       ..fetchChartTracksApi()
       ..fetchChartArtistsApi();
-  }
-
-  Future<void> setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    setState(() {
-      isLoading = false;
-    });
+    Provider.of<SignInViewModel>(context, listen: false).fetchLogin();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return Scaffold(
-        body: Center(
-          child: LoadingAnimationWidget.staggeredDotsWave(
-            color: Colors.white,
-            size: 40,
-          ),
-        ),
-      );
-    } else {
-      return Scaffold(
-        body: Consumer<HomeViewModel>(
-          builder: (context, value, child) {
-            return Container(
-              padding: const EdgeInsets.only(top: defaultPadding),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    paddingHeight(1),
-                    const HeaderBody(),
-                    paddingHeight(1),
-                    buildHomeRecentSearch(),
-                    const PlaylistView(),
-                    paddingHeight(2),
-                    const AlbumListView(),
-                    paddingHeight(2),
-                    const TrackListView(),
-                    paddingHeight(2),
-                    const ArtistListView(),
-                    paddingHeight(8),
-                  ],
+    return Scaffold(
+      body: Consumer<HomeViewModel>(
+        builder: (context, value, child) {
+          return Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: defaultPadding),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      paddingHeight(1),
+                      const HeaderBody(),
+                      paddingHeight(1),
+                      buildHomeRecentSearch(),
+                      const PlaylistView(),
+                      paddingHeight(2),
+                      const AlbumListView(),
+                      paddingHeight(2),
+                      const TrackListView(),
+                      paddingHeight(2),
+                      const ArtistListView(),
+                      paddingHeight(8),
+                    ],
+                  ),
                 ),
               ),
-            );
-          },
-        ),
-      );
-    }
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Padding buildHomeRecentSearch() {

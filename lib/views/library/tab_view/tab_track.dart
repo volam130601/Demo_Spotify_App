@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
-import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/widgets/container_null_value.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -37,7 +35,8 @@ class _TabTrackState extends State<TabTrack> {
                   'Download your favorite track so you can play it when there is no internet connection.',
             );
           }
-          List<Track> tracks = CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
+          List<Track> tracks =
+              CommonUtils.convertTrackDownloadsToTracks(snapshot.data!);
           return ListView.builder(
             padding: const EdgeInsets.all(0),
             physics: const BouncingScrollPhysics(),
@@ -90,11 +89,12 @@ class _TabTrackState extends State<TabTrack> {
                             borderRadius:
                                 BorderRadius.circular(defaultBorderRadius),
                             child: CachedNetworkImage(
-                              imageUrl: '${trackDownload.coverSmall}',
+                              imageUrl: '${trackDownload.coverXl}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Image.asset(
                                 'assets/images/music_default.jpg',
                                 fit: BoxFit.cover,
+                                height: 60,
                               ),
                               errorWidget: (context, url, error) =>
                                   const Icon(Icons.error),
@@ -128,13 +128,7 @@ class _TabTrackState extends State<TabTrack> {
                         SizedBox(
                           width: 60,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              List<DownloadTask>? tasks =
-                                  await FlutterDownloader.loadTasks();
-                              for (var item in tasks!) {
-                                log('$item');
-                              }
-                            },
+                            onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.transparent,
                               elevation: 0,

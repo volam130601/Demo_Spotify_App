@@ -25,26 +25,27 @@ class RecentSearchService {
     });
   }
 
-  Future<bool> isCheckExists(String itemId) async {
+  Future<bool> isCheckExists(String itemId, String userId) async {
     QuerySnapshot querySnapshot = await _db
         .collection(collectionName)
         .where('itemId', isEqualTo: itemId)
+        .where('userId', isEqualTo: userId)
         .get();
 
-    if(querySnapshot.docs.isEmpty){
+    if (querySnapshot.docs.isEmpty) {
       return false;
     } else {
       return true;
     }
   }
 
-
   Stream<List<RecentSearchItem>> getItemsByUserId(String userId) {
     return _db
         .collection(collectionName)
         .where('userId', isEqualTo: userId)
         .snapshots()
-        .map((snapshot) =>
-        snapshot.docs.map((doc) => RecentSearchItem.fromSnapshot(doc)).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => RecentSearchItem.fromSnapshot(doc))
+            .toList());
   }
 }

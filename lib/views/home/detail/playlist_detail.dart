@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
+import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
-import 'package:demo_spotify_app/view_models/downloader/download_view_modal.dart';
-import 'package:demo_spotify_app/view_models/multi_control_player_view_model.dart';
-import 'package:demo_spotify_app/view_models/playlist_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
+import 'package:demo_spotify_app/view_models/home/playlist_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -13,8 +15,9 @@ import '../../../data/response/status.dart';
 import '../../../models/playlist.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
+import '../../../utils/toast_utils.dart';
 import '../../../widgets/action/action_download_track.dart';
-import '../../../widgets/action/action_more.dart';
+import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
 
 class PlaylistDetail extends StatefulWidget {
@@ -31,24 +34,17 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   final ScrollController _scrollController = ScrollController();
   late bool isCheckScrollExtendAfter = false;
   late bool isShow = false;
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     Provider.of<PlaylistViewModel>(context, listen: false)
+        .fetchTotalSizeDownload(widget.playlistId, 0, 10000);
+    Provider.of<PlaylistViewModel>(context, listen: false)
       ..fetchPlaylistById(widget.playlistId)
       ..fetchTracksByPlaylistId(widget.playlistId, 0, 10000);
 
-    setIsLoading();
     _scrollController.addListener(_onScrollEvent);
-  }
-
-  void setIsLoading() async {
-    await Future.delayed(const Duration(milliseconds: 2000));
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -82,93 +78,92 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          buildPlaylistBody(context),
-          isLoading
-              ? Scaffold(
-                  body: Center(
-                    child: LoadingAnimationWidget.staggeredDotsWave(
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                )
-              : const SizedBox(),
-        ],
-      ),
-    );
-  }
-
-  Widget buildPlaylistBody(BuildContext context) {
-    return Consumer<PlaylistViewModel>(builder: (context, value, _) {
-      switch (value.tracks.status) {
-        case Status.LOADING:
-          return Scaffold(
-            body: Center(
-              child: LoadingAnimationWidget.staggeredDotsWave(
-                color: Colors.white,
-                size: 40,
+      body: Consumer<PlaylistViewModel>(builder: (context, value, _) {
+        switch (value.tracks.status) {
+          case Status.LOADING:
+            return Scaffold(
+              body: Center(
+                child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white,
+                  size: 40,
+                ),
               ),
-            ),
-          );
-        case Status.COMPLETED:
-          List<Track>? tracks = value.tracks.data;
-          Playlist? playlist = value.playlistDetail.data;
-          return Stack(
-            children: [
-              CustomScrollView(
-                controller: _scrollController,
-                slivers: [
-                  buildAppBar(context, playlist!),
-                  buildHeaderBody(context, playlist),
-                  SliverToBoxAdapter(
-                    child: playlistActions(tracks!, playlist, value),
-                  ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return InkWell(
-                          child: playlistTile(context, tracks[index], playlist),
-                          onTap: () {
-                            var value = Provider.of<MultiPlayerViewModel>(
-                                context,
-                                listen: false);
-                            int? currentPlaylistId = playlist.id;
-                            if (currentPlaylistId != value.getPlaylistId) {
-                              value.initState(
-                                  tracks: tracks,
-                                  playlistId: playlist.id,
-                                  index: index);
-                            } else {
-                              value.player.seek(Duration.zero, index: index);
-                            }
+            );
+          case Status.COMPLETED:
+            List<Track>? tracks = value.tracks.data;
+            Playlist? playlist = value.playlistDetail.data;
+            if (playlist != null && tracks != null) {
+              return Stack(
+                children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      buildAppBar(context, playlist),
+                      buildHeaderBody(context, playlist),
+                      SliverToBoxAdapter(
+                        child: playlistActions(tracks, playlist, value),
+                      ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            return InkWell(
+                              child: TrackTileItem(
+                                track: tracks[index],
+                                playlist: playlist,
+                              ),
+                              onTap: () {
+                                var value = Provider.of<MultiPlayerViewModel>(
+                                    context,
+                                    listen: false);
+                                int? currentPlaylistId = playlist.id;
+                                if (currentPlaylistId != value.getPlaylistId) {
+                                  value.initState(
+                                      tracks: tracks,
+                                      playlistId: playlist.id,
+                                      index: index);
+                                } else {
+                                  value.player
+                                      .seek(Duration.zero, index: index);
+                                }
+                              },
+                            );
                           },
-                        );
-                      },
-                      childCount: tracks.length,
-                    ),
+                          childCount: tracks.length,
+                        ),
+                      ),
+                      SliverToBoxAdapter(child: paddingHeight(8)),
+                    ],
                   ),
-                  SliverToBoxAdapter(child: paddingHeight(8)),
+                  if (isShow) ...{
+                    Positioned(
+                        top: 80,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                            color: ColorsConsts.scaffoldColorDark,
+                            child: playlistActions(tracks, playlist, value))),
+                  }
                 ],
-              ),
-              if (isShow) ...{
-                Positioned(
-                    top: 80,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                        color: ColorsConsts.scaffoldColorDark,
-                        child: playlistActions(tracks, playlist, value))),
-              }
-            ],
-          );
-        case Status.ERROR:
-          return Text(value.tracks.toString());
-        default:
-          return const Text('Default Switch');
-      }
-    });
+              );
+            } else {
+              return Scaffold(
+                body: Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+              );
+            }
+          case Status.ERROR:
+            return SliverToBoxAdapter(
+              child: Text(value.tracks.toString()),
+            );
+          default:
+            return const Text('Default Switch');
+        }
+      }),
+    );
   }
 
   SliverToBoxAdapter buildHeaderBody(BuildContext context, Playlist playlist) {
@@ -208,7 +203,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
             ),
             paddingHeight(0.5),
             Text(
-                '${playlist.nbTracks} tracks - ${CommonUtils.totalDuration(playlist.duration!)}',
+                '${playlist.nbTracks} tracks • ${CommonUtils.totalDuration(playlist.duration!)}',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -237,8 +232,52 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
       List<Track> tracks, Playlist playlist, PlaylistViewModel value) {
     return Row(
       children: [
-        IconButton(
-            onPressed: () {}, icon: const Icon(Icons.favorite_border_sharp)),
+        StreamBuilder(
+            stream: FavoritePlaylistService.instance
+                .getPlaylistItemsByUserId(userId: CommonUtils.userId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Ionicons.heart_outline),
+                );
+              }
+              final isAddedFavoritePlaylist = snapshot.data!.any(
+                  (element) => element.playlistId == playlist.id.toString());
+
+              return isAddedFavoritePlaylist
+                  ? IconButton(
+                      onPressed: () {
+                        ToastCommon.showCustomText(
+                            content:
+                                'Removed playlist ${playlist.title} from the library');
+                        FavoritePlaylistService.instance.deleteItemByPlaylistId(
+                            playlist.id.toString(), CommonUtils.userId);
+                      },
+                      icon: Icon(
+                        Ionicons.heart,
+                        color: ColorsConsts.primaryColorDark,
+                      ),
+                    )
+                  : IconButton(
+                      onPressed: () {
+                        ToastCommon.showCustomText(
+                            content:
+                                'Added playlist ${playlist.title} to the library');
+                        FavoritePlaylistService.instance
+                            .addItem(FavoritePlaylist(
+                          id: DateTime.now().toString(),
+                          playlistId: playlist.id.toString(),
+                          title: playlist.title,
+                          userName: (playlist.user != null)
+                              ? playlist.user!.name.toString()
+                              : playlist.creator!.name.toString(),
+                          pictureMedium: playlist.pictureMedium,
+                          userId: CommonUtils.userId,
+                        ));
+                      },
+                      icon: const Icon(Ionicons.heart_outline));
+            }),
         ActionDownloadTracks(
           playlist: playlist,
           tracks: tracks,
@@ -256,69 +295,5 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         const SizedBox(width: defaultPadding)
       ],
     ); // Show the fetched data.
-  }
-
-  Widget playlistTile(BuildContext context, Track track, Playlist playlist) {
-    return Consumer<DownloadViewModel>(
-      builder: (context, value, child) {
-        final trackDownloads = value.trackDownloads;
-        final bool isDownloaded =
-            trackDownloads.any((item) => item.id == track.id!);
-        return Container(
-          height: 60,
-          margin: const EdgeInsets.only(bottom: defaultPadding),
-          child: ListTile(
-            leading: CachedNetworkImage(
-              width: 50,
-              height: 50,
-              imageUrl: track.album!.coverSmall as String,
-              placeholder: (context, url) => Image.asset(
-                'assets/images/music_default.jpg',
-                fit: BoxFit.cover,
-              ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  track.title as String,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Row(
-                  children: [
-                    isDownloaded
-                        ? Row(
-                            children: [
-                              const Icon(Icons.download_for_offline_outlined,
-                                  color: Colors.deepPurple),
-                              paddingWidth(0.5),
-                            ],
-                          )
-                        : const SizedBox(),
-                    Text(
-                      track.artist!.name as String,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.grey, fontWeight: FontWeight.w600),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            trailing: ActionMore(
-              track: track,
-              playlist: playlist,
-              isDownloaded: isDownloaded,
-            ),
-          ),
-        );
-      },
-    );
   }
 }

@@ -1,19 +1,12 @@
-import 'dart:developer';
-
-import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/login/sign_in_screen.dart';
 import 'package:demo_spotify_app/views/login/sign_up_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/auth_google_service.dart';
-import '../../data/network/firebase/user_service.dart';
-import '../../models/firebase/user.dart';
 import '../../utils/constants/default_constant.dart';
-import '../../utils/routes/route_name.dart';
-import '../../widgets/slide_animation_page_route.dart';
+import '../../widgets/navigator/slide_animation_page_route.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -76,52 +69,15 @@ class LoginScreen extends StatelessWidget {
                   ),
                   buildButtonCommon(
                     context,
-                    title: 'Continue with phone number',
-                    icon: const Icon(
-                      Ionicons.phone_portrait_outline,
-                      color: Colors.white,
-                    ),
-                    isOutline: true,
-                    onPressed: () {},
-                  ),
-                  buildButtonCommon(
-                    context,
                     title: 'Continue with Google',
                     icon: SvgPicture.asset(
                       'assets/icons/google_logo.svg',
                       width: 20,
                     ),
                     isOutline: true,
-                    onPressed: () async {
-                      try {
-                        UserCredential userCredential =
-                            await AuthGoogle().signInWithGoogle();
-                        // User signed in successfully
-                        final user = userCredential.user;
-
-                        await UserService().addItem(Users(
-                            id: user!.uid,
-                            displayName: user.displayName.toString(),
-                            email: user.email.toString(),
-                            photoUrl: user.photoURL.toString()));
-                        // ignore: use_build_context_synchronously
-                        Navigator.of(context).pushReplacementNamed(RoutesName.home);
-                        ToastCommon.showCustomText(content: 'Login with google is success');
-                      } catch (e) {
-                        // Error signing in
-                        log('>>>>Login ERROR');
-                      }
-                    },
-                  ),
-                  buildButtonCommon(
-                    context,
-                    title: 'Continue with Facebook',
-                    icon: SvgPicture.asset(
-                      'assets/icons/facebook_logo.svg',
-                      width: 20,
-                    ),
-                    isOutline: true,
-                    onPressed: () {},
+                    onPressed: () =>
+                        Provider.of<SignInViewModel>(context, listen: false)
+                            .signInWithGoogle(context),
                   ),
                   TextButton(
                     onPressed: () {

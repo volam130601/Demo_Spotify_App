@@ -13,8 +13,9 @@ class ToastCommon {
       toastBuilder: (_) => Align(
         alignment: const Alignment(0, 0.8),
         child: Card(
-          color: const Color.fromRGBO(125, 125, 125, 0.7),
+          color: const Color.fromRGBO(125, 125, 125, 0.9),
           shape: const StadiumBorder(),
+          margin: const EdgeInsets.symmetric(horizontal: defaultPadding),
           child: Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: defaultPadding, vertical: defaultPadding / 2),
@@ -27,7 +28,13 @@ class ToastCommon {
                   height: 20,
                 ),
                 paddingWidth(0.5),
-                Text(content),
+                Expanded(
+                  child: Text(
+                    content,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),

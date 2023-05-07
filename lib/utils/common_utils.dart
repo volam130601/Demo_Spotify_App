@@ -1,12 +1,15 @@
 import 'package:demo_spotify_app/models/local/track_download.dart';
-import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 import '../models/album.dart';
 import '../models/artist.dart';
 import '../models/track.dart';
 
 class CommonUtils {
+  static final String userId = FirebaseAuth.instance.currentUser!.uid;
+
   static List<Track> convertTrackDownloadsToTracks(
           List<TrackDownload> trackDownloads) =>
       trackDownloads
@@ -17,7 +20,7 @@ class CommonUtils {
                   Album(coverSmall: track.coverSmall, coverXl: track.coverXl),
               artist: Artist(
                   name: track.artistName,
-                  pictureSmall: track.artistPictureSmall),
+                  pictureMedium: track.artistPictureSmall),
               preview: track.preview,
               duration: track.duration,
               type: track.type))
@@ -39,7 +42,6 @@ class CommonUtils {
     return '${hours}h ${remainingMinutes}min';
   }
 
-
   static String subStringTrackId(String str) {
     int lastIndexOfDash = str.lastIndexOf('-');
     return str.substring(lastIndexOfDash + 1, str.length - 4);
@@ -60,6 +62,11 @@ class CommonUtils {
     return DateFormat('MMMM d, y').format(dateTime);
   }
 
+  static String getYearByReleaseDate(String inputDate) {
+    DateTime dateTime = DateTime.parse(inputDate);
+    return dateTime.year.toString();
+  }
+
   ///getFileSize
   static Future<int> getFileSize(String text) async {
     var url = Uri.parse(text);
@@ -74,11 +81,24 @@ class CommonUtils {
     return '$size MB';
   }
 
-  static Future<String> getSizeInBytesOfTrackDownload(List<Track> tracks) async {
-    int totalSize=  0;
+  static Future<String> getSizeInBytesOfTrackDownload(
+      List<Track> tracks) async {
+    int totalSize = 0;
     for (var track in tracks) {
       totalSize += await getFileSize(track.preview.toString());
     }
     return formatSize(totalSize);
+  }
+
+  static String convertToShorthand(int num) {
+    String shorthand;
+    if (num >= 1000000) {
+      shorthand = '${(num / 1000000).toStringAsFixed(1)}M';
+    } else if (num >= 1000) {
+      shorthand = '${(num / 1000).toStringAsFixed(1)}K';
+    } else {
+      shorthand = num.toString();
+    }
+    return shorthand;
   }
 }
