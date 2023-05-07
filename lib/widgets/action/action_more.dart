@@ -286,7 +286,7 @@ class _ActionMoreState extends State<ActionMore> {
                   height: MediaQuery.of(context).size.height * .5,
                   child: StreamBuilder(
                     stream: PlaylistNewService.instance
-                        .getItemsByUserId(CommonUtils.userId),
+                        .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const SizedBox();

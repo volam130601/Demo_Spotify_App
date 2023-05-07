@@ -5,9 +5,9 @@ import 'package:demo_spotify_app/data/network/firebase/follow_artist_service.dar
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/firebase/follow_artist.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -213,16 +213,17 @@ class _MoreArtistsState extends State<MoreArtists> {
                         if (widget.followArtist != null) {
                           widget.followArtist!.artists = selectedArtists;
                           FollowArtistService.instance
-                              .updateItem(widget.followArtist!);
+                              .addFollowArtist(widget.followArtist!);
                         } else {
                           FollowArtist followArtist = FollowArtist(
-                            userId: CommonUtils.userId,
+                            userId: FirebaseAuth.instance.currentUser!.uid,
                             artists: selectedArtists,
                           );
-                          FollowArtistService.instance.addItem(followArtist);
+                          FollowArtistService.instance
+                              .addFollowArtist(followArtist);
                         }
                         ToastCommon.showCustomText(
-                            content: 'Add more artist is success!');
+                            content: 'Following more artists success!');
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(

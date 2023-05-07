@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -98,7 +99,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       ),
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
-                              (context, index) {
+                          (context, index) {
                             return TrackTileItem(
                                 track: tracks[index], album: album);
                           },
@@ -116,7 +117,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                               Text(
                                   CommonUtils.formatReleaseDate(
                                       album.releaseDate.toString()),
-                                  style: Theme.of(context).textTheme.titleMedium),
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
                               paddingHeight(1.5),
                               Row(
                                 children: [
@@ -127,15 +129,17 @@ class _AlbumDetailState extends State<AlbumDetail> {
                                   ),
                                   paddingWidth(1.5),
                                   Text(album.artist!.name.toString(),
-                                      style:
-                                      Theme.of(context).textTheme.titleMedium)
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium)
                                 ],
                               ),
                               paddingHeight(5),
                             ],
                           ),
                         ),
-                      )
+                      ),
+                      SliverToBoxAdapter(child: paddingHeight(8)),
                     ],
                   ),
                   if (isShow) ...{
@@ -166,7 +170,6 @@ class _AlbumDetailState extends State<AlbumDetail> {
       ),
     );
   }
-
 
   SliverToBoxAdapter buildSelectionTitle(BuildContext context, Album album) {
     return SliverToBoxAdapter(
@@ -234,8 +237,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
     return Row(
       children: [
         StreamBuilder(
-            stream: FavoriteAlbumService.instance
-                .getAlbumItemsByUserId(userId: CommonUtils.userId),
+            stream: FavoriteAlbumService.instance.getAlbumItemsByUserId(
+                userId: FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return IconButton(
@@ -252,7 +255,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                             content:
                                 'Removed album ${album.title} from the library');
                         FavoriteAlbumService.instance.deleteItemByAlbumId(
-                            album.id.toString(), CommonUtils.userId);
+                            album.id.toString(),
+                            FirebaseAuth.instance.currentUser!.uid);
                       },
                       icon: Icon(
                         Ionicons.heart,
@@ -271,7 +275,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
                             title: album.title,
                             artistName: album.artist!.name,
                             coverMedium: album.coverMedium,
-                            userId: CommonUtils.userId,
+                            userId: FirebaseAuth.instance.currentUser!.uid,
                           ),
                         );
                       },

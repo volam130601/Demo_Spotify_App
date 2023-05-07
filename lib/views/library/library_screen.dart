@@ -5,7 +5,6 @@ import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/library/add_playlist.dart';
 import 'package:demo_spotify_app/views/library/favorite_screen.dart';
@@ -24,8 +23,8 @@ import '../../utils/constants/default_constant.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/selection_title.dart';
 import '../layout/layout_screen.dart';
-import 'download_screen.dart';
 import 'artist/follow_artist_screen.dart';
+import 'download_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({Key? key}) : super(key: key);
@@ -66,8 +65,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     return Scaffold(
       appBar: buildAppBar(context),
       body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) =>
-        [
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverToBoxAdapter(
             child: SizedBox(
               height: 200,
@@ -95,7 +93,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     bottom: defaultPadding / 2,
                     right: defaultPadding),
                 indicatorPadding:
-                const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               ),
             ),
             pinned: true,
@@ -113,15 +111,15 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   Widget buildTabAlbum(BuildContext context) {
     return StreamBuilder(
-      stream: FavoriteAlbumService.instance
-          .getAlbumItemsByUserId(userId: CommonUtils.userId),
+      stream: FavoriteAlbumService.instance.getAlbumItemsByUserId(
+          userId: FirebaseAuth.instance.currentUser!.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const ContainerNullValue(
             image: 'assets/images/library/album_none.png',
             title: 'You haven\'t created any albums yet.',
             subtitle:
-            'Find and click the favorite button for the album to add it to the library.',
+                'Find and click the favorite button for the album to add it to the library.',
           );
         }
         List<FavoriteAlbum>? albumFavorite = snapshot.data!;
@@ -180,7 +178,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                     decoration: BoxDecoration(
                       color: Colors.grey.shade800,
                       borderRadius:
-                      BorderRadius.circular(defaultBorderRadius / 2),
+                          BorderRadius.circular(defaultBorderRadius / 2),
                     ),
                     child: const Center(
                       child: Icon(Ionicons.add, size: 30),
@@ -189,18 +187,15 @@ class _LibraryScreenState extends State<LibraryScreen>
                   paddingWidth(0.5),
                   Text(
                     'Add playlist',
-                    style: Theme
-                        .of(context)
-                        .textTheme
-                        .titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
               ),
             ),
           ),
           StreamBuilder(
-            stream: FavoritePlaylistService.instance
-                .getPlaylistItemsByUserId(userId: CommonUtils.userId),
+            stream: FavoritePlaylistService.instance.getPlaylistItemsByUserId(
+                userId: FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const SizedBox();
@@ -228,7 +223,7 @@ class _LibraryScreenState extends State<LibraryScreen>
           ),
           StreamBuilder(
             stream: PlaylistNewService.instance
-                .getItemsByUserId(CommonUtils.userId),
+                .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const SizedBox();
@@ -261,35 +256,30 @@ class _LibraryScreenState extends State<LibraryScreen>
       title: Row(
         children: [
           Consumer<SignInViewModel>(
-            builder: (context, value, child) =>
-            (value.user.photoUrl != null)
+            builder: (context, value, child) => (value.user.photoUrl != null)
                 ? CircleAvatar(
-                radius: 20,
-                backgroundImage:
-                CachedNetworkImageProvider(value.user.photoUrl!))
+                    radius: 20,
+                    backgroundImage:
+                        CachedNetworkImageProvider(value.user.photoUrl!))
                 : CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.red,
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  value.user.displayName!.substring(0, 1).toUpperCase(),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Colors.black),
-                ),
-              ),
-            ),
+                    radius: 20,
+                    backgroundColor: Colors.red,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        value.user.displayName!.substring(0, 1).toUpperCase(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(color: Colors.black),
+                      ),
+                    ),
+                  ),
           ),
           paddingWidth(0.5),
           Text(
             'Your Library',
-            style: Theme
-                .of(context)
-                .textTheme
-                .headlineSmall,
+            style: Theme.of(context).textTheme.headlineSmall,
           )
         ],
       ),
@@ -395,8 +385,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                   paddingHeight(1),
                   Text(
                     categoryLibraries[index].title,
-                    style: Theme
-                        .of(context)
+                    style: Theme.of(context)
                         .textTheme
                         .titleSmall
                         ?.copyWith(color: Colors.white),

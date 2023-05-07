@@ -6,6 +6,7 @@ import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -27,8 +28,8 @@ class FollowArtistScreen extends StatelessWidget {
         ],
       ),
       body: StreamBuilder(
-        stream:
-            FollowArtistService.instance.getFollowArtistByUserId(CommonUtils.userId),
+        stream: FollowArtistService.instance
+            .getFollowArtistByUserId(FirebaseAuth.instance.currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return buildNullFollowArtist(context);
@@ -68,7 +69,8 @@ class FollowArtistScreen extends StatelessWidget {
                   child: ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return buildListTileFollowArtist(context, artists[index], followArtist!);
+                      return buildListTileFollowArtist(
+                          context, artists[index], followArtist!);
                     },
                     itemCount: artists.length,
                   ),
@@ -153,9 +155,10 @@ class FollowArtistScreen extends StatelessWidget {
         ),
         trailing: IconButton(
           onPressed: () {
-            followArtist.artists!.remove(artist);
-            FollowArtistService.instance.updateItem(followArtist);
-            ToastCommon.showCustomText(content: 'Remove artist ${artist.name} from artist follow');
+            FollowArtistService.instance
+                .unFollowingArtist(followArtist: followArtist, artist: artist);
+            ToastCommon.showCustomText(
+                content: 'Unfollow artist ${artist.name} from artist follow');
           },
           icon: const Icon(Ionicons.heart),
         ),

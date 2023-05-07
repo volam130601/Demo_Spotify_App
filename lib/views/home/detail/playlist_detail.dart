@@ -5,6 +5,7 @@ import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/home/playlist_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ionicons/ionicons.dart';
@@ -234,7 +235,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
       children: [
         StreamBuilder(
             stream: FavoritePlaylistService.instance
-                .getPlaylistItemsByUserId(userId: CommonUtils.userId),
+                .getPlaylistItemsByUserId(userId:FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return IconButton(
@@ -252,7 +253,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                             content:
                                 'Removed playlist ${playlist.title} from the library');
                         FavoritePlaylistService.instance.deleteItemByPlaylistId(
-                            playlist.id.toString(), CommonUtils.userId);
+                            playlist.id.toString(), FirebaseAuth.instance.currentUser!.uid);
                       },
                       icon: Icon(
                         Ionicons.heart,
@@ -273,7 +274,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                               ? playlist.user!.name.toString()
                               : playlist.creator!.name.toString(),
                           pictureMedium: playlist.pictureMedium,
-                          userId: CommonUtils.userId,
+                          userId: FirebaseAuth.instance.currentUser!.uid,
                         ));
                       },
                       icon: const Icon(Ionicons.heart_outline));

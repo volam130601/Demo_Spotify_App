@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_spotify_app/models/firebase/comment/comment.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
 
@@ -78,36 +77,35 @@ class CommentService {
   }
 
   Future<void> editContentCommentByUserId(Comment item) {
-    return _db.collection(collectionName)
-        .doc(item.id)
-        .update(item.toMap());
+    return _db.collection(collectionName).doc(item.id).update(item.toMap());
   }
 
   ///Begin: Delete
   Future<void> deleteCommentParent(Comment comment) {
-    return _db.collection(collectionName)
-        .doc(comment.id)
-        .delete();
+    return _db.collection(collectionName).doc(comment.id).delete();
   }
 
   Future<void> deleteCommentChild(Comment comment, CommentReply commentReply) {
-    return _db.collection(collectionName)
+    return _db
+        .collection(collectionName)
         .doc(comment.id)
         .get()
         .then((snapshot) {
-          Comment comment = Comment.fromSnapshot(snapshot);
-          comment.commentReplies!.removeWhere((element) => element.id == commentReply.id);
+      Comment comment = Comment.fromSnapshot(snapshot);
+      comment.commentReplies!
+          .removeWhere((element) => element.id == commentReply.id);
 
-          return _db
-              .collection(collectionName)
-              .doc(comment.id)
-              .update(comment.toMap());
+      return _db
+          .collection(collectionName)
+          .doc(comment.id)
+          .update(comment.toMap());
     });
   }
 
   Future<void> deleteItem(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
+
   Future<void> deleteAll() {
     return _db.collection(collectionName).get().then((querySnapshot) {
       for (var doc in querySnapshot.docs) {
@@ -115,6 +113,7 @@ class CommentService {
       }
     });
   }
+
   ///End: Delete
 
   ///Begin: Get comments, get total comment
@@ -145,6 +144,7 @@ class CommentService {
       return total;
     });
   }
+
   ///End: Get comments, get total comment
 
   ///Begin: Comment Like
@@ -152,7 +152,7 @@ class CommentService {
     var uuid = const Uuid();
     comment.commentLikes!.add(CommentLike(
       id: uuid.v4(),
-      userId: CommonUtils.userId,
+      userId: FirebaseAuth.instance.currentUser!.uid,
     ));
     return _db
         .collection(collectionName)
@@ -176,7 +176,7 @@ class CommentService {
       if (element == commentReply) {
         element.commentLikes!.add(CommentLike(
           id: uuid.v4(),
-          userId: CommonUtils.userId,
+          userId: FirebaseAuth.instance.currentUser!.uid,
         ));
         return;
       }

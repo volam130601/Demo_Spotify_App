@@ -8,6 +8,8 @@ import '../../../../models/artist.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../view_models/home/artist_view_model.dart';
 import '../../../../widgets/selection_title.dart';
+import '../../../layout/layout_screen.dart';
+import 'artist_detail.dart';
 
 class FanAlsoLike extends StatelessWidget {
   const FanAlsoLike({Key? key}) : super(key: key);
@@ -41,37 +43,7 @@ class FanAlsoLike extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         itemCount: artists.length,
                         itemBuilder: (context, index) {
-                          return Row(
-                            children: [
-                              const SizedBox(width: defaultPadding),
-                              SizedBox(
-                                width: 120,
-                                child: Column(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 60,
-                                      backgroundImage:
-                                          CachedNetworkImageProvider(
-                                              artists[index].pictureMedium
-                                                  as String),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Center(
-                                      child: Text(
-                                        artists[index].name as String,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
+                          return buildCardArtist(artists, index, context,value);
                         },
                       ),
                     ),
@@ -89,6 +61,50 @@ class FanAlsoLike extends StatelessWidget {
             return const Text('Default Switch');
         }
       },
+    );
+  }
+
+  Widget buildCardArtist(
+      List<Artist> artists, int index, BuildContext context, ArtistViewModel value) {
+    return InkWell(
+      onTap: () {
+        Navigator.pop(context);
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: ArtistDetail(artistId: artists[index].id as int),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      },
+      child: Container(
+        width: 120,
+        margin: const EdgeInsets.only(left: defaultPadding),
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: CachedNetworkImageProvider(
+                  artists[index].pictureMedium as String),
+            ),
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                artists[index].name as String,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

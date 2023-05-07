@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:nested/nested.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/routes/route_name.dart';
@@ -61,26 +60,25 @@ class _MyAppState extends State<MyApp> {
       isLoading = false;
     });
   }
-  List<SingleChildWidget> providers = [
-    ChangeNotifierProvider(create: (_) => SignInViewModel()),
-    ChangeNotifierProvider(create: (_) => HomeViewModel()),
-    ChangeNotifierProvider(create: (_) => TrackPlayViewModel()),
-    ChangeNotifierProvider(create: (_) => AlbumViewModel()),
-    ChangeNotifierProvider(create: (_) => PlaylistViewModel()),
-    ChangeNotifierProvider(create: (_) => ArtistViewModel()),
-    ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
-    ChangeNotifierProvider(create: (_) => SearchViewModel()),
-    ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
-    ChangeNotifierProvider(create: (_) => DownloadViewModel()),
-    ChangeNotifierProvider(create: (_) => LibraryViewModel()),
-    ChangeNotifierProvider(create: (_) => FollowArtistViewModel()),
-    ChangeNotifierProvider(create: (_) => CommentViewModel()),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: providers,
+      providers: [
+        ChangeNotifierProvider(create: (_) => SignInViewModel()),
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider(create: (_) => TrackPlayViewModel()),
+        ChangeNotifierProvider(create: (_) => AlbumViewModel()),
+        ChangeNotifierProvider(create: (_) => PlaylistViewModel()),
+        ChangeNotifierProvider(create: (_) => ArtistViewModel()),
+        ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
+        ChangeNotifierProvider(create: (_) => SearchViewModel()),
+        ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
+        ChangeNotifierProvider(create: (_) => DownloadViewModel()),
+        ChangeNotifierProvider(create: (_) => LibraryViewModel()),
+        ChangeNotifierProvider(create: (_) => FollowArtistViewModel()),
+        ChangeNotifierProvider(create: (_) => CommentViewModel()),
+      ],
       child: isLoading
           ? Center(
               child: SvgPicture.asset('assets/images/logo_spotify_label.svg'))

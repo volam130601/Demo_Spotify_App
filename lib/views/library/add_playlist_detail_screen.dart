@@ -4,6 +4,7 @@ import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/views/library/library_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -84,7 +85,7 @@ class _AddPlaylistDetailScreenState extends State<AddPlaylistDetailScreen> {
       ),
       body: StreamBuilder(
         stream: PlaylistNewService.instance.getPlaylistNewByPlaylistIdAndUserId(
-            widget.playlistNew.id.toString(), CommonUtils.userId),
+            widget.playlistNew.id.toString(), FirebaseAuth.instance.currentUser!.uid),
         builder: (context, snapshot) {
           Widget body;
           if (snapshot.hasError) {

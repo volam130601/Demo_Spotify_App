@@ -1,6 +1,5 @@
 import 'package:demo_spotify_app/data/network/firebase/playlist_new_service.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -123,7 +122,7 @@ class _AddPlaylistScreenState extends State<AddPlaylistScreen> {
             id: uuid.v4(),
             title: _playlistNameController.text,
             userName: FirebaseAuth.instance.currentUser!.displayName,
-            userId: CommonUtils.userId,
+            userId: FirebaseAuth.instance.currentUser!.uid,
             releaseDate: DateTime.now().toString(),
             isDownloading: _isDownloading,
             isPrivate: _isPrivate,

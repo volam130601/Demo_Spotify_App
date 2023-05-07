@@ -48,6 +48,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
   @override
   void dispose() {
     _scrollController.removeListener(_onScrollEvent);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -85,70 +86,86 @@ class _ArtistDetailState extends State<ArtistDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ArtistViewModel>(
-      builder: (context, value, _) {
-        if (value.artist.status == Status.LOADING ||
-            value.trackList.status == Status.LOADING ||
-            value.albumList.status == Status.LOADING ||
-            value.playlistList.status == Status.LOADING ||
-            value.artistList.status == Status.LOADING) {
-          return Scaffold(
-            body: Center(
-              child: LoadingAnimationWidget.staggeredDotsWave(
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
-          );
-        }
-        if (value.artist.status == Status.COMPLETED) {
-          Artist? artist = value.artist.data;
-          return Scaffold(
-            body: Stack(
-              children: [
-                buildCustomScrollView(context, artist!),
-                if (isShow) ...{
-                  Positioned(
-                      top: 80,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                          color: ColorsConsts.scaffoldColorDark,
-                          child: actionWidget(context, artist))),
-                },
+    final value = Provider.of<ArtistViewModel>(context, listen: true);
+    if (value.artist.status == Status.LOADING ||
+        value.trackList.status == Status.LOADING ||
+        value.albumList.status == Status.LOADING ||
+        value.playlistList.status == Status.LOADING ||
+        value.artistList.status == Status.LOADING) {
+      return Scaffold(
+        body: Center(
+          child: LoadingAnimationWidget.staggeredDotsWave(
+            color: Colors.white,
+            size: 40,
+          ),
+        ),
+      );
+    }
+    if (value.artist.status == Status.ERROR) {
+      return Scaffold(
+        body: Center(child: Text(value.artist.toString())),
+      );
+    }
+    if (value.artist.status == Status.COMPLETED) {
+      Artist artist = value.artist.data!;
+      return Scaffold(
+        body: Stack(
+          children: [
+            CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                buildSliverAppBar(context, artist, value),
+                buildHeaderBody(context, artist),
+                SliverToBoxAdapter(child: actionWidget(context, artist, value)),
+                TrackPopular(artist: artist),
+                const AlbumPopularRelease(),
+                FeaturingPlaylistOfArtist(artist: artist),
+                const FanAlsoLike(),
+                SliverToBoxAdapter(child: paddingHeight(8))
               ],
             ),
-          );
-        }
-        return Scaffold(
-          body: Center(
-            child: LoadingAnimationWidget.staggeredDotsWave(
-              color: Colors.white,
-              size: 40,
-            ),
-          ),
+            if (isShow) ...{
+              Positioned(
+                  top: 80,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                      color: ColorsConsts.scaffoldColorDark,
+                      child: actionWidget(context, artist, value))),
+            },
+          ],
+        ),
+      );
+    }
+    return Scaffold(
+      body: Center(
+        child: LoadingAnimationWidget.staggeredDotsWave(
+          color: Colors.white,
+          size: 40,
+        ),
+      ),
+    );
+  }
+
+  Widget actionWidget(
+      BuildContext context, Artist artist, ArtistViewModel value) {
+    Widget playButton = const PlayButton(tracks: []);
+    switch (value.trackList.status) {
+      case Status.LOADING:
+        break;
+      case Status.COMPLETED:
+        playButton = PlayButton(
+          tracks: value.trackList.data!,
+          artist: artist,
+          artistId: artist.id,
         );
-      },
-    );
-  }
-
-  Widget buildCustomScrollView(BuildContext context, Artist artist) {
-    return CustomScrollView(
-      controller: _scrollController,
-      slivers: [
-        buildSliverAppBar(context, artist),
-        buildHeaderBody(context, artist),
-        SliverToBoxAdapter(child: actionWidget(context, artist)),
-        TrackPopular(artist: artist),
-        const AlbumPopularRelease(),
-        FeaturingPlaylistOfArtist(artist: artist),
-        const FanAlsoLike(),
-        SliverToBoxAdapter(child: paddingHeight(8))
-      ],
-    );
-  }
-
-  Widget actionWidget(BuildContext context, Artist artist) {
+        break;
+      case Status.ERROR:
+        ToastCommon.showCustomText(content: '${value.trackList.message}');
+        break;
+      default:
+        break;
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
       child: Row(
@@ -159,7 +176,15 @@ class _ArtistDetailState extends State<ArtistDetail> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    FollowArtist followArtist = FollowArtist(
+                      userId: FirebaseAuth.instance.currentUser!.uid,
+                      artists: [artist],
+                    );
+                    FollowArtistService.instance.addFollowArtist(followArtist);
+                    ToastCommon.showCustomText(
+                        content: 'Following artist ${artist.name}');
+                  },
                   style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.white)),
                   child: Text(
@@ -172,14 +197,11 @@ class _ArtistDetailState extends State<ArtistDetail> {
               List<Artist>? artists = followArtist!.artists;
               bool checkFollowing =
                   artists!.any((element) => element.id == widget.artistId);
-              print('load following');
               return checkFollowing
                   ? ElevatedButton(
                       onPressed: () {
-                        Artist temp = artists.firstWhere(
-                            (element) => element.id == widget.artistId);
-                        followArtist.artists!.remove(temp);
-                        FollowArtistService.instance.updateItem(followArtist);
+                        FollowArtistService.instance.unFollowingArtist(
+                            followArtist: followArtist, artist: artist);
                         ToastCommon.showCustomText(
                           content: 'Remove ${artist.name} from follow artist',
                         );
@@ -188,8 +210,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
                           style: Theme.of(context).textTheme.titleLarge))
                   : OutlinedButton(
                       onPressed: () {
-                        followArtist.artists!.add(artist);
-                        FollowArtistService.instance.updateItem(followArtist);
+                        FollowArtistService.instance.followingArtist(
+                            followArtist: followArtist, artist: artist);
                         ToastCommon.showCustomText(
                             content: 'Following artist ${artist.name}');
                       },
@@ -202,24 +224,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
           IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
           const Spacer(),
           IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
-          Consumer<ArtistViewModel>(
-            builder: (context, value, child) {
-              switch (value.trackList.status) {
-                case Status.LOADING:
-                  return const PlayButton(tracks: []);
-                case Status.COMPLETED:
-                  return PlayButton(
-                    tracks: value.trackList.data!,
-                    artist: artist,
-                    artistId: artist.id,
-                  );
-                case Status.ERROR:
-                  return Text(value.trackList.toString());
-                default:
-                  return const Text('Default Switch');
-              }
-            },
-          ),
+          playButton,
         ],
       ),
     );
@@ -245,7 +250,8 @@ class _ArtistDetailState extends State<ArtistDetail> {
     );
   }
 
-  SliverAppBar buildSliverAppBar(BuildContext context, Artist artist) {
+  SliverAppBar buildSliverAppBar(
+      BuildContext context, Artist artist, ArtistViewModel value) {
     return SliverAppBar(
       leading: Container(
         margin: const EdgeInsets.only(left: 10),

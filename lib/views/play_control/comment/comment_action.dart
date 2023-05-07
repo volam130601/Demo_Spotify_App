@@ -1,8 +1,8 @@
 import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/comment_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
@@ -49,9 +49,11 @@ class CommentAction extends StatelessWidget {
                 borderRadius:
                     BorderRadius.vertical(top: Radius.circular(25.0))),
             builder: (context) {
-              final bool isUserComment = comment.user!.id == CommonUtils.userId;
+              final bool isUserComment =
+                  comment.user!.id == FirebaseAuth.instance.currentUser!.uid;
               final bool isChildComment = commentReply != null &&
-                  commentReply!.user!.id == CommonUtils.userId;
+                  commentReply!.user!.id ==
+                      FirebaseAuth.instance.currentUser!.uid;
               final itemRemove = isChildComment || isUserComment
                   ? buildListTileItem(
                       context,
