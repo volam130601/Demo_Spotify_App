@@ -15,6 +15,7 @@ import '../../../models/firebase/favorite_album.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
+import '../../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../../widgets/action/action_download_track.dart';
 import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
@@ -100,8 +101,27 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
-                            return TrackTileItem(
-                                track: tracks[index], album: album);
+                            return InkWell(
+                              child: TrackTileItem(
+                                  track: tracks[index], album: album),
+                              onTap: () {
+                                var value = Provider.of<MultiPlayerViewModel>(
+                                    context,
+                                    listen: false);
+                                int? currentAlbumId = widget.albumId;
+                                if (currentAlbumId != value.getAlbumId) {
+                                  value.initState(
+                                      tracks: tracks,
+                                      album: album,
+                                      artist: album.artist,
+                                      albumId: album.id,
+                                      index: index);
+                                } else {
+                                  value.player
+                                      .seek(Duration.zero, index: index);
+                                }
+                              },
+                            );
                           },
                           childCount: tracks.length,
                         ),
