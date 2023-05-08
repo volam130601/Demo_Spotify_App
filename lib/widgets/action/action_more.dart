@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:demo_spotify_app/widgets/action/modal_add_playlist.dart';
 import 'package:demo_spotify_app/widgets/action/modal_download_track.dart';
 import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +41,6 @@ class ActionMore extends StatefulWidget {
 }
 
 class _ActionMoreState extends State<ActionMore> {
-  final _searchPlaylist = TextEditingController();
-  String _searchText = "";
 
   @override
   void initState() {
@@ -81,17 +80,7 @@ class _ActionMoreState extends State<ActionMore> {
         },
       );
     } else {
-      addPlaylistTileItem = buildModalTileItem(context,
-          title: 'Add to playlist',
-          icon: Image.asset(
-            'assets/icons/icons8-add-song-48.png',
-            color: Colors.white,
-            width: 20,
-            height: 20,
-          ), onTap: () {
-        Navigator.of(context).pop(true);
-        buildModalAddPlaylist(context);
-      });
+      addPlaylistTileItem = ModalAddPlaylist(track: track);
     }
 
     return SizedBox(
@@ -117,148 +106,6 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  Future<dynamic> buildModalAddPlaylist(BuildContext context) {
-    return showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      backgroundColor: Colors.grey.shade900,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25.0))),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => Container(
-          margin: const EdgeInsets.only(top: defaultPadding * 2),
-          padding:
-              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(0),
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              children: [
-                Text(
-                  'Add track to the playlist',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                buildDivider(),
-                Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: defaultPadding),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: defaultPadding,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius:
-                        BorderRadius.circular(defaultBorderRadius * 4),
-                    color: Colors.grey.shade800,
-                  ),
-                  child: TextField(
-                    controller: _searchPlaylist,
-                    onChanged: (value) {
-                      setState(() {
-                        _searchText = _searchPlaylist.text;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      prefixIcon: Icon(Ionicons.search),
-                      hintText: 'Search playlist',
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation1,
-                            Animation<double> animation2) {
-                          return const AddPlaylistScreen();
-                        },
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: defaultPadding,
-                        vertical: defaultPadding / 2),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade800,
-                            borderRadius:
-                                BorderRadius.circular(defaultBorderRadius / 2),
-                          ),
-                          child: const Center(
-                            child: Icon(Ionicons.add, size: 30),
-                          ),
-                        ),
-                        paddingWidth(0.5),
-                        Text(
-                          'Add playlist',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * .5,
-                  child: StreamBuilder(
-                    stream: PlaylistNewRepository.instance.getPlaylistNews(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const SizedBox();
-                      }
-                      List<PlaylistNew>? playlistNews = snapshot.data!;
-                      if (_searchText.isNotEmpty) {
-                        List<PlaylistNew>? result = playlistNews
-                            .where((element) =>
-                                element.title!.contains(_searchText))
-                            .toList();
-                        return SizedBox(
-                          height: result.length * (50 + 16),
-                          child: ListView.builder(
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: result.length,
-                            itemBuilder: (context, index) {
-                              return AddTrackToPlaylistTileItem(
-                                playlistNew: result[index],
-                                track: widget.track,
-                              );
-                            },
-                          ),
-                        );
-                      }
-                      playlistNews.sort((a, b) => a.title!.compareTo(b.title!));
-                      return SizedBox(
-                        height: playlistNews.length * (50 + 16),
-                        child: ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: playlistNews.length,
-                          itemBuilder: (context, index) {
-                            return AddTrackToPlaylistTileItem(
-                              playlistNew: playlistNews[index],
-                              track: widget.track,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   Future<dynamic> buildShowModalMore(BuildContext context, Track track,
       Album album, Widget addPlaylistTileItem) {

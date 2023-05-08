@@ -9,7 +9,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../models/firebase/playlist_new.dart';
 import '../../repository/remote/firebase/playlist_new_repository.dart';
-import '../layout/layout_screen.dart';
 import 'add_playlist_detail_screen.dart';
 
 class AddPlaylistScreen extends StatefulWidget {
