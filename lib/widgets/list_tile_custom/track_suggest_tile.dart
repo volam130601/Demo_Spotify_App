@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/layout_screen_view_model.dart';
 
@@ -18,9 +18,10 @@ class TrackSuggestTileItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isExist =
+        playlistNew.tracks!.any((element) => element.id == track.id);
     return InkWell(
-      onTap: () {
-      },
+      onTap: () {},
       child: Container(
         margin: const EdgeInsets.symmetric(
             horizontal: defaultPadding, vertical: defaultPadding / 2),
@@ -73,36 +74,40 @@ class TrackSuggestTileItem extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(
-              width: 50,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  List<Track> tracks = playlistNew.tracks!;
-                  tracks.add(track);
-                  PlaylistNewService.instance.updateItem(PlaylistNew(
-                    id: playlistNew.id,
-                    title: playlistNew.title,
-                    isDownloading: playlistNew.isDownloading,
-                    isPrivate: playlistNew.isDownloading,
-                    picture: tracks.first.album!.coverMedium,
-                    releaseDate: playlistNew.releaseDate,
-                    userId: playlistNew.userId,
-                    tracks: tracks,
-                    userName: playlistNew.userName,
-                  ));
-                  Navigator.pop(context);
-                  Provider.of<LayoutScreenViewModel>(context, listen: false)
-                      .setIsShotBottomBar(true);
-                },
-                style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    backgroundColor: Colors.transparent,
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(0)),
-                child: const Icon(Ionicons.add_circle_outline),
-              ),
-            )
+            (!isExist)
+                ? SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        PlaylistNewRepository.instance.addTrackToPlaylistNew(
+                            playlistNew: playlistNew, track: track);
+                        Navigator.pop(context);
+                        Provider.of<LayoutScreenViewModel>(context,
+                                listen: false)
+                            .setIsShotBottomBar(true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(0)),
+                      child: const Icon(Ionicons.add_circle_outline),
+                    ),
+                  )
+                : SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: Colors.transparent,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(0)),
+                      child: const Icon(Ionicons.checkmark),
+                    ),
+                  )
           ],
         ),
       ),

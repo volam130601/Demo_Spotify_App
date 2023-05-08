@@ -1,10 +1,10 @@
-import 'package:demo_spotify_app/data/network/firebase/user_service.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../data/network/firebase/auth_google_service.dart';
 import '../../models/firebase/user.dart';
+import '../../repository/remote/firebase/user_repository.dart';
 import '../../utils/routes/route_name.dart';
 import '../../utils/toast_utils.dart';
 
@@ -19,7 +19,7 @@ class SignInViewModel with ChangeNotifier {
   void fetchLogin() {
     final currentUser = FirebaseAuth.instance.currentUser!;
     if (currentUser.email != null) {
-      UserService.instance
+      UserRepository.instance
           .getUser(FirebaseAuth.instance.currentUser!.email.toString())
           .then((value) {
         user = value;
@@ -70,12 +70,8 @@ class SignInViewModel with ChangeNotifier {
     {
       try {
         final navigator = Navigator.of(context);
-        UserCredential userCredential = await AuthGoogle().signInWithGoogle();
-        await UserService.instance.addUsers(Users(
-            id: userCredential.user!.uid,
-            displayName: userCredential.user!.displayName.toString(),
-            email: userCredential.user!.email.toString(),
-            photoUrl: userCredential.user!.photoURL.toString()));
+        UserCredential userCredential = await AuthGoogle.instance.signInWithGoogle();
+        await UserRepository.instance.signInWithGoogle(userCredential);
         navigator.pushReplacementNamed(RoutesName.home);
         ToastCommon.showCustomText(content: 'Login with google is success');
       } catch (e) {

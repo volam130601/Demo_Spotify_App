@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:demo_spotify_app/data/network/firebase/user_service.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:demo_spotify_app/repository/remote/firebase/user_repository.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/firebase/user.dart';
@@ -18,11 +18,11 @@ class ProfileViewModel with ChangeNotifier {
   }
 
   Future<void> editProfile(Users user) async {
-    if(imageFile != null) {
+    if (imageFile != null) {
       user.photoUrl = await uploadImage();
     }
     user.displayName = displayName;
-    await UserService.instance.editProfile(user: user);
+    await UserRepository.instance.editProfile(user: user);
     ToastCommon.showCustomText(content: 'Edit profile success');
   }
 

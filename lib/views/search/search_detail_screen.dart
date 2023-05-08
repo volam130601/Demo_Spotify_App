@@ -4,27 +4,26 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/category/category_search.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
-import 'package:demo_spotify_app/view_models/search_view_model.dart';
+import 'package:demo_spotify_app/view_models/search/search_view_model.dart';
 import 'package:demo_spotify_app/views/search/recent_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/recent_search_service.dart';
 import '../../data/response/status.dart';
 import '../../models/album.dart';
 import '../../models/artist.dart';
-import '../../models/firebase/recent_search.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/recent_search_repository.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../view_models/track_play/track_play_view_model.dart';
+import '../../widgets/navigator/no_animation_page_route.dart';
 import '../../widgets/search_tile_item.dart';
 import '../home/detail/album_detail.dart';
 import '../home/detail/artist/artist_detail.dart';
 import '../home/detail/playlist_detail.dart';
-import '../layout/layout_screen.dart';
 
 class BoxSearch extends StatefulWidget {
   const BoxSearch({Key? key}) : super(key: key);
@@ -38,7 +37,6 @@ class _BoxSearchState extends State<BoxSearch> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
   final FocusNode _focusNode = FocusNode();
-  final RecentSearchService _recentSearchService = RecentSearchService();
 
   int _selectIndex = 0;
   String categoryCode = CategorySearch.tracks;
@@ -135,39 +133,25 @@ class _BoxSearchState extends State<BoxSearch> {
                         context,
                         listen: false);
                     await trackPlayVM.fetchTracksPlayControl(
-                      albumID: tracks[index].album!.id as int,
+                      albumID: tracks[index].album!.id!.toInt(),
                       index: 0,
                       limit: 20,
                     );
                     int? trackIndex = trackPlayVM.tracksPlayControl.data!
                         .indexWhere((track) => track.id == tracks[index].id);
-
                     await multiPlayerVM.initState(
                         tracks: trackPlayVM.tracksPlayControl.data!,
                         albumId: tracks[index].album!.id as int,
+                        album: tracks[index].album,
                         artist: tracks[index].artist,
                         index: trackIndex);
-                    Album? album = tracks[index].album;
-                    Artist? artist = tracks[index].artist;
-                    if (await _recentSearchService.isCheckExists(
-                            '${tracks[index].id}',
+
+                    if (await RecentSearchRepository.instance.isCheckExists(
+                            tracks[index].id!,
                             FirebaseAuth.instance.currentUser!.uid) ==
                         false) {
-                      _recentSearchService.addItem(RecentSearchItem(
-                          id: DateTime.now().toString(),
-                          itemId: '${tracks[index].id}',
-                          title: '${tracks[index].title}',
-                          image: '${tracks[index].album!.coverSmall}',
-                          albumSearch: AlbumSearch(
-                              id: album!.id,
-                              title: album.title,
-                              coverXl: album.coverXl),
-                          artistSearch: ArtistSearch(
-                              id: artist!.id,
-                              name: artist.name,
-                              pictureSmall: artist.pictureSmall),
-                          type: '${tracks[index].type}',
-                          userId: FirebaseAuth.instance.currentUser!.uid));
+                      RecentSearchRepository.instance
+                          .addRecentSearchTrack(tracks[index]);
                     }
                   },
                 ),
@@ -204,34 +188,14 @@ class _BoxSearchState extends State<BoxSearch> {
                     isArtist: true,
                     onTap: () async {
                       showBottomBar(context);
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (BuildContext context,
-                              Animation<double> animation1,
-                              Animation<double> animation2) {
-                            return LayoutScreen(
-                              index: 4,
-                              screen: ArtistDetail(
-                                  artistId: artists[index].id as int),
-                            );
-                          },
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
-                      if (await _recentSearchService.isCheckExists(
-                              '${artists[index].id}',
+                      NavigatorPage.defaultLayoutPageRoute(context,
+                          ArtistDetail(artistId: artists[index].id!.toInt()));
+                      if (await RecentSearchRepository.instance.isCheckExists(
+                              artists[index].id!.toInt(),
                               FirebaseAuth.instance.currentUser!.uid) ==
                           false) {
-                        _recentSearchService.addItem(RecentSearchItem(
-                          id: DateTime.now().toString(),
-                          itemId: '${artists[index].id}',
-                          title: '${artists[index].name}',
-                          image: '${artists[index].pictureSmall}',
-                          type: '${artists[index].type}',
-                          userId: FirebaseAuth.instance.currentUser!.uid,
-                        ));
+                        RecentSearchRepository.instance
+                            .addRecentSearchArtist(artists[index]);
                       }
                     },
                   );
@@ -274,42 +238,18 @@ class _BoxSearchState extends State<BoxSearch> {
                   return InkWell(
                     onTap: () async {
                       showBottomBar(context);
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (BuildContext context,
-                              Animation<double> animation1,
-                              Animation<double> animation2) {
-                            return LayoutScreen(
-                              index: 4,
-                              screen: PlaylistDetail(
-                                playlistId: playlists[index].id!,
-                              ),
-                            );
-                          },
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
+                      NavigatorPage.defaultLayoutPageRoute(
+                          context,
+                          PlaylistDetail(
+                            playlistId: playlists[index].id!,
+                          ));
                       Playlist? playlist = playlists[index];
-                      if (await _recentSearchService.isCheckExists(
-                              '${playlist.id}',
+                      if (await RecentSearchRepository.instance.isCheckExists(
+                              playlist.id!,
                               FirebaseAuth.instance.currentUser!.uid) ==
                           false) {
-                        _recentSearchService.addItem(RecentSearchItem(
-                            id: DateTime.now().toString(),
-                            itemId: '${playlist.id}',
-                            title: '${playlist.title}',
-                            image: '${playlist.pictureSmall}',
-                            type: '${playlist.type}',
-                            userId: FirebaseAuth.instance.currentUser!.uid,
-                            playlistSearch: PlaylistSearch(
-                                id: playlist.id,
-                                title: playlist.title,
-                                pictureSmall: playlist.pictureSmall,
-                                pictureMedium: playlist.pictureMedium,
-                                pictureXl: playlist.pictureXl,
-                                userName: playlist.user!.name)));
+                        RecentSearchRepository.instance
+                            .addRecentSearchPlaylist(playlist);
                       }
                     },
                     child: Column(
@@ -380,46 +320,14 @@ class _BoxSearchState extends State<BoxSearch> {
                   return InkWell(
                     onTap: () async {
                       showBottomBar(context);
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (BuildContext context,
-                              Animation<double> animation1,
-                              Animation<double> animation2) {
-                            return LayoutScreen(
-                              index: 4,
-                              screen: AlbumDetail(albumId: albums[index].id!),
-                            );
-                          },
-                          transitionDuration: Duration.zero,
-                          reverseTransitionDuration: Duration.zero,
-                        ),
-                      );
-                      Album? album = albums[index];
-                      Artist? artist = album.artist;
-                      if (await _recentSearchService.isCheckExists(
-                              '${album.id}',
+                      NavigatorPage.defaultLayoutPageRoute(
+                          context, AlbumDetail(albumId: albums[index].id!));
+                      if (await RecentSearchRepository.instance.isCheckExists(
+                              albums[index].id!,
                               FirebaseAuth.instance.currentUser!.uid) ==
                           false) {
-                        _recentSearchService.addItem(
-                          RecentSearchItem(
-                            id: DateTime.now().toString(),
-                            itemId: '${album.id}',
-                            title: '${album.title}',
-                            image: '${album.coverSmall}',
-                            type: '${album.type}',
-                            userId: FirebaseAuth.instance.currentUser!.uid,
-                            albumSearch: AlbumSearch(
-                                id: album.id,
-                                title: album.title,
-                                coverXl: album.coverXl),
-                            artistSearch: ArtistSearch(
-                                id: artist!.id,
-                                name: artist.name,
-                                pictureSmall: artist.pictureSmall,
-                                pictureXl: artist.pictureXl),
-                          ),
-                        );
+                        RecentSearchRepository.instance
+                            .addRecentSearchAlbum(albums[index]);
                       }
                     },
                     child: Column(
@@ -451,7 +359,7 @@ class _BoxSearchState extends State<BoxSearch> {
                         ),
                         Text(
                           '${albums[index].artist!.name}',
-                          style: Theme.of(context).textTheme.titleSmall,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

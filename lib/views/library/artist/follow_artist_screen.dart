@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/follow_artist_service.dart';
 import 'package:demo_spotify_app/models/firebase/follow_artist.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
@@ -11,6 +10,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../models/artist.dart';
+import '../../../repository/remote/firebase/follow_artist_repository.dart';
 import 'more_artist_search_screen.dart';
 
 class FollowArtistScreen extends StatelessWidget {
@@ -27,8 +27,7 @@ class FollowArtistScreen extends StatelessWidget {
         ],
       ),
       body: StreamBuilder(
-        stream:
-            FollowArtistService.instance.getFollowArtistByUserId(CommonUtils.userId),
+        stream: FollowArtistRepository.instance.getFollowArtist(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return buildNullFollowArtist(context);
@@ -68,7 +67,8 @@ class FollowArtistScreen extends StatelessWidget {
                   child: ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return buildListTileFollowArtist(context, artists[index], followArtist!);
+                      return buildListTileFollowArtist(
+                          context, artists[index], followArtist!);
                     },
                     itemCount: artists.length,
                   ),
@@ -153,9 +153,10 @@ class FollowArtistScreen extends StatelessWidget {
         ),
         trailing: IconButton(
           onPressed: () {
-            followArtist.artists!.remove(artist);
-            FollowArtistService.instance.updateItem(followArtist);
-            ToastCommon.showCustomText(content: 'Remove artist ${artist.name} from artist follow');
+            FollowArtistRepository.instance
+                .unFollowingArtist(followArtist: followArtist, artist: artist);
+            ToastCommon.showCustomText(
+                content: 'Unfollow artist ${artist.name} from artist follow');
           },
           icon: const Icon(Ionicons.heart),
         ),

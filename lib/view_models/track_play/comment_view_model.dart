@@ -1,8 +1,8 @@
+import 'package:demo_spotify_app/repository/remote/firebase/comment_repository.dart';
 import 'package:flutter/cupertino.dart';
 
-import '../data/network/firebase/comment_service.dart';
-import '../models/firebase/comment/comment.dart';
-import '../models/firebase/comment/comment_reply.dart';
+import '../../models/firebase/comment/comment.dart';
+import '../../models/firebase/comment/comment_reply.dart';
 
 class CommentViewModel with ChangeNotifier {
   final TextEditingController commentController = TextEditingController();
@@ -54,20 +54,19 @@ class CommentViewModel with ChangeNotifier {
   }
 
   void pushComment(String trackId) {
-    CommentService.instance
-        .addCommentOfTrack(content: commentController.text,
-        trackId: trackId);
+    CommentRepository.instance
+        .addCommentOfTrack(content: commentController.text, trackId: trackId);
   }
 
   void pushCommentReply() {
-    CommentService.instance.addCommentReplyOfParentComment(
+    CommentRepository.instance.addCommentReplyOfParentComment(
       content: commentController.text,
       comment: _comment,
     );
   }
 
   void pushCommentReplyOfChild() {
-    CommentService.instance.addCommentReplyOfChildComment(
+    CommentRepository.instance.addCommentReplyOfChildComment(
         content: commentController.text,
         comment: _comment,
         commentReply: _commentReply);

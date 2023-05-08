@@ -8,7 +8,10 @@ import '../../../../models/artist.dart';
 import '../../../../models/playlist.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../view_models/home/artist_view_model.dart';
+import '../../../../view_models/home/playlist_view_model.dart';
 import '../../../../widgets/selection_title.dart';
+import '../../../layout/layout_screen.dart';
+import '../playlist_detail.dart';
 
 class FeaturingPlaylistOfArtist extends StatelessWidget {
   const FeaturingPlaylistOfArtist({Key? key, required this.artist})
@@ -44,38 +47,7 @@ class FeaturingPlaylistOfArtist extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                         itemCount: playlists.length,
                         itemBuilder: (context, index) {
-                          return Row(
-                            children: [
-                              const SizedBox(width: defaultPadding),
-                              SizedBox(
-                                width: 120,
-                                child: Column(
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl: playlists[index].pictureMedium
-                                          as String,
-                                      height: 120,
-                                      width: 120,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Center(
-                                      child: Text(
-                                        playlists[index].title as String,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
+                          return buildCardPlaylist(playlists, index, context);
                         },
                       ),
                     ),
@@ -93,6 +65,57 @@ class FeaturingPlaylistOfArtist extends StatelessWidget {
             return const Text('Default Switch');
         }
       },
+    );
+  }
+
+  Widget buildCardPlaylist(
+      List<Playlist> playlists, int index, BuildContext context) {
+    return InkWell(
+      onTap: () {
+        Provider.of<PlaylistViewModel>(context, listen: false)
+            .fetchTotalSizeDownload(
+            playlists[index].id!, 0, 10000);
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context,
+                Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: PlaylistDetail(
+                  playlistId: playlists[index].id!,
+                ),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      },
+      child: Container(
+        width: 120,
+        margin: const EdgeInsets.only(left: defaultPadding),
+        child: Column(
+          children: [
+            CachedNetworkImage(
+              imageUrl: playlists[index].pictureMedium as String,
+              height: 120,
+              width: 120,
+            ),
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                playlists[index].title as String,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

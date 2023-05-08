@@ -2,8 +2,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/network/firebase/user_service.dart';
-import '../../models/firebase/user.dart';
+import '../../repository/remote/firebase/user_repository.dart';
 import '../../widgets/custom_dialog.dart';
 
 class SignUpViewModel with ChangeNotifier {
@@ -62,13 +61,8 @@ class SignUpViewModel with ChangeNotifier {
         email: email,
         password: password,
       );
-      UserService.instance.addUsers(
-        Users(
-          id: userCredential.user!.uid,
-          displayName: fullName,
-          email: email,
-        ),
-      );
+      UserRepository.instance.registerUsernameAndPassword(
+          userCredential: userCredential, displayName: fullName, email: email);
       // ignore: use_build_context_synchronously
       _showCustomDialog(context);
     } on FirebaseAuthException catch (e) {

@@ -19,7 +19,7 @@ class MultiPlayerViewModel with ChangeNotifier {
   int _artistId = 0;
   Album _album = Album();
   Artist _artist = Artist();
-
+  List<Track> currentTracks = [];
   int get getPlaylistId => _playlistId;
 
   int get getAlbumId => _albumId;
@@ -51,7 +51,7 @@ class MultiPlayerViewModel with ChangeNotifier {
       _artistId = artistId ?? 0;
       _album = album ?? Album();
       _artist = artist ?? Artist();
-
+      currentTracks = tracks;
       addTracks(tracks);
       await _player.setAudioSource(_playlist,
           preload: kIsWeb || defaultTargetPlatform != TargetPlatform.linux);
@@ -82,7 +82,7 @@ class MultiPlayerViewModel with ChangeNotifier {
             artHeaders: {
               "artArtist": (_artist.pictureMedium != null)
                   ? "${_artist.pictureMedium}"
-                  : "${track.artist!.pictureMedium}"
+                  : "${track.artist!.pictureMedium}",
             },
             artUri: (_album.coverXl != null)
                 ? Uri.parse(_album.coverXl.toString())

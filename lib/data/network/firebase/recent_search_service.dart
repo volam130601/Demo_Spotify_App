@@ -5,15 +5,21 @@ class RecentSearchService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'recent_search';
 
-  Future<void> addItem(RecentSearchItem item) {
-    return _db.collection(collectionName).doc(item.id).set(item.toMap());
+  Future<void> addRecentSearch(RecentSearchItem recentSearchItem) {
+    return _db
+        .collection(collectionName)
+        .doc(recentSearchItem.id)
+        .set(recentSearchItem.toMap());
   }
 
-  Future<void> updateItem(RecentSearchItem item) {
-    return _db.collection(collectionName).doc(item.id).update(item.toMap());
+  Future<void> updateRecentSearch(RecentSearchItem recentSearchItem) {
+    return _db
+        .collection(collectionName)
+        .doc(recentSearchItem.id)
+        .update(recentSearchItem.toMap());
   }
 
-  Future<void> deleteItem(String id) {
+  Future<void> deleteRecentSearch(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
 
@@ -25,7 +31,7 @@ class RecentSearchService {
     });
   }
 
-  Future<bool> isCheckExists(String itemId, String userId) async {
+  Future<bool> isCheckExists(int itemId, String userId) async {
     QuerySnapshot querySnapshot = await _db
         .collection(collectionName)
         .where('itemId', isEqualTo: itemId)

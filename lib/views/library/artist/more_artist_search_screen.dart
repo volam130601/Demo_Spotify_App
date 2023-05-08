@@ -1,11 +1,9 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/follow_artist_service.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/firebase/follow_artist.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +12,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/artist.dart';
+import '../../../repository/remote/firebase/follow_artist_repository.dart';
 import '../../../view_models/library/follow_artist_view_model.dart';
 
 class MoreArtists extends StatefulWidget {
@@ -211,18 +210,15 @@ class _MoreArtistsState extends State<MoreArtists> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (widget.followArtist != null) {
-                          widget.followArtist!.artists = selectedArtists;
-                          FollowArtistService.instance
-                              .updateItem(widget.followArtist!);
+                          FollowArtistRepository.instance.addMoreFollowArtist(
+                              followArtist: widget.followArtist!,
+                              artists: selectedArtists);
                         } else {
-                          FollowArtist followArtist = FollowArtist(
-                            userId: CommonUtils.userId,
-                            artists: selectedArtists,
-                          );
-                          FollowArtistService.instance.addItem(followArtist);
+                          FollowArtistRepository.instance
+                              .addFollowArtist(artists: selectedArtists);
                         }
                         ToastCommon.showCustomText(
-                            content: 'Add more artist is success!');
+                            content: 'Following more artists success!');
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(

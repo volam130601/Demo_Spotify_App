@@ -9,6 +9,8 @@ import '../../../../models/album.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../view_models/home/artist_view_model.dart';
 import '../../../../widgets/selection_title.dart';
+import '../../../layout/layout_screen.dart';
+import '../album_detail.dart';
 
 class AlbumPopularRelease extends StatelessWidget {
   const AlbumPopularRelease({Key? key}) : super(key: key);
@@ -44,57 +46,9 @@ class AlbumPopularRelease extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final formatter = NumberFormat('#,###');
                           String numberFans =
-                          formatter.format(albums[index].fans! * 100);
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: defaultPadding),
-                            margin:
-                            const EdgeInsets.only(bottom: defaultPadding),
-                            height: 70,
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 70,
-                                  height: double.infinity,
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                    albums[index].coverSmall as String,
-                                    placeholder: (context, url) => Image.asset(
-                                      'assets/images/music_default.jpg',
-                                      fit: BoxFit.cover,
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                const SizedBox(width: defaultPadding),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        albums[index].title as String,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleLarge,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        numberFans,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
+                              formatter.format(albums[index].fans! * 100);
+                          return buildAlbumTile(
+                              albums, index, context, numberFans);
                         },
                         itemCount: albums.length,
                       ),
@@ -105,7 +59,7 @@ class AlbumPopularRelease extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                             shape: const StadiumBorder()),
                         child: Text(
-                          'See discography',
+                          'See all album',
                           style: Theme.of(context)
                               .textTheme
                               .titleSmall
@@ -129,6 +83,71 @@ class AlbumPopularRelease extends StatelessWidget {
             return const Text('Default Switch');
         }
       },
+    );
+  }
+
+  Widget buildAlbumTile(
+      List<Album> albums, int index, BuildContext context, String numberFans) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (BuildContext context, Animation<double> animation1,
+                Animation<double> animation2) {
+              return LayoutScreen(
+                index: 4,
+                screen: AlbumDetail(
+                  albumId: albums[index].id!,
+                ),
+              );
+            },
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+        margin: const EdgeInsets.only(bottom: defaultPadding),
+        height: 70,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 70,
+              height: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: albums[index].coverSmall as String,
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/music_default.jpg',
+                  fit: BoxFit.cover,
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: defaultPadding),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    albums[index].title as String,
+                    style: Theme.of(context).textTheme.titleLarge,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    numberFans,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

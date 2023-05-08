@@ -1,31 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoriteSongService {
-  FavoriteSongService._();
-
-  static final FavoriteSongService instance = FavoriteSongService._();
-
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'favorite_song';
 
-  Future<void> addItem(FavoriteSong item) {
+  Stream<List<FavoriteSong>> getFavoriteSongs() {
+    return _db
+        .collection(collectionName)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => FavoriteSong.fromSnapshot(doc))
+            .toList());
+  }
+
+  Future<void> addFavoriteSong(FavoriteSong item) {
     return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
-  Future<void> updateItem(FavoriteSong item) {
+  Future<void> updateFavoriteSong(FavoriteSong item) {
     return _db.collection(collectionName).doc(item.id).update(item.toMap());
   }
 
-  Future<void> deleteItem(String id) {
-    return _db.collection(collectionName).doc(id).delete();
+  Future<void> deleteFavoriteSong(String itemId) {
+    return _db.collection(collectionName).doc(itemId).delete();
   }
 
-  Future<void> deleteItemByTrackId(String trackId, String userId) {
+  Future<void> deleteFavoriteSongByTrackId(String trackId) {
     return _db
         .collection(collectionName)
         .where('trackId', isEqualTo: trackId)
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((QuerySnapshot snapshot) {
       snapshot.docs.first.reference.delete();
@@ -38,15 +45,5 @@ class FavoriteSongService {
         doc.reference.delete();
       }
     });
-  }
-
-  Stream<List<FavoriteSong>> getItemsByUserId(String userId) {
-    return _db
-        .collection(collectionName)
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => FavoriteSong.fromSnapshot(doc))
-            .toList());
   }
 }

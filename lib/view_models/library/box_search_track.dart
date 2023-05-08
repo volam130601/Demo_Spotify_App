@@ -10,7 +10,7 @@ import '../../models/category/category_search.dart';
 import '../../models/firebase/playlist_new.dart';
 import '../../models/track.dart';
 import '../../view_models/layout_screen_view_model.dart';
-import '../../view_models/search_view_model.dart';
+import '../search/search_view_model.dart';
 import '../../widgets/list_tile_custom/track_suggest_tile.dart';
 
 class BoxSearchTrack extends StatefulWidget {

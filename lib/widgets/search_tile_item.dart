@@ -75,32 +75,43 @@ class SearchTileItem extends StatelessWidget {
       return InkWell(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.only(bottom: defaultPadding / 1.5),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(image),
-              radius: 30,
-              backgroundColor: Colors.black38,
-            ),
-            title: Row(
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(color: Colors.white),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+          height: 70,
+          padding: const EdgeInsets.symmetric(
+              horizontal: defaultPadding, vertical: defaultPadding / 2),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 60,
+                child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(image),
+                  radius: 30,
+                  backgroundColor: Colors.black38,
                 ),
-                paddingWidth(0.2),
-                const Icon(
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                  child: Text(
+                    title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(color: Colors.white),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                width: 30,
+                child: Icon(
                   Icons.check_circle,
                   color: Colors.blue,
                   size: 18,
-                )
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
         ),
       );

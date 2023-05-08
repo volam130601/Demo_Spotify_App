@@ -2,19 +2,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../../data/network/firebase/favorite_album_service.dart';
 import '../../../data/response/status.dart';
 import '../../../models/album.dart';
-import '../../../models/firebase/favorite_album.dart';
+import '../../../repository/remote/firebase/favorite_album_service.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
-import '../../../widgets/action/action_download_track.dart';
+import '../../../view_models/track_play/multi_control_player_view_model.dart';
+import '../../../widgets/action/action_download_multi_tracks.dart';
 import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
 
@@ -98,9 +99,28 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       ),
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                            return TrackTileItem(
-                                track: tracks[index], album: album);
+                          (context, index) {
+                            return InkWell(
+                              child: TrackTileItem(
+                                  track: tracks[index], album: album),
+                              onTap: () {
+                                var value = Provider.of<MultiPlayerViewModel>(
+                                    context,
+                                    listen: false);
+                                int? currentAlbumId = widget.albumId;
+                                if (currentAlbumId != value.getAlbumId) {
+                                  value.initState(
+                                      tracks: tracks,
+                                      album: album,
+                                      artist: album.artist,
+                                      albumId: album.id,
+                                      index: index);
+                                } else {
+                                  value.player
+                                      .seek(Duration.zero, index: index);
+                                }
+                              },
+                            );
                           },
                           childCount: tracks.length,
                         ),
@@ -116,7 +136,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                               Text(
                                   CommonUtils.formatReleaseDate(
                                       album.releaseDate.toString()),
-                                  style: Theme.of(context).textTheme.titleMedium),
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
                               paddingHeight(1.5),
                               Row(
                                 children: [
@@ -127,15 +148,17 @@ class _AlbumDetailState extends State<AlbumDetail> {
                                   ),
                                   paddingWidth(1.5),
                                   Text(album.artist!.name.toString(),
-                                      style:
-                                      Theme.of(context).textTheme.titleMedium)
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium)
                                 ],
                               ),
                               paddingHeight(5),
                             ],
                           ),
                         ),
-                      )
+                      ),
+                      SliverToBoxAdapter(child: paddingHeight(8)),
                     ],
                   ),
                   if (isShow) ...{
@@ -166,7 +189,6 @@ class _AlbumDetailState extends State<AlbumDetail> {
       ),
     );
   }
-
 
   SliverToBoxAdapter buildSelectionTitle(BuildContext context, Album album) {
     return SliverToBoxAdapter(
@@ -234,8 +256,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
     return Row(
       children: [
         StreamBuilder(
-            stream: FavoriteAlbumService.instance
-                .getAlbumItemsByUserId(userId: CommonUtils.userId),
+            stream: FavoriteAlbumRepository.instance.getAlbumItemsByUserId(
+                userId: FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return IconButton(
@@ -251,8 +273,9 @@ class _AlbumDetailState extends State<AlbumDetail> {
                         ToastCommon.showCustomText(
                             content:
                                 'Removed album ${album.title} from the library');
-                        FavoriteAlbumService.instance.deleteItemByAlbumId(
-                            album.id.toString(), CommonUtils.userId);
+                        FavoriteAlbumRepository.instance
+                            .deleteFavoriteAlbumByAlbumId(album.id.toString(),
+                                FirebaseAuth.instance.currentUser!.uid);
                       },
                       icon: Icon(
                         Ionicons.heart,
@@ -264,16 +287,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                         ToastCommon.showCustomText(
                             content:
                                 'Added album ${album.title} to the library');
-                        FavoriteAlbumService.instance.addItem(
-                          FavoriteAlbum(
-                            id: DateTime.now().toString(),
-                            albumId: album.id.toString(),
-                            title: album.title,
-                            artistName: album.artist!.name,
-                            coverMedium: album.coverMedium,
-                            userId: CommonUtils.userId,
-                          ),
-                        );
+                        FavoriteAlbumRepository.instance
+                            .addFavoriteAlbum(album: album);
                       },
                       icon: const Icon(Ionicons.heart_outline));
             }),

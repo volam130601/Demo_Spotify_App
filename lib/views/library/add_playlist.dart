@@ -1,14 +1,14 @@
-import 'package:demo_spotify_app/data/network/firebase/playlist_new_service.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../models/firebase/playlist_new.dart';
+import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../layout/layout_screen.dart';
 import 'add_playlist_detail_screen.dart';
 
@@ -123,33 +123,22 @@ class _AddPlaylistScreenState extends State<AddPlaylistScreen> {
             id: uuid.v4(),
             title: _playlistNameController.text,
             userName: FirebaseAuth.instance.currentUser!.displayName,
-            userId: CommonUtils.userId,
+            userId: FirebaseAuth.instance.currentUser!.uid,
             releaseDate: DateTime.now().toString(),
             isDownloading: _isDownloading,
             isPrivate: _isPrivate,
             tracks: [],
           );
-          PlaylistNewService.instance.addItem(playlistNew);
+          PlaylistNewRepository.instance.addPlaylistNew(playlistNew);
           ToastCommon.showCustomText(
               content:
                   'Create playlist ${_playlistNameController.text} is success!');
           Navigator.pop(context);
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (BuildContext context, Animation<double> animation1,
-                  Animation<double> animation2) {
-                return LayoutScreen(
-                  index: 4,
-                  screen: AddPlaylistDetailScreen(
-                    playlistNew: playlistNew,
-                  ),
-                );
-              },
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-            ),
-          );
+          NavigatorPage.defaultLayoutPageRoute(
+              context,
+              AddPlaylistDetailScreen(
+                playlistNew: playlistNew,
+              ));
         } else {
           setState(() {
             _errorText = 'Playlist Name is required';

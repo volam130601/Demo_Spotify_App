@@ -1,5 +1,5 @@
-import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
 import 'package:demo_spotify_app/views/play_control/comment/comment_box.dart';
+import 'package:demo_spotify_app/widgets/action/modal_download_track.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -8,13 +8,22 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import '../../../utils/constants/default_constant.dart';
-import '../../utils/common_utils.dart';
-import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../../widgets/play_control/seekbar.dart';
+import '../../models/album.dart';
+import '../../models/track.dart';
+import '../../repository/remote/firebase/comment_repository.dart';
+import '../../repository/remote/firebase/favorite_song_repository.dart';
+import '../../utils/colors.dart';
+import '../../utils/common_utils.dart';
+import '../../utils/toast_utils.dart';
+import '../../view_models/track_play/multi_control_player_view_model.dart';
 import 'control_music_buttons.dart';
 
 class PlayControl extends StatelessWidget {
-  const PlayControl({Key? key}) : super(key: key);
+  const PlayControl({Key? key, required this.track, required this.album})
+      : super(key: key);
+  final Track track;
+  final Album album;
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +48,56 @@ class PlayControl extends StatelessWidget {
                         color: Colors.grey.shade300,
                       )),
                   const Spacer(),
-                  IconButton(
-                      onPressed: () {},
-                      style: IconButton.styleFrom(
-                          elevation: 0, padding: const EdgeInsets.all(0)),
-                      icon: Icon(Ionicons.heart_outline,
-                          color: Colors.grey.shade300)),
+                  StreamBuilder(
+                    stream: FavoriteSongRepository.instance.getFavoriteSongs(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData) {
+                        return Row(
+                          children: [
+                            SizedBox(
+                              width: 50,
+                              child: IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Ionicons.heart_outline),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 50,
+                              height: 50,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: Colors.transparent,
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.all(0)),
+                                onPressed: () {},
+                                child: const Icon(Icons.more_vert),
+                              ),
+                            )
+                          ],
+                        );
+                      }
+                      final isAddedFavorite = snapshot.data!.any(
+                          (element) => element.trackId == track.id.toString());
+                      return SizedBox(
+                        width: 50,
+                        child: isAddedFavorite
+                            ? IconButton(
+                                onPressed: removeFavoriteTrack(track),
+                                icon: Icon(
+                                  Ionicons.heart,
+                                  color: ColorsConsts.primaryColorDark,
+                                ),
+                              )
+                            : IconButton(
+                                onPressed: addFavoriteTrack(track),
+                                icon: const Icon(Ionicons.heart_outline)),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -70,85 +123,103 @@ class PlayControl extends StatelessWidget {
     );
   }
 
-  Padding buildListMoreActions(
+  Widget buildListMoreActions(
       BuildContext context, MultiPlayerViewModel value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          StreamBuilder<SequenceState?>(
-            stream: value.player.sequenceStateStream,
-            builder: (context, snapshot) {
-              final state = snapshot.data;
-              if (state?.sequence.isEmpty ?? true) {
-                return const Icon(Ionicons.chatbox_outline);
-              }
-              final metadata = state!.currentSource!.tag as MediaItem;
-              return FutureBuilder(
-                future: CommentService.instance
+    return StreamBuilder<SequenceState?>(
+      stream: value.player.sequenceStateStream,
+      builder: (context, snapshot) {
+        final state = snapshot.data;
+        if (state?.sequence.isEmpty ?? true) {
+          return const Icon(Ionicons.chatbox_outline);
+        }
+        final metadata = state!.currentSource!.tag as MediaItem;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FutureBuilder(
+                future: CommentRepository.instance
                     .getTotalCommentByTrackId(metadata.id),
                 builder: (context, snapshot) {
                   return Stack(children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        SlideTopPageRoute(
-                          page: CommentBoxScreen(
-                            trackId: metadata.id,
+                    IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          SlideTopPageRoute(
+                            page: CommentBoxScreen(
+                              trackId: metadata.id,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    style: IconButton.styleFrom(
-                        elevation: 0, padding: const EdgeInsets.all(0)),
-                    icon: Icon(Ionicons.chatbox_outline,
-                        color: Colors.grey.shade300),
-                  ),
-                  Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Text(
-                        snapshot.data !=null ? '${CommonUtils.convertToShorthand(snapshot.data!)}+'
-                        : '',
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ))
-                ]);
+                        );
+                      },
+                      style: IconButton.styleFrom(
+                          elevation: 0, padding: const EdgeInsets.all(0)),
+                      icon: Icon(Ionicons.chatbox_outline,
+                          color: Colors.grey.shade300),
+                    ),
+                    Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Text(
+                          snapshot.data != null
+                              ? '${CommonUtils.convertToShorthand(snapshot.data!)}+'
+                              : '',
+                          style: Theme.of(context).textTheme.labelSmall,
+                        ))
+                  ]);
                 },
-              );
-            },
+              ),
+              IconButton(
+                onPressed: () {},
+                style: IconButton.styleFrom(
+                    elevation: 0, padding: const EdgeInsets.all(0)),
+                icon: Image.asset(
+                  'assets/icons/icons8-add-song-48.png',
+                  color: Colors.grey.shade300,
+                  width: 25,
+                  height: 25,
+                ),
+              ),
+              ModalDownloadTrack(
+                context: context,
+                track: track,
+                album: album,
+                isIconButton: true,
+              ),
+              IconButton(
+                onPressed: () {},
+                style: IconButton.styleFrom(
+                    elevation: 0, padding: const EdgeInsets.all(0)),
+                icon: Image.asset(
+                  'assets/icons/icons8-disk-24.png',
+                  color: Colors.grey.shade300,
+                  width: 25,
+                  height: 25,
+                ),
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: () {},
-            style: IconButton.styleFrom(
-                elevation: 0, padding: const EdgeInsets.all(0)),
-            icon: Image.asset(
-              'assets/icons/icons8-add-song-48.png',
-              color: Colors.grey.shade300,
-              width: 25,
-              height: 25,
-            ),
-          ),
-          IconButton(
-              onPressed: () {},
-              style: IconButton.styleFrom(
-                  elevation: 0, padding: const EdgeInsets.all(0)),
-              icon: Icon(Ionicons.arrow_down_circle_outline,
-                  color: Colors.grey.shade300)),
-          IconButton(
-            onPressed: () {},
-            style: IconButton.styleFrom(
-                elevation: 0, padding: const EdgeInsets.all(0)),
-            icon: Image.asset(
-              'assets/icons/icons8-disk-24.png',
-              color: Colors.grey.shade300,
-              width: 25,
-              height: 25,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  VoidCallback removeFavoriteTrack(Track track) {
+    return () {
+      ToastCommon.showCustomText(
+          content: 'Removed track ${track.title} from the library');
+      FavoriteSongRepository.instance
+          .deleteFavoriteSongByTrackId(track.id.toString());
+    };
+  }
+
+  VoidCallback addFavoriteTrack(Track track) {
+    return () {
+      ToastCommon.showCustomText(
+          content: 'Added track ${track.title} to the library');
+      FavoriteSongRepository.instance.addFavoriteSong(track, album);
+    };
   }
 }

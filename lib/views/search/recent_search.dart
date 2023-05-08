@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/views/search/search_detail_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,11 +7,11 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/recent_search_service.dart';
 import '../../models/album.dart';
 import '../../models/artist.dart';
 import '../../models/firebase/recent_search.dart';
 import '../../models/playlist.dart';
+import '../../repository/remote/firebase/recent_search_repository.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
@@ -28,13 +29,12 @@ class RecentSearch extends StatefulWidget {
 }
 
 class _RecentSearchState extends State<RecentSearch> {
-  final RecentSearchService _recentSearchService = RecentSearchService();
   bool? isClear = false;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<RecentSearchItem>>(
-      stream: _recentSearchService
+      stream: RecentSearchRepository.instance
           .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -81,7 +81,8 @@ class _RecentSearchState extends State<RecentSearch> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+              padding: const EdgeInsets.only(
+                  left: defaultPadding, bottom: defaultPadding),
               child: Text(
                 'Recent searches',
                 style: Theme.of(context)
@@ -103,10 +104,10 @@ class _RecentSearchState extends State<RecentSearch> {
             ),
             Padding(
               padding:
-              const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                  const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               child: TextButton(
                 onPressed: () {
-                  _recentSearchService.deleteAll();
+                  RecentSearchRepository.instance.deleteAll();
                 },
                 child: Text(
                   'Clear recent searches',
@@ -129,9 +130,9 @@ class _RecentSearchState extends State<RecentSearch> {
     if (item.type == 'track') {
       onTap = () async {
         var trackPlayVM =
-        Provider.of<TrackPlayViewModel>(context, listen: false);
+            Provider.of<TrackPlayViewModel>(context, listen: false);
         var multiPlayerVM =
-        Provider.of<MultiPlayerViewModel>(context, listen: false);
+            Provider.of<MultiPlayerViewModel>(context, listen: false);
         showBottomBar(context);
         await trackPlayVM.fetchTracksPlayControl(
           albumID: item.albumSearch!.id as int,
@@ -149,8 +150,14 @@ class _RecentSearchState extends State<RecentSearch> {
         await multiPlayerVM.initState(
             tracks: trackPlayVM.tracksPlayControl.data!,
             albumId: item.albumSearch!.id as int,
+            album: Album(
+              id: item.albumSearch!.id,
+              title: item.albumSearch!.title,
+              coverMedium: item.albumSearch!.coverMedium,
+              coverXl: item.albumSearch!.coverXl,
+            ),
             artist: artist,
-            index: trackIndex); // continue
+            index: trackIndex);
       };
     } else if (item.type == 'artist') {
       onTap = () {
@@ -263,7 +270,9 @@ class _RecentSearchState extends State<RecentSearch> {
                   isClear = true;
                 });
               }
-              _recentSearchService.deleteItem(item.id!);
+              RecentSearchRepository.instance.deleteRecentSearch(item.id!);
+              ToastCommon.showCustomText(
+                  content: 'Remove recent search is success');
             },
             icon: const Icon(Ionicons.close),
           ),

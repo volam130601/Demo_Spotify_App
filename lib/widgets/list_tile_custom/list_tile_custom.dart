@@ -3,10 +3,10 @@ import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/album.dart';
 import '../../models/playlist.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/playlist_detail.dart';
@@ -280,23 +280,20 @@ class AddTrackToPlaylistTileItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        List<Track> tracks = playlistNew.tracks!;
-        tracks.add(track);
-        PlaylistNewService.instance.updateItem(PlaylistNew(
-          id: playlistNew.id,
-          title: playlistNew.title,
-          isDownloading: playlistNew.isDownloading,
-          isPrivate: playlistNew.isDownloading,
-          picture: tracks.first.album!.coverMedium,
-          releaseDate: playlistNew.releaseDate,
-          userId: playlistNew.userId,
-          tracks: tracks,
-          userName: playlistNew.userName,
-        ));
-        ToastCommon.showCustomText(
-            content:
-                'Add track ${track.title} to playlist ${playlistNew.title} is success!');
-        Navigator.pop(context);
+        final bool isExist =
+            playlistNew.tracks!.any((element) => element.id == track.id);
+        if (!isExist) {
+          PlaylistNewRepository.instance
+              .addTrackToPlaylistNew(playlistNew: playlistNew, track: track);
+          ToastCommon.showCustomText(
+              content:
+                  'Track ${track.title} to playlist ${playlistNew.title} is success!');
+          Navigator.pop(context);
+        } else {
+          ToastCommon.showCustomText(
+              content:
+              'This song already exists in the playlist ${playlistNew.title}!');
+        }
       },
       child: Container(
         margin: const EdgeInsets.symmetric(

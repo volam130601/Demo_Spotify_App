@@ -1,25 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../models/firebase/playlist_new.dart';
 import '../../../models/track.dart';
 
 class PlaylistNewService {
-  PlaylistNewService._();
-
-  static final PlaylistNewService instance = PlaylistNewService._();
-
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'playlist_new';
 
-  Future<void> addItem(PlaylistNew item) {
+  Future<void> addPlaylistNew(PlaylistNew item) {
     return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
-  Future<void> updateItem(PlaylistNew item) {
+  Future<void> updatePlaylistNew(PlaylistNew item) {
     return _db.collection(collectionName).doc(item.id).update(item.toMap());
   }
 
-  Future<void> deleteItem(String id) {
+  Future<void> deletePlaylistNew(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
 
@@ -31,20 +28,20 @@ class PlaylistNewService {
     });
   }
 
-  Stream<List<PlaylistNew>> getItemsByUserId(String userId) {
+  Stream<List<PlaylistNew>> getPlaylistNews() {
     return _db
         .collection(collectionName)
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => PlaylistNew.fromSnapshot(doc)).toList());
   }
 
-  Stream<List<Track>> getPlaylistNewByPlaylistIdAndUserId(
-      String playlistId, String userId) {
+  Stream<List<Track>> getPlaylistNewByPlaylistId(
+      String playlistId) {
     return _db
         .collection(collectionName)
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .snapshots()
         .map((snapshot) {
       List<Track> tracks = [];

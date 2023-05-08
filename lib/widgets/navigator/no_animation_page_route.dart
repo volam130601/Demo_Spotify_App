@@ -25,11 +25,12 @@ class NavigatorPage {
     );
   }
 
-  static void defaultLayoutPageRoute(BuildContext context, Widget page) {
+  static void defaultLayoutPageRoute(BuildContext context, Widget page,
+      {int index = 4}) {
     Navigator.of(context).push(
       DefaultPageRoute(
         page: LayoutScreen(
-          index: 4,
+          index: index,
           screen: page,
         ),
       ),

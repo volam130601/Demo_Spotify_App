@@ -48,9 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       paddingHeight(1),
-                      const HeaderBody(),
-                      paddingHeight(1),
-                      buildHomeRecentSearch(),
+                      headerBody(),
+                      buildHomeRecentPlayed(),
                       const PlaylistView(),
                       paddingHeight(2),
                       const AlbumListView(),
@@ -70,9 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Padding buildHomeRecentSearch() {
-    return Padding(
+  Widget buildHomeRecentPlayed() {
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+      margin: const EdgeInsets.only(top: defaultPadding),
       child: SizedBox(
         height: (60 + 8) * 3,
         child: ListView.separated(
@@ -164,13 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
 
-class HeaderBody extends StatelessWidget {
-  const HeaderBody({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget headerBody() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
       child: Row(

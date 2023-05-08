@@ -41,7 +41,7 @@ class SettingScreen extends StatelessWidget {
                         .pushReplacementNamed(RoutesName.login);
                     ToastCommon.showCustomText(content: 'Log out is success.');
                     FirebaseAuth.instance.signOut();
-                    AuthGoogle().signOut();
+                    AuthGoogle.instance.signOut();
                     value.signOut();
                     Provider.of<LayoutScreenViewModel>(context, listen: false)
                         .clear();
