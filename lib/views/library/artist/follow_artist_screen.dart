@@ -1,17 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/follow_artist_service.dart';
 import 'package:demo_spotify_app/models/firebase/follow_artist.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../models/artist.dart';
+import '../../../repository/remote/firebase/follow_artist_repository.dart';
 import 'more_artist_search_screen.dart';
 
 class FollowArtistScreen extends StatelessWidget {
@@ -28,8 +27,7 @@ class FollowArtistScreen extends StatelessWidget {
         ],
       ),
       body: StreamBuilder(
-        stream: FollowArtistService.instance
-            .getFollowArtistByUserId(FirebaseAuth.instance.currentUser!.uid),
+        stream: FollowArtistRepository.instance.getFollowArtist(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return buildNullFollowArtist(context);
@@ -155,7 +153,7 @@ class FollowArtistScreen extends StatelessWidget {
         ),
         trailing: IconButton(
           onPressed: () {
-            FollowArtistService.instance
+            FollowArtistRepository.instance
                 .unFollowingArtist(followArtist: followArtist, artist: artist);
             ToastCommon.showCustomText(
                 content: 'Unfollow artist ${artist.name} from artist follow');

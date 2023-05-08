@@ -1,32 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoritePlaylistService {
-  FavoritePlaylistService._();
-
-  static final FavoritePlaylistService instance =
-      FavoritePlaylistService._();
-
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'favorite_playlist';
 
-  Future<void> addItem(FavoritePlaylist item) {
-    return _db.collection(collectionName).doc(item.id).set(item.toMap());
+  Stream<List<FavoritePlaylist>> getPlaylistItemsByUserId(
+      {required String userId}) {
+    return _db
+        .collection(collectionName)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => FavoritePlaylist.fromSnapshot(doc))
+            .toList());
   }
 
-  Future<void> updateItem(FavoritePlaylist item) {
-    return _db.collection(collectionName).doc(item.id).update(item.toMap());
+  Future<void> addFavoritePlaylist(FavoritePlaylist favoritePlaylist) {
+    return _db
+        .collection(collectionName)
+        .doc(favoritePlaylist.id)
+        .set(favoritePlaylist.toMap());
   }
 
-  Future<void> deleteItem(String id) {
+  Future<void> updateFavoritePlaylist(FavoritePlaylist favoritePlaylist) {
+    return _db
+        .collection(collectionName)
+        .doc(favoritePlaylist.id)
+        .update(favoritePlaylist.toMap());
+  }
+
+  Future<void> deleteFavoritePlaylist(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
 
-  Future<void> deleteItemByPlaylistId(String playlistId, String userId) {
+  Future<void> deleteFavoritePlaylistByPlaylistId(String playlistId) {
     return _db
         .collection(collectionName)
         .where('playlistId', isEqualTo: playlistId)
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .get()
         .then((QuerySnapshot snapshot) {
       snapshot.docs.first.reference.delete();
@@ -39,16 +52,5 @@ class FavoritePlaylistService {
         doc.reference.delete();
       }
     });
-  }
-
-  Stream<List<FavoritePlaylist>> getPlaylistItemsByUserId(
-      {required String userId}) {
-    return _db
-        .collection(collectionName)
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => FavoritePlaylist.fromSnapshot(doc))
-            .toList());
   }
 }

@@ -1,4 +1,3 @@
-import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/track_play/comment_view_model.dart';
@@ -10,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/firebase/comment/comment.dart';
 import '../../../models/firebase/comment/comment_reply.dart';
+import '../../../repository/remote/firebase/comment_repository.dart';
 
 class CommentAction extends StatelessWidget {
   const CommentAction(
@@ -61,10 +61,11 @@ class CommentAction extends StatelessWidget {
                       icon: const Icon(Ionicons.trash_outline),
                       onTap: () {
                         if (isChildComment) {
-                          CommentService.instance
-                              .deleteCommentChild(comment, commentReply!);
+                          CommentRepository.instance
+                              .deleteCommentChild(comment.id!, commentReply!);
                         } else {
-                          CommentService.instance.deleteCommentParent(comment);
+                          CommentRepository.instance
+                              .deleteCommentParent(comment.id!);
                         }
                         Navigator.pop(context);
                         ToastCommon.showCustomText(

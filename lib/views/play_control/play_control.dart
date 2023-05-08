@@ -1,8 +1,6 @@
-import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
 import 'package:demo_spotify_app/views/play_control/comment/comment_box.dart';
 import 'package:demo_spotify_app/widgets/action/modal_download_track.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
@@ -11,10 +9,10 @@ import 'package:provider/provider.dart';
 
 import '../../../utils/constants/default_constant.dart';
 import '../../../widgets/play_control/seekbar.dart';
-import '../../data/network/firebase/favorite_song_service.dart';
 import '../../models/album.dart';
-import '../../models/firebase/favorite_song.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/comment_repository.dart';
+import '../../repository/remote/firebase/favorite_song_repository.dart';
 import '../../utils/colors.dart';
 import '../../utils/common_utils.dart';
 import '../../utils/toast_utils.dart';
@@ -51,8 +49,7 @@ class PlayControl extends StatelessWidget {
                       )),
                   const Spacer(),
                   StreamBuilder(
-                    stream: FavoriteSongService.instance.getItemsByUserId(
-                        FirebaseAuth.instance.currentUser!.uid),
+                    stream: FavoriteSongRepository.instance.getFavoriteSongs(),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
@@ -142,7 +139,7 @@ class PlayControl extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               FutureBuilder(
-                future: CommentService.instance
+                future: CommentRepository.instance
                     .getTotalCommentByTrackId(metadata.id),
                 builder: (context, snapshot) {
                   return Stack(children: [
@@ -213,8 +210,8 @@ class PlayControl extends StatelessWidget {
     return () {
       ToastCommon.showCustomText(
           content: 'Removed track ${track.title} from the library');
-      FavoriteSongService.instance.deleteItemByTrackId(
-          track.id.toString(), FirebaseAuth.instance.currentUser!.uid);
+      FavoriteSongRepository.instance
+          .deleteFavoriteSongByTrackId(track.id.toString());
     };
   }
 
@@ -222,22 +219,7 @@ class PlayControl extends StatelessWidget {
     return () {
       ToastCommon.showCustomText(
           content: 'Added track ${track.title} to the library');
-      FavoriteSongService.instance.addItem(FavoriteSong(
-        id: DateTime.now().toString(),
-        trackId: track.id.toString(),
-        albumId: album.id.toString(),
-        artistId: track.artist!.id.toString(),
-        title: track.title,
-        albumTitle: album.title.toString(),
-        artistName: track.artist!.name,
-        pictureMedium: track.artist!.pictureMedium,
-        coverMedium: album.coverMedium.toString(),
-        coverXl: album.coverXl.toString(),
-        preview: track.preview,
-        releaseDate: album.releaseDate.toString(),
-        userId: FirebaseAuth.instance.currentUser!.uid,
-        type: 'track',
-      ));
+      FavoriteSongRepository.instance.addFavoriteSong(track, album);
     };
   }
 }

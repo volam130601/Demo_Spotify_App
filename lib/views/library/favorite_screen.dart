@@ -1,8 +1,6 @@
-import 'package:demo_spotify_app/data/network/firebase/favorite_song_service.dart';
 import 'package:demo_spotify_app/models/artist.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -10,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/album.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/favorite_song_repository.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../widgets/container_null_value.dart';
@@ -76,8 +75,7 @@ class FavoriteSongBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: FavoriteSongService.instance
-          .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
+      stream: FavoriteSongRepository.instance.getFavoriteSongs(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -164,7 +162,11 @@ class FavoriteSongBody extends StatelessWidget {
                 ),
                 paddingHeight(2),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    var value =
+                    Provider.of<MultiPlayerViewModel>(context, listen: false);
+                    value.initState(tracks: tracks, index: 0);
+                  },
                   style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                       padding: const EdgeInsets.symmetric(

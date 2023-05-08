@@ -4,15 +4,14 @@ import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/library/library_view_model.dart';
 import 'package:demo_spotify_app/views/library/library_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/firebase/playlist_new.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../../view_models/library/box_search_track.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
 import '../../widgets/list_tile_custom/track_tile_item.dart';
@@ -51,8 +50,8 @@ class _AddPlaylistDetailScreenState extends State<AddPlaylistDetailScreen> {
                     children: [
                       InkWell(
                         onTap: () {
-                          PlaylistNewService.instance
-                              .deleteItem(widget.playlistNew.id.toString());
+                          PlaylistNewRepository.instance.deletePlaylistNew(
+                              widget.playlistNew.id.toString());
                           Navigator.push(
                             context,
                             PageRouteBuilder(
@@ -84,8 +83,8 @@ class _AddPlaylistDetailScreenState extends State<AddPlaylistDetailScreen> {
         ],
       ),
       body: StreamBuilder(
-        stream: PlaylistNewService.instance.getPlaylistNewByPlaylistIdAndUserId(
-            widget.playlistNew.id.toString(), FirebaseAuth.instance.currentUser!.uid),
+        stream: PlaylistNewRepository.instance
+            .getPlaylistNewByPlaylistId(widget.playlistNew.id.toString()),
         builder: (context, snapshot) {
           Widget body;
           if (snapshot.hasError) {

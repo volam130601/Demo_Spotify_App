@@ -1,6 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
-import 'package:demo_spotify_app/data/network/firebase/playlist_new_service.dart';
 import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
@@ -15,10 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/favorite_album_service.dart';
 import '../../models/artist.dart';
 import '../../models/category/category_library.dart';
 import '../../models/firebase/favorite_album.dart';
+import '../../repository/remote/firebase/favorite_album_service.dart';
+import '../../repository/remote/firebase/favorite_playlist_repository.dart';
+import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../widgets/container_null_value.dart';
 import '../../widgets/selection_title.dart';
@@ -111,7 +111,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   Widget buildTabAlbum(BuildContext context) {
     return StreamBuilder(
-      stream: FavoriteAlbumService.instance.getAlbumItemsByUserId(
+      stream: FavoriteAlbumRepository.instance.getAlbumItemsByUserId(
           userId: FirebaseAuth.instance.currentUser!.uid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -194,8 +194,9 @@ class _LibraryScreenState extends State<LibraryScreen>
             ),
           ),
           StreamBuilder(
-            stream: FavoritePlaylistService.instance.getPlaylistItemsByUserId(
-                userId: FirebaseAuth.instance.currentUser!.uid),
+            stream: FavoritePlaylistRepository.instance
+                .getPlaylistItemsByUserId(
+                    userId: FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const SizedBox();
@@ -222,8 +223,7 @@ class _LibraryScreenState extends State<LibraryScreen>
             },
           ),
           StreamBuilder(
-            stream: PlaylistNewService.instance
-                .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
+            stream: PlaylistNewRepository.instance.getPlaylistNews(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const SizedBox();

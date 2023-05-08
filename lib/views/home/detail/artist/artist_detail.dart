@@ -1,15 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/views/home/detail/artist/track_popular.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../data/network/firebase/follow_artist_service.dart';
 import '../../../../data/response/status.dart';
 import '../../../../models/artist.dart';
 import '../../../../models/firebase/follow_artist.dart';
+import '../../../../repository/remote/firebase/follow_artist_repository.dart';
 import '../../../../utils/colors.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../utils/toast_utils.dart';
@@ -171,17 +170,13 @@ class _ArtistDetailState extends State<ArtistDetail> {
       child: Row(
         children: [
           StreamBuilder(
-            stream: FollowArtistService.instance.getFollowArtistByUserId(
-                FirebaseAuth.instance.currentUser!.uid),
+            stream: FollowArtistRepository.instance.getFollowArtist(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return OutlinedButton(
                   onPressed: () {
-                    FollowArtist followArtist = FollowArtist(
-                      userId: FirebaseAuth.instance.currentUser!.uid,
-                      artists: [artist],
-                    );
-                    FollowArtistService.instance.addFollowArtist(followArtist);
+                    FollowArtistRepository.instance
+                        .addFollowArtist(artists: [artist]);
                     ToastCommon.showCustomText(
                         content: 'Following artist ${artist.name}');
                   },
@@ -200,7 +195,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
               return checkFollowing
                   ? ElevatedButton(
                       onPressed: () {
-                        FollowArtistService.instance.unFollowingArtist(
+                        FollowArtistRepository.instance.unFollowingArtist(
                             followArtist: followArtist, artist: artist);
                         ToastCommon.showCustomText(
                           content: 'Remove ${artist.name} from follow artist',
@@ -210,7 +205,7 @@ class _ArtistDetailState extends State<ArtistDetail> {
                           style: Theme.of(context).textTheme.titleLarge))
                   : OutlinedButton(
                       onPressed: () {
-                        FollowArtistService.instance.followingArtist(
+                        FollowArtistRepository.instance.followingArtist(
                             followArtist: followArtist, artist: artist);
                         ToastCommon.showCustomText(
                             content: 'Following artist ${artist.name}');

@@ -1,16 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/view_models/download_view_modal.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/favorite_song_service.dart';
 import '../../models/album.dart';
-import '../../models/firebase/favorite_song.dart';
 import '../../models/playlist.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/favorite_song_repository.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../utils/toast_utils.dart';
@@ -127,8 +125,7 @@ class _TrackTileItemState extends State<TrackTileItem> {
 
   Widget buildButtonFavoriteSong() {
     return StreamBuilder(
-      stream: FavoriteSongService.instance
-          .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
+      stream: FavoriteSongRepository.instance.getFavoriteSongs(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
@@ -171,8 +168,8 @@ class _TrackTileItemState extends State<TrackTileItem> {
     return () {
       ToastCommon.showCustomText(
           content: 'Removed track ${track.title} from the library');
-      FavoriteSongService.instance.deleteItemByTrackId(
-          track.id.toString(), FirebaseAuth.instance.currentUser!.uid);
+      FavoriteSongRepository.instance
+          .deleteFavoriteSongByTrackId(track.id.toString());
     };
   }
 
@@ -180,41 +177,11 @@ class _TrackTileItemState extends State<TrackTileItem> {
     return () {
       ToastCommon.showCustomText(
           content: 'Added track ${track.title} to the library');
-      FavoriteSongService.instance.addItem(
-        (widget.album != null)
-            ? FavoriteSong(
-                id: DateTime.now().toString(),
-                trackId: track.id.toString(),
-                albumId: widget.album!.id.toString(),
-                artistId: track.artist!.id.toString(),
-                title: track.title,
-                albumTitle: widget.album!.title.toString(),
-                artistName: track.artist!.name,
-                pictureMedium: track.artist!.pictureMedium,
-                coverMedium: widget.album!.coverMedium.toString(),
-                coverXl: widget.album!.coverXl.toString(),
-                preview: track.preview,
-                releaseDate: widget.album!.releaseDate.toString(),
-                userId: FirebaseAuth.instance.currentUser!.uid,
-                type: 'track',
-              )
-            : FavoriteSong(
-                id: DateTime.now().toString(),
-                trackId: track.id.toString(),
-                albumId: track.album!.id.toString(),
-                artistId: track.artist!.id.toString(),
-                title: track.title,
-                albumTitle: track.album!.title,
-                artistName: track.artist!.name,
-                pictureMedium: track.artist!.pictureMedium,
-                coverMedium: track.album!.coverMedium,
-                coverXl: track.album!.coverXl,
-                preview: track.preview,
-                releaseDate: track.album!.releaseDate,
-                userId: FirebaseAuth.instance.currentUser!.uid,
-                type: 'track',
-              ),
-      );
+      if (widget.album != null) {
+        FavoriteSongRepository.instance.addFavoriteSong(track, widget.album!);
+      } else {
+        FavoriteSongRepository.instance.addFavoriteSong(track, track.album!);
+      }
     };
   }
 }

@@ -1,19 +1,18 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/follow_artist_service.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/firebase/follow_artist.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/artist.dart';
+import '../../../repository/remote/firebase/follow_artist_repository.dart';
 import '../../../view_models/library/follow_artist_view_model.dart';
 
 class MoreArtists extends StatefulWidget {
@@ -211,16 +210,12 @@ class _MoreArtistsState extends State<MoreArtists> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (widget.followArtist != null) {
-                          widget.followArtist!.artists = selectedArtists;
-                          FollowArtistService.instance
-                              .addFollowArtist(widget.followArtist!);
+                          FollowArtistRepository.instance.addMoreFollowArtist(
+                              followArtist: widget.followArtist!,
+                              artists: selectedArtists);
                         } else {
-                          FollowArtist followArtist = FollowArtist(
-                            userId: FirebaseAuth.instance.currentUser!.uid,
-                            artists: selectedArtists,
-                          );
-                          FollowArtistService.instance
-                              .addFollowArtist(followArtist);
+                          FollowArtistRepository.instance
+                              .addFollowArtist(artists: selectedArtists);
                         }
                         ToastCommon.showCustomText(
                             content: 'Following more artists success!');

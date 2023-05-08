@@ -7,11 +7,11 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/network/firebase/recent_search_service.dart';
 import '../../models/album.dart';
 import '../../models/artist.dart';
 import '../../models/firebase/recent_search.dart';
 import '../../models/playlist.dart';
+import '../../repository/remote/firebase/recent_search_repository.dart';
 import '../../utils/colors.dart';
 import '../../utils/constants/default_constant.dart';
 import '../../view_models/track_play/multi_control_player_view_model.dart';
@@ -29,13 +29,12 @@ class RecentSearch extends StatefulWidget {
 }
 
 class _RecentSearchState extends State<RecentSearch> {
-  final RecentSearchService _recentSearchService = RecentSearchService();
   bool? isClear = false;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<RecentSearchItem>>(
-      stream: _recentSearchService
+      stream: RecentSearchRepository.instance
           .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -82,7 +81,8 @@ class _RecentSearchState extends State<RecentSearch> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(left: defaultPadding, bottom: defaultPadding),
+              padding: const EdgeInsets.only(
+                  left: defaultPadding, bottom: defaultPadding),
               child: Text(
                 'Recent searches',
                 style: Theme.of(context)
@@ -107,7 +107,7 @@ class _RecentSearchState extends State<RecentSearch> {
                   const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
               child: TextButton(
                 onPressed: () {
-                  _recentSearchService.deleteAll();
+                  RecentSearchRepository.instance.deleteAll();
                 },
                 child: Text(
                   'Clear recent searches',
@@ -270,8 +270,9 @@ class _RecentSearchState extends State<RecentSearch> {
                   isClear = true;
                 });
               }
-              _recentSearchService.deleteItem(item.id!);
-              ToastCommon.showCustomText(content: 'Remove recent search is success');
+              RecentSearchRepository.instance.deleteRecentSearch(item.id!);
+              ToastCommon.showCustomText(
+                  content: 'Remove recent search is success');
             },
             icon: const Icon(Ionicons.close),
           ),

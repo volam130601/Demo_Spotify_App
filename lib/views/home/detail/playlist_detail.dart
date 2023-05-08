@@ -1,10 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/favorite_playlist_service.dart';
-import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
-import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/home/playlist_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../../../data/response/status.dart';
 import '../../../models/playlist.dart';
+import '../../../repository/remote/firebase/favorite_playlist_repository.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
@@ -234,8 +233,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
     return Row(
       children: [
         StreamBuilder(
-            stream: FavoritePlaylistService.instance
-                .getPlaylistItemsByUserId(userId:FirebaseAuth.instance.currentUser!.uid),
+            stream: FavoritePlaylistRepository.instance
+                .getPlaylistItemsByUserId(
+                    userId: FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return IconButton(
@@ -252,8 +252,9 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                         ToastCommon.showCustomText(
                             content:
                                 'Removed playlist ${playlist.title} from the library');
-                        FavoritePlaylistService.instance.deleteItemByPlaylistId(
-                            playlist.id.toString(), FirebaseAuth.instance.currentUser!.uid);
+                        FavoritePlaylistRepository.instance
+                            .deleteFavoritePlaylistByPlaylistId(
+                                playlist.id.toString());
                       },
                       icon: Icon(
                         Ionicons.heart,
@@ -265,17 +266,8 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                         ToastCommon.showCustomText(
                             content:
                                 'Added playlist ${playlist.title} to the library');
-                        FavoritePlaylistService.instance
-                            .addItem(FavoritePlaylist(
-                          id: DateTime.now().toString(),
-                          playlistId: playlist.id.toString(),
-                          title: playlist.title,
-                          userName: (playlist.user != null)
-                              ? playlist.user!.name.toString()
-                              : playlist.creator!.name.toString(),
-                          pictureMedium: playlist.pictureMedium,
-                          userId: FirebaseAuth.instance.currentUser!.uid,
-                        ));
+                        FavoritePlaylistRepository.instance
+                            .addFavoritePlaylist(playlist);
                       },
                       icon: const Icon(Ionicons.heart_outline));
             }),

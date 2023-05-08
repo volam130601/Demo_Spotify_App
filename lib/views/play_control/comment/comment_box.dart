@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
 import 'package:demo_spotify_app/utils/colors.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,6 +13,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../../../utils/constants/default_constant.dart';
 import '../../../models/firebase/comment/comment.dart';
 import '../../../models/firebase/comment/comment_reply.dart';
+import '../../../repository/remote/firebase/comment_repository.dart';
 import '../../../view_models/track_play/comment_view_model.dart';
 import 'comment_action.dart';
 import 'comment_like_button.dart';
@@ -41,7 +41,7 @@ class CommentBoxScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: CommentService.instance.getCommentsByTrackId(trackId),
+      stream: CommentRepository.instance.getCommentsByTrackId(trackId),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text('${snapshot.error}');

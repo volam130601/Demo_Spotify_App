@@ -3,26 +3,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/firebase/favorite_album.dart';
 
 class FavoriteAlbumService {
-  FavoriteAlbumService._();
-
-  static final FavoriteAlbumService instance = FavoriteAlbumService._();
-
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'favorite_album';
 
-  Future<void> addItem(FavoriteAlbum item) {
+
+  Stream<List<FavoriteAlbum>> getAlbumItemsByUserId(
+      {required String userId}) {
+    return _db
+        .collection(collectionName)
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+        .map((doc) => FavoriteAlbum.fromSnapshot(doc))
+        .toList());
+  }
+
+  Future<void> addFavoriteAlbum(FavoriteAlbum item) {
     return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
-  Future<void> updateItem(FavoriteAlbum item) {
+  Future<void> updateFavoriteAlbum(FavoriteAlbum item) {
     return _db.collection(collectionName).doc(item.id).update(item.toMap());
   }
 
-  Future<void> deleteItem(String id) {
+  Future<void> deleteFavoriteAlbum(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
 
-  Future<void> deleteItemByAlbumId(String albumId, String userId) {
+  Future<void> deleteFavoriteAlbumByAlbumId({required String albumId, required String userId}) {
     return _db
         .collection(collectionName)
         .where('albumId', isEqualTo: albumId)
@@ -41,14 +49,5 @@ class FavoriteAlbumService {
     });
   }
 
-  Stream<List<FavoriteAlbum>> getAlbumItemsByUserId(
-      {required String userId}) {
-    return _db
-        .collection(collectionName)
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => FavoriteAlbum.fromSnapshot(doc))
-            .toList());
-  }
+
 }

@@ -1,13 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo_spotify_app/models/firebase/follow_artist.dart';
-
-import '../../../models/artist.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FollowArtistService {
-  FollowArtistService._();
-
-  static final FollowArtistService instance = FollowArtistService._();
-
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   static const String collectionName = 'follow_artist';
 
@@ -15,25 +10,14 @@ class FollowArtistService {
     return _db.collection(collectionName).doc(item.id).set(item.toMap());
   }
 
-  Future<void> followingArtist(
-      {required FollowArtist followArtist, required Artist artist}) {
-    followArtist.artists!.add(artist);
+  Future<void> updateFollowArtist(FollowArtist followArtist) {
     return _db
         .collection(collectionName)
         .doc(followArtist.id)
         .update(followArtist.toMap());
   }
 
-  Future<void> unFollowingArtist(
-      {required FollowArtist followArtist, required Artist artist}) {
-    followArtist.artists!.removeWhere((element) => element.id == artist.id);
-    return _db
-        .collection(collectionName)
-        .doc(followArtist.id)
-        .update(followArtist.toMap());
-  }
-
-  Future<void> deleteItem(String id) {
+  Future<void> deleteFollowArtist(String id) {
     return _db.collection(collectionName).doc(id).delete();
   }
 
@@ -45,10 +29,10 @@ class FollowArtistService {
     });
   }
 
-  Stream<FollowArtist> getFollowArtistByUserId(String userId) {
+  Stream<FollowArtist> getFollowArtist() {
     return _db
         .collection(collectionName)
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => FollowArtist.fromSnapshot(doc)).first);

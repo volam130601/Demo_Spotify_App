@@ -1,33 +1,24 @@
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo_spotify_app/data/network/firebase/favorite_song_service.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
-import 'package:demo_spotify_app/models/local/track_download.dart';
-import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/widgets/action/modal_download_track.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 
 import '../../../../models/track.dart';
 import '../../../../utils/constants/default_constant.dart';
-import '../../data/network/firebase/playlist_new_service.dart';
 import '../../models/album.dart';
 import '../../models/firebase/playlist_new.dart';
 import '../../models/playlist.dart';
-import '../../repository/local/download_repository.dart';
+import '../../repository/remote/firebase/favorite_song_repository.dart';
+import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../../utils/colors.dart';
-import '../../view_models/download_view_modal.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/artist/artist_detail.dart';
-import '../../views/layout/layout_screen.dart';
 import '../../views/library/add_playlist.dart';
 import '../list_tile_custom/list_tile_custom.dart';
 
@@ -84,23 +75,8 @@ class _ActionMoreState extends State<ActionMore> {
           height: 20,
         ),
         onTap: () {
-          PlaylistNew? playlistNew = widget.playlistNew;
-          List<Track> tracks = playlistNew!.tracks!;
-          tracks.removeWhere((element) => element.id == track.id);
-          PlaylistNewService.instance.updateItem(
-            PlaylistNew(
-              id: playlistNew.id,
-              title: playlistNew.title,
-              isDownloading: playlistNew.isDownloading,
-              isPrivate: playlistNew.isDownloading,
-              picture:
-                  (tracks.isNotEmpty) ? tracks.first.album!.coverBig : null,
-              releaseDate: playlistNew.releaseDate,
-              userId: playlistNew.userId,
-              tracks: tracks,
-              userName: playlistNew.userName,
-            ),
-          );
+          PlaylistNewRepository.instance.removePlaylistNewByTrackId(
+              playlistNew: widget.playlistNew!, trackId: track.id!);
           Navigator.pop(context);
         },
       );
@@ -234,14 +210,12 @@ class _ActionMoreState extends State<ActionMore> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * .5,
                   child: StreamBuilder(
-                    stream: PlaylistNewService.instance.getItemsByUserId(
-                        FirebaseAuth.instance.currentUser!.uid),
+                    stream: PlaylistNewRepository.instance.getPlaylistNews(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const SizedBox();
                       }
                       List<PlaylistNew>? playlistNews = snapshot.data!;
-
                       if (_searchText.isNotEmpty) {
                         List<PlaylistNew>? result = playlistNews
                             .where((element) =>
@@ -309,50 +283,9 @@ class _ActionMoreState extends State<ActionMore> {
                 paddingHeight(0.5),
                 buildHeaderModal(context, track, album),
                 buildDivider(),
-                ModalDownloadTrack(context: context, track: track, album: album),
-                StreamBuilder(
-                  stream: FavoriteSongService.instance
-                      .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData) {
-                      return Row(
-                        children: [
-                          SizedBox(
-                            width: 50,
-                            child: IconButton(
-                              onPressed: () {},
-                              icon: const Icon(Ionicons.heart_outline),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                    Track track = widget.track;
-                    final isAddedFavorite = snapshot.data!.any(
-                        (element) => element.trackId == track.id.toString());
-                    if (isAddedFavorite == true) {
-                      return buildModalTileItem(
-                        context,
-                        title: 'Added to the library',
-                        icon: Icon(
-                          Icons.favorite,
-                          color: ColorsConsts.primaryColorDark,
-                        ),
-                        onTap: removeFavoriteTrack(track),
-                      );
-                    } else {
-                      return buildModalTileItem(
-                        context,
-                        title: 'Add to the library',
-                        icon: const Icon(Icons.favorite_border_sharp),
-                        onTap: addFavoriteTrack(track),
-                      );
-                    }
-                  },
-                ),
+                ModalDownloadTrack(
+                    context: context, track: track, album: album),
+                buildFavoriteTrackTile(),
                 addPlaylistTileItem,
                 buildModalTileItem(
                   context,
@@ -364,25 +297,13 @@ class _ActionMoreState extends State<ActionMore> {
                     height: 20,
                   ),
                   onTap: () {
-                    Navigator.of(context).pop(true);
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation1,
-                            Animation<double> animation2) {
-                          return LayoutScreen(
-                            index: 4,
-                            screen: AlbumDetail(
-                                albumId: (track.album != null)
-                                    ? track.album!.id!
-                                    : widget.album!.id!),
-                          );
-                        },
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
+                    Navigator.pop(context);
+                    NavigatorPage.defaultLayoutPageRoute(
+                        context,
+                        AlbumDetail(
+                            albumId: (track.album != null)
+                                ? track.album!.id!
+                                : widget.album!.id!));
                   },
                 ),
                 buildModalTileItem(
@@ -395,22 +316,9 @@ class _ActionMoreState extends State<ActionMore> {
                     height: 20,
                   ),
                   onTap: () {
-                    Navigator.of(context).pop(true);
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation1,
-                            Animation<double> animation2) {
-                          return LayoutScreen(
-                            index: 4,
-                            screen: ArtistDetail(artistId: track.artist!.id!),
-                          );
-                        },
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
+                    Navigator.pop(context);
+                    NavigatorPage.defaultLayoutPageRoute(
+                        context, ArtistDetail(artistId: track.artist!.id!));
                   },
                 ),
                 paddingHeight(1),
@@ -422,55 +330,49 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  VoidCallback removeFavoriteTrack(Track track) {
-    return () {
-      ToastCommon.showCustomText(
-          content: 'Removed track ${track.title} from the library');
-      FavoriteSongService.instance.deleteItemByTrackId(
-          track.id.toString(), FirebaseAuth.instance.currentUser!.uid);
-    };
-  }
-
-  VoidCallback addFavoriteTrack(Track track) {
-    return () {
-      ToastCommon.showCustomText(
-          content: 'Added track ${track.title} to the library');
-      FavoriteSongService.instance.addItem(
-        (widget.album != null)
-            ? FavoriteSong(
-                id: DateTime.now().toString(),
-                trackId: track.id.toString(),
-                albumId: widget.album!.id.toString(),
-                artistId: track.artist!.id.toString(),
-                title: track.title,
-                albumTitle: widget.album!.title.toString(),
-                artistName: track.artist!.name,
-                pictureMedium: track.artist!.pictureMedium,
-                coverMedium: widget.album!.coverMedium.toString(),
-                coverXl: widget.album!.coverXl.toString(),
-                preview: track.preview,
-                releaseDate: widget.album!.releaseDate.toString(),
-                userId: FirebaseAuth.instance.currentUser!.uid,
-                type: 'track',
-              )
-            : FavoriteSong(
-                id: DateTime.now().toString(),
-                trackId: track.id.toString(),
-                albumId: track.album!.id.toString(),
-                artistId: track.artist!.id.toString(),
-                title: track.title,
-                albumTitle: track.album!.title,
-                artistName: track.artist!.name,
-                pictureMedium: track.artist!.pictureMedium,
-                coverMedium: track.album!.coverMedium,
-                coverXl: track.album!.coverXl,
-                preview: track.preview,
-                releaseDate: track.album!.releaseDate,
-                userId: FirebaseAuth.instance.currentUser!.uid,
-                type: 'track',
+  StreamBuilder<List<FavoriteSong>> buildFavoriteTrackTile() {
+    return StreamBuilder(
+      stream: FavoriteSongRepository.instance.getFavoriteSongs(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+        if (!snapshot.hasData) {
+          return Row(
+            children: [
+              SizedBox(
+                width: 50,
+                child: IconButton(
+                  onPressed: () {},
+                  icon: const Icon(Ionicons.heart_outline),
+                ),
               ),
-      );
-    };
+            ],
+          );
+        }
+        Track track = widget.track;
+        final isAddedFavorite = snapshot.data!
+            .any((element) => element.trackId == track.id.toString());
+        if (isAddedFavorite == true) {
+          return buildModalTileItem(
+            context,
+            title: 'Added to the library',
+            icon: Icon(
+              Icons.favorite,
+              color: ColorsConsts.primaryColorDark,
+            ),
+            onTap: removeFavoriteTrack(track),
+          );
+        } else {
+          return buildModalTileItem(
+            context,
+            title: 'Add to the library',
+            icon: const Icon(Icons.favorite_border_sharp),
+            onTap: addFavoriteTrack(track),
+          );
+        }
+      },
+    );
   }
 
   Padding buildDivider() {
@@ -551,5 +453,26 @@ class _ActionMoreState extends State<ActionMore> {
         ),
       ),
     );
+  }
+
+  VoidCallback removeFavoriteTrack(Track track) {
+    return () {
+      ToastCommon.showCustomText(
+          content: 'Removed track ${track.title} from the library');
+      FavoriteSongRepository.instance
+          .deleteFavoriteSongByTrackId(track.id.toString());
+    };
+  }
+
+  VoidCallback addFavoriteTrack(Track track) {
+    return () {
+      ToastCommon.showCustomText(
+          content: 'Added track ${track.title} to the library');
+      if (widget.album != null) {
+        FavoriteSongRepository.instance.addFavoriteSong(track, widget.album!);
+      } else {
+        FavoriteSongRepository.instance.addFavoriteSong(track, track.album!);
+      }
+    };
   }
 }

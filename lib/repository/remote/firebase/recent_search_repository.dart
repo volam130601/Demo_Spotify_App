@@ -85,4 +85,16 @@ class RecentSearchRepository {
   Future<bool> isCheckExists(int itemId, String userId) async {
     return await _recentSearchService.isCheckExists(itemId, userId);
   }
+
+  Stream<List<RecentSearchItem>> getItemsByUserId(String userId) {
+    return _recentSearchService.getItemsByUserId(userId);
+  }
+
+  Future<void> deleteRecentSearch(String id) {
+    return _recentSearchService.deleteRecentSearch(id);
+  }
+
+  Future<void> deleteAll() {
+    return _recentSearchService.deleteAll();
+  }
 }

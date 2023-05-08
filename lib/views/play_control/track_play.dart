@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/views/play_control/play_control.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:ionicons/ionicons.dart';
@@ -10,9 +9,8 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 
 import '../../../utils/constants/default_constant.dart';
-import '../../data/network/firebase/favorite_song_service.dart';
-import '../../models/artist.dart';
 import '../../models/track.dart';
+import '../../repository/remote/firebase/favorite_song_repository.dart';
 import '../../widgets/action/action_more.dart';
 
 class TrackPlay extends StatefulWidget {
@@ -60,15 +58,15 @@ class _TrackPlayState extends State<TrackPlay> {
                   Track track = value.currentTracks.firstWhere(
                       (element) => element.id == int.parse(metadata.id),
                       orElse: () => Track());
-                  if(track.album != null) {
+                  if (track.album != null) {
                     return Positioned(
-                      bottom: 20,
-                      left: 0,
-                      right: 0,
-                      child: PlayControl(
-                        track: track,
-                        album: track.album!,
-                      ));
+                        bottom: 20,
+                        left: 0,
+                        right: 0,
+                        child: PlayControl(
+                          track: track,
+                          album: track.album!,
+                        ));
                   } else {
                     return Positioned(
                         bottom: 20,
@@ -171,8 +169,7 @@ class _TrackPlayState extends State<TrackPlay> {
                     ),
                   ),
                   StreamBuilder(
-                    stream: FavoriteSongService.instance.getItemsByUserId(
-                        FirebaseAuth.instance.currentUser!.uid),
+                    stream: FavoriteSongRepository.instance.getFavoriteSongs(),
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
@@ -192,8 +189,8 @@ class _TrackPlayState extends State<TrackPlay> {
                           ),
                         );
                       }
-                      if(value.getAlbum.id != null) {
-                        track.artist=  value.getArtist;
+                      if (value.getAlbum.id != null) {
+                        track.artist = value.getArtist;
                         track.album = value.getAlbum;
                         return ActionMore(
                           track: track,

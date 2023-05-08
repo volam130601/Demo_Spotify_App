@@ -8,10 +8,9 @@ import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../../../data/network/firebase/favorite_album_service.dart';
 import '../../../data/response/status.dart';
 import '../../../models/album.dart';
-import '../../../models/firebase/favorite_album.dart';
+import '../../../repository/remote/firebase/favorite_album_service.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
@@ -257,7 +256,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
     return Row(
       children: [
         StreamBuilder(
-            stream: FavoriteAlbumService.instance.getAlbumItemsByUserId(
+            stream: FavoriteAlbumRepository.instance.getAlbumItemsByUserId(
                 userId: FirebaseAuth.instance.currentUser!.uid),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -274,9 +273,9 @@ class _AlbumDetailState extends State<AlbumDetail> {
                         ToastCommon.showCustomText(
                             content:
                                 'Removed album ${album.title} from the library');
-                        FavoriteAlbumService.instance.deleteItemByAlbumId(
-                            album.id.toString(),
-                            FirebaseAuth.instance.currentUser!.uid);
+                        FavoriteAlbumRepository.instance
+                            .deleteFavoriteAlbumByAlbumId(album.id.toString(),
+                                FirebaseAuth.instance.currentUser!.uid);
                       },
                       icon: Icon(
                         Ionicons.heart,
@@ -288,16 +287,8 @@ class _AlbumDetailState extends State<AlbumDetail> {
                         ToastCommon.showCustomText(
                             content:
                                 'Added album ${album.title} to the library');
-                        FavoriteAlbumService.instance.addItem(
-                          FavoriteAlbum(
-                            id: DateTime.now().toString(),
-                            albumId: album.id.toString(),
-                            title: album.title,
-                            artistName: album.artist!.name,
-                            coverMedium: album.coverMedium,
-                            userId: FirebaseAuth.instance.currentUser!.uid,
-                          ),
-                        );
+                        FavoriteAlbumRepository.instance
+                            .addFavoriteAlbum(album: album);
                       },
                       icon: const Icon(Ionicons.heart_outline));
             }),
