@@ -60,14 +60,25 @@ class _TrackPlayState extends State<TrackPlay> {
                   Track track = value.currentTracks.firstWhere(
                       (element) => element.id == int.parse(metadata.id),
                       orElse: () => Track());
-                  return Positioned(
+                  if(track.album != null) {
+                    return Positioned(
                       bottom: 20,
                       left: 0,
                       right: 0,
                       child: PlayControl(
                         track: track,
-                        album: value.getAlbum,
+                        album: track.album!,
                       ));
+                  } else {
+                    return Positioned(
+                        bottom: 20,
+                        left: 0,
+                        right: 0,
+                        child: PlayControl(
+                          track: track,
+                          album: value.getAlbum,
+                        ));
+                  }
                 },
               ),
               Positioned(
@@ -182,6 +193,7 @@ class _TrackPlayState extends State<TrackPlay> {
                         );
                       }
                       if(value.getAlbum.id != null) {
+                        track.artist=  value.getArtist;
                         track.album = value.getAlbum;
                         return ActionMore(
                           track: track,

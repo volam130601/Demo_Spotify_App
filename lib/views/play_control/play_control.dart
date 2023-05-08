@@ -1,5 +1,6 @@
 import 'package:demo_spotify_app/data/network/firebase/comment_service.dart';
 import 'package:demo_spotify_app/views/play_control/comment/comment_box.dart';
+import 'package:demo_spotify_app/widgets/action/modal_download_track.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -124,7 +125,7 @@ class PlayControl extends StatelessWidget {
       },
     );
   }
-  //TODO: Add playlist,download, view album,
+
   Widget buildListMoreActions(
       BuildContext context, MultiPlayerViewModel value) {
     return StreamBuilder<SequenceState?>(
@@ -184,12 +185,12 @@ class PlayControl extends StatelessWidget {
                   height: 25,
                 ),
               ),
-              IconButton(
-                  onPressed: () {},
-                  style: IconButton.styleFrom(
-                      elevation: 0, padding: const EdgeInsets.all(0)),
-                  icon: Icon(Ionicons.arrow_down_circle_outline,
-                      color: Colors.grey.shade300)),
+              ModalDownloadTrack(
+                context: context,
+                track: track,
+                album: album,
+                isIconButton: true,
+              ),
               IconButton(
                 onPressed: () {},
                 style: IconButton.styleFrom(

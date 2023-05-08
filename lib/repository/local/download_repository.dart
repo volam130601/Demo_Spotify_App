@@ -191,9 +191,9 @@ class DownloadRepository {
         artistName: (track!.artist!.name != null)
             ? track.artist!.name
             : album.artist!.name,
-        pictureSmall: (track.artist!.pictureSmall != null)
-            ? track.artist!.pictureSmall
-            : album.artist!.pictureSmall,
+        pictureSmall: (track.artist!.pictureMedium != null)
+            ? track.artist!.pictureMedium
+            : album.artist!.pictureMedium,
         coverXl: album.coverXl,
         releaseDate: (track.album!.releaseDate != null)
             ? track.album!.releaseDate

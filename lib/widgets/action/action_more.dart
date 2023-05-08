@@ -7,6 +7,7 @@ import 'package:demo_spotify_app/models/firebase/favorite_song.dart';
 import 'package:demo_spotify_app/models/local/track_download.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:demo_spotify_app/widgets/action/modal_download_track.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -48,8 +49,6 @@ class ActionMore extends StatefulWidget {
 }
 
 class _ActionMoreState extends State<ActionMore> {
-  int _value = 0;
-  bool _isChecked = false;
   final _searchPlaylist = TextEditingController();
   String _searchText = "";
 
@@ -124,7 +123,13 @@ class _ActionMoreState extends State<ActionMore> {
       height: 50,
       child: ElevatedButton(
         onPressed: () {
-          buildShowModalMore(context, track, addPlaylistTileItem);
+          if (widget.album != null) {
+            buildShowModalMore(
+                context, track, widget.album!, addPlaylistTileItem);
+          } else {
+            buildShowModalMore(
+                context, track, track.album!, addPlaylistTileItem);
+          }
         },
         style: ElevatedButton.styleFrom(
             elevation: 0,
@@ -281,8 +286,8 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  Future<dynamic> buildShowModalMore(
-      BuildContext context, Track track, Widget addPlaylistTileItem) {
+  Future<dynamic> buildShowModalMore(BuildContext context, Track track,
+      Album album, Widget addPlaylistTileItem) {
     return showModalBottomSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -302,53 +307,9 @@ class _ActionMoreState extends State<ActionMore> {
             child: Column(
               children: [
                 paddingHeight(0.5),
-                buildHeaderModal(track, context),
+                buildHeaderModal(context, track, album),
                 buildDivider(),
-                Selector<DownloadViewModel, bool>(
-                  selector: (context, viewModel) {
-                    final bool isDownloaded = viewModel.trackDownloads
-                        .any((item) => item.id == track.id!);
-                    return isDownloaded;
-                  },
-                  builder: (context, isDownloaded, child) {
-                    if (isDownloaded == true) {
-                      return buildModalTileItem(
-                        context,
-                        title: 'Delete downloaded track',
-                        icon: const Icon(Ionicons.trash_outline),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          DownloadRepository.instance
-                              .deleteTrackDownload(track.id!);
-                          Provider.of<DownloadViewModel>(context, listen: false)
-                              .removeTrackDownload(track.id!.toInt());
-                          TrackDownload trackDownload = await DownloadRepository
-                              .instance
-                              .getTrackById(track.id!.toString());
-                          await FlutterDownloader.remove(
-                              taskId: trackDownload.taskId.toString(),
-                              shouldDeleteContent: true);
-                          ToastCommon.showCustomText(
-                              content: 'Deleted from memory');
-                        },
-                      );
-                    } else {
-                      return buildModalTileItem(
-                        context,
-                        title: 'Download this song',
-                        icon: const Icon(Icons.download_outlined),
-                        onTap: () async {
-                          Navigator.pop(context);
-                          int totalSize = await CommonUtils.getFileSize(
-                              track.preview.toString());
-                          // ignore: use_build_context_synchronously
-                          buildShowModalDownloadThisSong(
-                              context, track, totalSize);
-                        },
-                      );
-                    }
-                  },
-                ),
+                ModalDownloadTrack(context: context, track: track, album: album),
                 StreamBuilder(
                   stream: FavoriteSongService.instance
                       .getItemsByUserId(FirebaseAuth.instance.currentUser!.uid),
@@ -512,134 +473,6 @@ class _ActionMoreState extends State<ActionMore> {
     };
   }
 
-  Future<dynamic> buildShowModalDownloadThisSong(
-      BuildContext context, Track track, int totalSize) {
-    return showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) => Container(
-            height: MediaQuery.of(context).size.height * .6,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade900,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(defaultBorderRadius),
-                topRight: Radius.circular(defaultBorderRadius),
-              ),
-            ),
-            child: Column(
-              children: [
-                paddingHeight(0.5),
-                buildHeaderModal(track, context),
-                const Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: Divider(),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: defaultPadding),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Chọn chất lượng tải',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      paddingHeight(1),
-                      buildChooseDownloadQuality(setState, context,
-                          tagName: 'SQ',
-                          title: 'Chất lượng tiêu chuẩn',
-                          subTitle: 'Tiết kiệm dung lượng bộ nhớ',
-                          index: 0),
-                      buildChooseDownloadQuality(setState, context,
-                          tagName: 'HQ',
-                          title: 'Chất lượng cao',
-                          subTitle: 'Tốt nhất cho tai nghe và loa',
-                          index: 1),
-                      const Divider(),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _isChecked,
-                            checkColor: Colors.black,
-                            activeColor: ColorsConsts.primaryColorDark,
-                            onChanged: (value) {
-                              setState(() {
-                                _isChecked = value!;
-                              });
-                            },
-                          ),
-                          Text(
-                            'Lưu lựa chọn chất lượng và không hỏi lại',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.grey),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            Navigator.of(context).pop(true);
-                            final status = await Permission.storage.request();
-                            if (status.isGranted) {
-                              final externalDir =
-                                  await getExternalStorageDirectory();
-                              if (widget.playlist != null) {
-                                await DownloadRepository.instance
-                                    .insertPlaylistDownload(widget.playlist!);
-                                await DownloadRepository.instance
-                                    .insertTrackDownload(
-                                        track: track,
-                                        playlistId: widget.playlist!.id);
-                              } else if (widget.album != null) {
-                                await DownloadRepository.instance
-                                    .insertAlbumDownload(widget.album!,
-                                        track: track);
-                                await DownloadRepository.instance
-                                    .insertTrackDownload(
-                                        track: track, album: widget.album);
-                              }
-                              await FlutterDownloader.enqueue(
-                                url: '${track.preview}',
-                                savedDir: externalDir!.path,
-                                fileName: 'track-${track.id}.mp3',
-                                showNotification: false,
-                                openFileFromNotification: false,
-                              );
-                              ToastCommon.showCustomText(
-                                  content: 'Add track to downloaded list.');
-                            } else {
-                              log("Permission denied");
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                              shape: const StadiumBorder()),
-                          child: Text(
-                            'TẢI XUỐNG (${CommonUtils.formatSize(totalSize)})',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w400),
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Padding buildDivider() {
     return Padding(
       padding: const EdgeInsets.only(
@@ -650,7 +483,30 @@ class _ActionMoreState extends State<ActionMore> {
     );
   }
 
-  SizedBox buildHeaderModal(Track track, BuildContext context) {
+  Widget buildModalTileItem(BuildContext context,
+      {String title = '', Widget? icon, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap ?? () {},
+      child: Container(
+        height: 60,
+        color: Colors.transparent,
+        child: Row(
+          children: [
+            SizedBox(width: 60, child: icon),
+            Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.w500),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  SizedBox buildHeaderModal(BuildContext context, Track track, Album album) {
     return SizedBox(
       height: 60,
       child: ListTile(
@@ -660,9 +516,7 @@ class _ActionMoreState extends State<ActionMore> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(defaultBorderRadius),
             child: CachedNetworkImage(
-              imageUrl: (track.album != null)
-                  ? '${track.album!.coverMedium}'
-                  : '${widget.album!.coverMedium}',
+              imageUrl: '${album.coverMedium}',
               fit: BoxFit.cover,
               placeholder: (context, url) => Image.asset(
                 'assets/images/music_default.jpg',
@@ -696,85 +550,6 @@ class _ActionMoreState extends State<ActionMore> {
           icon: const Icon(Icons.share_outlined),
         ),
       ),
-    );
-  }
-
-  Widget buildModalTileItem(BuildContext context,
-      {String title = '', Widget? icon, VoidCallback? onTap}) {
-    return GestureDetector(
-      onTap: onTap ?? () {},
-      child: Container(
-        height: 60,
-        color: Colors.transparent,
-        child: Row(
-          children: [
-            SizedBox(width: 60, child: icon),
-            Text(
-              title,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w500),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  InkWell buildChooseDownloadQuality(StateSetter setState, BuildContext context,
-      {required String tagName,
-      required String title,
-      required String subTitle,
-      required int index}) {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _value = index;
-        });
-      },
-      child: ListTile(
-          contentPadding: const EdgeInsets.all(0),
-          leading: Container(
-            width: 40,
-            height: 35,
-            padding: const EdgeInsets.all(defaultPadding / 2),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade600,
-              borderRadius: BorderRadius.circular(defaultBorderRadius),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(defaultBorderRadius / 2),
-                  border: Border.all(width: 1, color: Colors.white)),
-              child: Center(
-                child: Text(
-                  tagName,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(),
-                ),
-              ),
-            ),
-          ),
-          title: Text(
-            title,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.w500),
-          ),
-          subtitle: Text(
-            subTitle,
-            style: Theme.of(context)
-                .textTheme
-                .titleSmall
-                ?.copyWith(color: Colors.grey, fontWeight: FontWeight.w500),
-          ),
-          trailing: (_value == index)
-              ? Icon(
-                  Icons.radio_button_checked,
-                  color: ColorsConsts.primaryColorDark,
-                )
-              : const Icon(Icons.radio_button_off)),
     );
   }
 }

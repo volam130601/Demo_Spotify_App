@@ -16,7 +16,7 @@ import '../../../utils/colors.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../utils/toast_utils.dart';
 import '../../../view_models/track_play/multi_control_player_view_model.dart';
-import '../../../widgets/action/action_download_track.dart';
+import '../../../widgets/action/action_download_multi_tracks.dart';
 import '../../../widgets/list_tile_custom/track_tile_item.dart';
 import '../../../widgets/play_control/play_button.dart';
 
