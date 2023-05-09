@@ -16,11 +16,15 @@ import '../../utils/constants/default_constant.dart';
 
 class ActionDownloadTracks extends StatefulWidget {
   const ActionDownloadTracks(
-      {Key? key, this.playlist, this.album, this.tracks, this.sizeFileDownload})
+      {Key? key,
+      this.playlist,
+      this.album,
+      required this.tracks,
+      this.sizeFileDownload})
       : super(key: key);
   final Playlist? playlist;
   final Album? album;
-  final List<Track>? tracks;
+  final List<Track> tracks;
   final String? sizeFileDownload;
 
   @override
@@ -51,7 +55,7 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
   @override
   Widget build(BuildContext context) {
     List<Track> trackDownloads =
-        widget.tracks!.where((track) => track.preview != '').toList();
+        widget.tracks.where((track) => track.preview != '').toList();
     return Row(
       children: [
         IconButton(
