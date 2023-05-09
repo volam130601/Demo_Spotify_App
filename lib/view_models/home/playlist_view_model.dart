@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:demo_spotify_app/models/playlist.dart';
 import 'package:demo_spotify_app/repository/remote/playlist_repository.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/cupertino.dart';
 
 import '../../data/response/api_response.dart';
@@ -14,12 +13,24 @@ class PlaylistViewModel with ChangeNotifier {
 
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
   ApiResponse<Playlist> playlistDetail = ApiResponse.loading();
-
+  List<Track> tracksPaging = [];
+  bool isLoading = false;
+  int oldLength = 0;
   int playlistId = 0;
   String totalSizeDownload = '';
 
   setTracks(ApiResponse<List<Track>> response) {
     tracks = response;
+    notifyListeners();
+  }
+
+  setTracksPaging(List<Track> response) {
+    if (response.isEmpty) {
+      isLoading = false;
+    }
+    for (var element in response) {
+      tracksPaging.add(element);
+    }
     notifyListeners();
   }
 
@@ -32,14 +43,29 @@ class PlaylistViewModel with ChangeNotifier {
     totalSizeDownload = totalSize;
     notifyListeners();
   }
+  setIsLoading(newValue) {
+    isLoading = newValue;
+    notifyListeners();
+  }
 
   Future<void> fetchTracksByPlaylistId(
       int playlistId, int index, int limit) async {
     await _tracks.getTracksByPlaylistId(playlistId, index, limit).then((value) {
-      return setTracks(ApiResponse.completed(
-          value.where((element) => element.preview != '').toList()));
+      List<Track> tracks =
+          value.where((element) => element.preview != '').toList();
+      setTracksPaging(tracks.take(10).toList());
+      return setTracks(ApiResponse.completed(tracks));
     }).onError(
         (error, stackTrace) => setTracks(ApiResponse.error(error.toString())));
+  }
+
+  Future<void> fetchTracksPagingByPlaylistId(
+      int playlistId, int index, int limit) async {
+    await _tracks.getTracksByPlaylistId(playlistId, index, limit).then((value) {
+      return setTracksPaging(
+          value.where((element) => element.preview != '').toList());
+    }).onError((error, stackTrace) =>
+        ToastCommon.showCustomText(content: error.toString()));
   }
 
   Future<void> fetchPlaylistById(int currentPlaylistId) async {
@@ -51,15 +77,13 @@ class PlaylistViewModel with ChangeNotifier {
             setPlaylistDetail(ApiResponse.error(error.toString())));
   }
 
-  Future<void> fetchTotalSizeDownload(
-      int playlistId, int index, int limit) async {
-    await _tracks
-        .getTracksByPlaylistId(playlistId, index, limit)
-        .then((value) async {
-      String totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(
-          value.where((element) => element.preview != '').toList());
-      return setTotalSizeDownload(totalSize);
-    }).onError((error, stackTrace) => log('Error fetch total size download'));
+  Future<void> fetchTotalSizeDownload(List<Track> tracks) async {
+    if(oldLength != tracks.length) {
+      tracks.getRange(oldLength ,tracks.length);
+      String totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(tracks);
+      setTotalSizeDownload(totalSize);
+      oldLength = tracks.length;
+    }
   }
 
   void checkPlaylistId(int currentPlaylistId) {
@@ -68,6 +92,9 @@ class PlaylistViewModel with ChangeNotifier {
       playlistDetail = ApiResponse.loading();
       playlistId = currentPlaylistId;
       totalSizeDownload = '';
+      tracksPaging = [];
+      isLoading = false;
+      oldLength = 0;
     }
   }
 }

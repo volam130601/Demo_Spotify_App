@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../data/response/status.dart';
-import '../../../view_models/home/playlist_view_model.dart';
 import '../../../widgets/selection_title.dart';
 import '../detail/playlist_detail.dart';
 
@@ -58,9 +57,6 @@ class PlaylistView extends StatelessWidget {
                         titleBottom: playlists[index].user!.name,
                         centerTitle: false,
                         onTap: () {
-                          Provider.of<PlaylistViewModel>(context, listen: false)
-                              .fetchTotalSizeDownload(
-                                  playlists[index].id!, 0, 10000);
                           Navigator.push(
                             context,
                             PageRouteBuilder(

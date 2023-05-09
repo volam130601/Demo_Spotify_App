@@ -8,7 +8,6 @@ import '../../../../models/artist.dart';
 import '../../../../models/playlist.dart';
 import '../../../../utils/constants/default_constant.dart';
 import '../../../../view_models/home/artist_view_model.dart';
-import '../../../../view_models/home/playlist_view_model.dart';
 import '../../../../widgets/selection_title.dart';
 import '../../../layout/layout_screen.dart';
 import '../playlist_detail.dart';
@@ -72,14 +71,10 @@ class FeaturingPlaylistOfArtist extends StatelessWidget {
       List<Playlist> playlists, int index, BuildContext context) {
     return InkWell(
       onTap: () {
-        Provider.of<PlaylistViewModel>(context, listen: false)
-            .fetchTotalSizeDownload(
-            playlists[index].id!, 0, 10000);
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (BuildContext context,
-                Animation<double> animation1,
+            pageBuilder: (BuildContext context, Animation<double> animation1,
                 Animation<double> animation2) {
               return LayoutScreen(
                 index: 4,
