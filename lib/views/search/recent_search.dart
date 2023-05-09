@@ -133,7 +133,7 @@ class _RecentSearchState extends State<RecentSearch> {
             Provider.of<TrackPlayViewModel>(context, listen: false);
         var multiPlayerVM =
             Provider.of<MultiPlayerViewModel>(context, listen: false);
-        showBottomBar(context);
+        hideKeyboard(context);
         await trackPlayVM.fetchTracksPlayControl(
           albumID: item.albumSearch!.id as int,
           index: 0,
@@ -161,7 +161,7 @@ class _RecentSearchState extends State<RecentSearch> {
       };
     } else if (item.type == 'artist') {
       onTap = () {
-        showBottomBar(context);
+        hideKeyboard(context);
         Navigator.push(
           context,
           PageRouteBuilder(
@@ -179,7 +179,7 @@ class _RecentSearchState extends State<RecentSearch> {
       };
     } else if (item.type == 'playlist') {
       onTap = () {
-        showBottomBar(context);
+        hideKeyboard(context);
         Playlist? playlist = Playlist(
           id: item.playlistSearch!.id,
           title: item.playlistSearch!.title,
@@ -206,7 +206,7 @@ class _RecentSearchState extends State<RecentSearch> {
       };
     } else if (item.type == 'album') {
       onTap = () {
-        showBottomBar(context);
+        hideKeyboard(context);
         Album? album = Album(
             id: int.parse(item.itemId!),
             title: item.title,

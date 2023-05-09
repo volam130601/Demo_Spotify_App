@@ -90,22 +90,21 @@ class _LayoutScreenState extends State<LayoutScreen> {
           screen = value.screen;
         }
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Stack(
             children: [
               screen,
-              if (value.isShowBottomBar) ...{
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Column(
-                    children: const [
-                      PLayTrackCard(),
-                      BottomNavigatorBarCustom(),
-                    ],
-                  ),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Column(
+                  children: const [
+                    PLayTrackCard(),
+                    BottomNavigatorBarCustom(),
+                  ],
                 ),
-              },
+              ),
             ],
           ),
         );

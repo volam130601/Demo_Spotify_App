@@ -13,7 +13,6 @@ class LayoutScreenViewModel with ChangeNotifier {
     SettingScreen(),
   ];
 
-  bool _isShowBottomBar = true;
   int _pageIndex = 0;
 
   Widget _screen = const SizedBox();
@@ -24,12 +23,9 @@ class LayoutScreenViewModel with ChangeNotifier {
     _screen = _pageWidget[_pageIndex];
   }
 
-  bool get isShowBottomBar => _isShowBottomBar;
-
   int get pageIndex => _pageIndex;
 
   void setIsShotBottomBar(newValue) {
-    _isShowBottomBar = newValue;
     notifyListeners();
   }
 
@@ -37,8 +33,8 @@ class LayoutScreenViewModel with ChangeNotifier {
     _pageIndex = newValue;
     notifyListeners();
   }
-  void clear(){
-     _isShowBottomBar = true;
-     _pageIndex = 0;
+
+  void clear() {
+    _pageIndex = 0;
   }
 }

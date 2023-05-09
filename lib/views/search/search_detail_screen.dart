@@ -47,7 +47,6 @@ class _BoxSearchState extends State<BoxSearch> {
   void initState() {
     super.initState();
     _searchController.addListener(_onTextChanged);
-    _focusNode.addListener(_hideBottomBar);
   }
 
   void _onTextChanged() {
@@ -64,19 +63,11 @@ class _BoxSearchState extends State<BoxSearch> {
     });
   }
 
-  void _hideBottomBar() {
-    if (_focusNode.hasFocus) {
-      Provider.of<LayoutScreenViewModel>(context, listen: false)
-          .setIsShotBottomBar(false);
-    }
-  }
-
   @override
   void dispose() {
     super.dispose();
     _searchController.removeListener(_onTextChanged);
     _searchController.dispose();
-    _focusNode.removeListener(_hideBottomBar);
     _focusNode.dispose();
   }
 
@@ -126,7 +117,7 @@ class _BoxSearchState extends State<BoxSearch> {
                   subTitle: '${tracks[index].type}',
                   isTrack: true,
                   onTap: () async {
-                    showBottomBar(context);
+                    hideKeyboard(context);
                     var trackPlayVM =
                         Provider.of<TrackPlayViewModel>(context, listen: false);
                     var multiPlayerVM = Provider.of<MultiPlayerViewModel>(
@@ -187,7 +178,7 @@ class _BoxSearchState extends State<BoxSearch> {
                     title: '${artists[index].name}',
                     isArtist: true,
                     onTap: () async {
-                      showBottomBar(context);
+                      hideKeyboard(context);
                       NavigatorPage.defaultLayoutPageRoute(context,
                           ArtistDetail(artistId: artists[index].id!.toInt()));
                       if (await RecentSearchRepository.instance.isCheckExists(
@@ -237,7 +228,7 @@ class _BoxSearchState extends State<BoxSearch> {
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     onTap: () async {
-                      showBottomBar(context);
+                      hideKeyboard(context);
                       NavigatorPage.defaultLayoutPageRoute(
                           context,
                           PlaylistDetail(
@@ -319,7 +310,7 @@ class _BoxSearchState extends State<BoxSearch> {
                 itemBuilder: (BuildContext context, int index) {
                   return InkWell(
                     onTap: () async {
-                      showBottomBar(context);
+                      hideKeyboard(context);
                       NavigatorPage.defaultLayoutPageRoute(
                           context, AlbumDetail(albumId: albums[index].id!));
                       if (await RecentSearchRepository.instance.isCheckExists(
@@ -389,7 +380,7 @@ class _BoxSearchState extends State<BoxSearch> {
 
     return GestureDetector(
       onTap: () {
-        showBottomBar(context);
+        hideKeyboard(context);
       },
       child: Scaffold(
         key: keyGlobal,
@@ -492,8 +483,6 @@ class _BoxSearchState extends State<BoxSearch> {
   }
 }
 
-void showBottomBar(BuildContext context) {
+void hideKeyboard(BuildContext context) {
   FocusManager.instance.primaryFocus?.unfocus();
-  Provider.of<LayoutScreenViewModel>(context, listen: false)
-      .setIsShotBottomBar(true);
 }
