@@ -149,64 +149,172 @@ class CommentBoxScreen extends StatelessWidget {
     );
   }
 
-  Padding buildCommentParent(
+  Widget buildCommentParent(
       Comment comment, BuildContext context, CommentViewModel value) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircleAvatar(
-              radius: 50,
-              foregroundImage:
-                  CachedNetworkImageProvider(comment.user!.photoURL.toString()),
-              backgroundImage:
-                  const AssetImage("assets/images/music_default.jpg"),
+      child: InkWell(
+        onTap: () async {
+          value.setCommentReply(comment);
+          await Future.delayed(const Duration(milliseconds: 100));
+          // ignore: use_build_context_synchronously
+          FocusScope.of(context).requestFocus(value.focusNode);
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircleAvatar(
+                radius: 50,
+                foregroundImage: CachedNetworkImageProvider(
+                    comment.user!.photoURL.toString()),
+                backgroundImage:
+                    const AssetImage("assets/images/music_default.jpg"),
+              ),
             ),
-          ),
-          paddingWidth(0.5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${comment.user!.name} • ${timeago.format(DateTime.parse(comment.createTime.toString()))}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontSize: 13, color: Colors.grey),
-                ),
-                paddingHeight(0.3),
-                Text(
-                  comment.content.toString(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w500),
-                  softWrap: true,
-                ),
-                paddingHeight(0.5),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CommentLikeParentButton(comment: comment),
-                    const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                      child: Text(
-                        '|',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () => buttonCommentReply(comment, context, value),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
+            paddingWidth(0.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${comment.user!.name} • ${timeago.format(DateTime.parse(comment.createTime.toString()))}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontSize: 13, color: Colors.grey),
+                  ),
+                  paddingHeight(0.3),
+                  Text(
+                    comment.content.toString(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w500),
+                    softWrap: true,
+                  ),
+                  paddingHeight(0.5),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CommentLikeParentButton(comment: comment),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
                             horizontal: defaultPadding / 2),
-                        color: Colors.transparent,
+                        child: Text(
+                          '|',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () =>
+                            buttonCommentReply(comment, context, value),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: defaultPadding / 2),
+                          color: Colors.transparent,
+                          child: Text(
+                            'Reply',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            CommentAction(
+              comment: comment,
+              contextParent: context,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildCommentChild(Comment comment, CommentReply commentReply,
+      BuildContext context, CommentViewModel value) {
+    return Padding(
+      padding: const EdgeInsets.only(
+          left: defaultPadding + 48,
+          right: defaultPadding,
+          bottom: defaultPadding),
+      child: InkWell(
+        onTap: () async {
+          value.setCommentReplyOfChild(comment, commentReply);
+          await Future.delayed(const Duration(milliseconds: 100));
+          // ignore: use_build_context_synchronously
+          FocusScope.of(context).requestFocus(value.focusNode);
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: CircleAvatar(
+                radius: 50,
+                foregroundImage: CachedNetworkImageProvider(
+                    commentReply.user!.photoURL.toString()),
+                backgroundImage:
+                    const AssetImage("assets/images/music_default.jpg"),
+              ),
+            ),
+            paddingWidth(0.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${commentReply.user!.name} • ${timeago.format(DateTime.parse(commentReply.createTime.toString()))}',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontSize: 13, color: Colors.grey),
+                  ),
+                  paddingHeight(0.3),
+                  RichText(
+                    text: TextSpan(
+                      text: '',
+                      style: DefaultTextStyle.of(context).style,
+                      children: [
+                        TextSpan(
+                          text: '${commentReply.user!.name} ',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        TextSpan(
+                          text: commentReply.content,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  ),
+                  paddingHeight(0.5),
+                  Row(
+                    children: [
+                      CommentLikeChildButton(
+                          comment: comment, commentReply: commentReply),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: defaultPadding / 2),
+                        child: Text(
+                          '|',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => buttonCommentReplyOfChild(
+                            comment, commentReply, context, value),
                         child: Text(
                           'Reply',
                           style: Theme.of(context)
@@ -215,108 +323,17 @@ class CommentBoxScreen extends StatelessWidget {
                               ?.copyWith(color: Colors.grey),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          CommentAction(
-            comment: comment,
-            contextParent: context,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Padding buildCommentChild(Comment comment, CommentReply commentReply,
-      BuildContext context, CommentViewModel value) {
-    return Padding(
-      padding: const EdgeInsets.only(
-          left: defaultPadding + 48,
-          right: defaultPadding,
-          bottom: defaultPadding),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircleAvatar(
-              radius: 50,
-              foregroundImage: CachedNetworkImageProvider(
-                  commentReply.user!.photoURL.toString()),
-              backgroundImage:
-                  const AssetImage("assets/images/music_default.jpg"),
-            ),
-          ),
-          paddingWidth(0.5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${commentReply.user!.name} • ${timeago.format(DateTime.parse(commentReply.createTime.toString()))}',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontSize: 13, color: Colors.grey),
-                ),
-                paddingHeight(0.3),
-                RichText(
-                  text: TextSpan(
-                    text: '',
-                    style: DefaultTextStyle.of(context).style,
-                    children: [
-                      TextSpan(
-                        text: '${commentReply.user!.name} ',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      TextSpan(
-                        text: commentReply.content,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w500),
-                      ),
                     ],
                   ),
-                ),
-                paddingHeight(0.5),
-                Row(
-                  children: [
-                    CommentLikeChildButton(
-                        comment: comment, commentReply: commentReply),
-                    const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                      child: Text(
-                        '|',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => buttonCommentReplyOfChild(
-                          comment, commentReply, context, value),
-                      child: Text(
-                        'Reply',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(color: Colors.grey),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          CommentAction(
-              comment: comment,
-              commentReply: commentReply,
-              contextParent: context)
-        ],
+            CommentAction(
+                comment: comment,
+                commentReply: commentReply,
+                contextParent: context)
+          ],
+        ),
       ),
     );
   }

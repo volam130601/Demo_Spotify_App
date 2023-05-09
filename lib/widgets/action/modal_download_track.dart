@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../../config/permission_handler.dart';
 import '../../models/album.dart';
 import '../../models/local/track_download.dart';
 import '../../models/playlist.dart';
@@ -209,8 +209,10 @@ class _ModalDownloadTrackState extends State<ModalDownloadTrack> {
                         child: ElevatedButton(
                           onPressed: () async {
                             Navigator.of(context).pop(true);
-                            final status = await Permission.storage.request();
-                            if (status.isGranted) {
+                            bool isGranted = await PermissionHandler
+                                    .requestMediasPermissions()
+                                .then((value) => value);
+                            if (isGranted) {
                               final externalDir =
                                   await getExternalStorageDirectory();
                               if (widget.playlist != null) {
@@ -238,8 +240,8 @@ class _ModalDownloadTrackState extends State<ModalDownloadTrack> {
                               ToastCommon.showCustomText(
                                   content: 'Add track to downloaded list.');
                             } else {
-                              log("Permission denied");
-                            }
+                              ToastCommon.showCustomText(content: "Permission denied");
+;                            }
                           },
                           style: ElevatedButton.styleFrom(
                               shape: const StadiumBorder()),
