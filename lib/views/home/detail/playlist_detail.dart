@@ -280,7 +280,30 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),
-        IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
+        Consumer<MultiPlayerViewModel>(
+          builder: (context, value, child) => StreamBuilder<bool>(
+            stream: value.player.shuffleModeEnabledStream,
+            builder: (context, snapshot) {
+              final shuffleModeEnabled = snapshot.data ?? false;
+              return IconButton(
+                icon: shuffleModeEnabled
+                    ? Icon(Ionicons.shuffle,
+                        color: ColorsConsts.primaryColorLight, size: 30)
+                    : const Icon(Ionicons.shuffle,
+                        color: Colors.grey, size: 30),
+                style: IconButton.styleFrom(
+                    elevation: 0, padding: const EdgeInsets.all(0)),
+                onPressed: () async {
+                  final enable = !shuffleModeEnabled;
+                  if (enable) {
+                    await value.player.shuffle();
+                  }
+                  await value.player.setShuffleModeEnabled(enable);
+                },
+              );
+            },
+          ),
+        ),
         PlayButton(
           tracks: tracks,
           playlistId: playlist.id,

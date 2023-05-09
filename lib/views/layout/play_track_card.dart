@@ -91,6 +91,15 @@ class PLayTrackCard extends StatelessWidget {
                               ],
                             ),
                           ),
+                          StreamBuilder<SequenceState?>(
+                            stream: value.player.sequenceStateStream,
+                            builder: (context, snapshot) => IconButton(
+                              icon: const Icon(Ionicons.play_skip_forward),
+                              style: IconButton.styleFrom(
+                                  elevation: 0, padding: const EdgeInsets.all(0)),
+                              onPressed: value.player.hasNext ? value.player.seekToNext : null,
+                            ),
+                          ),
                           StreamBuilder<PlayerState>(
                             stream: value.player.playerStateStream,
                             builder: (context, snapshot) {
