@@ -1,6 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uuid/uuid.dart';
-
 import '../../../data/network/firebase/playlist_new_service.dart';
 import '../../../models/firebase/playlist_new.dart';
 import '../../../models/track.dart';
@@ -18,8 +15,8 @@ class PlaylistNewRepository {
   Future<void> addTrackToPlaylistNew(
       {required PlaylistNew playlistNew, required Track track}) async {
     List<Track> tracks = playlistNew.tracks!;
-    final bool isExist=  tracks.any((element) => element.id == track.id);
-    if(!isExist) {
+    final bool isExist = tracks.any((element) => element.id == track.id);
+    if (!isExist) {
       tracks.add(track);
       await _playlistNewService.updatePlaylistNew(PlaylistNew(
         id: playlistNew.id,

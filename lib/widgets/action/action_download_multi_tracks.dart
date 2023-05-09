@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:isolate';
 import 'dart:ui';
 
@@ -7,7 +6,6 @@ import 'package:demo_spotify_app/config/permission_handler.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../models/playlist.dart';
 import '../../../../models/track.dart';
@@ -146,7 +144,6 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
                                             .requestMediasPermissions()
                                         .then((value) => value);
                                     if (isGranted) {
-                                      print('permission is success');
                                       if (widget.playlist != null) {
                                         ToastCommon.showCustomText(
                                             content:
@@ -170,7 +167,8 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
                                             .insertAlbumDownload(widget.album!);
                                       }
                                     } else {
-                                      ToastCommon.showCustomText(content: "Permission denied");
+                                      ToastCommon.showCustomText(
+                                          content: "Permission denied");
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(

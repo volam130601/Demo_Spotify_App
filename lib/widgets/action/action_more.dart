@@ -20,8 +20,6 @@ import '../../repository/remote/firebase/playlist_new_repository.dart';
 import '../../utils/colors.dart';
 import '../../views/home/detail/album_detail.dart';
 import '../../views/home/detail/artist/artist_detail.dart';
-import '../../views/library/add_playlist.dart';
-import '../list_tile_custom/list_tile_custom.dart';
 
 class ActionMore extends StatefulWidget {
   const ActionMore({
@@ -41,7 +39,6 @@ class ActionMore extends StatefulWidget {
 }
 
 class _ActionMoreState extends State<ActionMore> {
-
   @override
   void initState() {
     super.initState();
@@ -105,7 +102,6 @@ class _ActionMoreState extends State<ActionMore> {
       ),
     );
   }
-
 
   Future<dynamic> buildShowModalMore(BuildContext context, Track track,
       Album album, Widget addPlaylistTileItem) {

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -240,8 +238,9 @@ class _ModalDownloadTrackState extends State<ModalDownloadTrack> {
                               ToastCommon.showCustomText(
                                   content: 'Add track to downloaded list.');
                             } else {
-                              ToastCommon.showCustomText(content: "Permission denied");
-;                            }
+                              ToastCommon.showCustomText(
+                                  content: "Permission denied");
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                               shape: const StadiumBorder()),
