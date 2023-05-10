@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo_spotify_app/models/firebase/recent_played.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/home/view/playlists_view.dart';
 import 'package:flutter/material.dart';
@@ -74,93 +75,55 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
       margin: const EdgeInsets.only(top: defaultPadding),
       child: SizedBox(
-        height: (60 + 8) * 3,
-        child: ListView.separated(
-          separatorBuilder: (BuildContext context, int index) {
-            return paddingHeight(0.5);
-          },
+        height: 70 * 3,
+        child: GridView.builder(
           padding: const EdgeInsets.all(0),
-          scrollDirection: Axis.vertical,
           physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius:
-                          BorderRadius.circular(defaultBorderRadius / 2)),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(defaultBorderRadius / 2),
-                              bottomLeft:
-                                  Radius.circular(defaultBorderRadius / 2)),
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                'https://e-cdns-images.dzcdn.net/images/artist/f2bc007e9133c946ac3c3907ddc5d2ea/250x250-000000-80-0-0.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+          itemCount: RecentPlayed.recentPlayed.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisExtent: 60,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ), itemBuilder: (context, index) =>
+            Container(
+              height: 60,
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade800,
+                  borderRadius:
+                  BorderRadius.circular(defaultBorderRadius / 2)),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 60,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                          topLeft:
+                          Radius.circular(defaultBorderRadius / 2),
+                          bottomLeft:
+                          Radius.circular(defaultBorderRadius / 2)),
+                      child: CachedNetworkImage(
+                        imageUrl:
+                        RecentPlayed.recentPlayed[index].picture.toString(),
+                        fit: BoxFit.cover,
                       ),
-                      paddingWidth(0.3),
-                      Expanded(
-                        child: Text(
-                          'This is League of Legends',
-                          style: Theme.of(context).textTheme.titleSmall,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              paddingWidth(0.5),
-              Expanded(
-                child: Container(
-                  height: 60,
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius:
-                          BorderRadius.circular(defaultBorderRadius / 2)),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(defaultBorderRadius / 2),
-                              bottomLeft:
-                                  Radius.circular(defaultBorderRadius / 2)),
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                'https://e-cdns-images.dzcdn.net/images/artist/f2bc007e9133c946ac3c3907ddc5d2ea/250x250-000000-80-0-0.jpg',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      paddingWidth(0.3),
-                      Expanded(
-                        child: Text(
-                          'This is League of Legends',
-                          style: Theme.of(context).textTheme.titleSmall,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                  paddingWidth(0.3),
+                  Expanded(
+                    child: Text(
+                      RecentPlayed.recentPlayed[index].title.toString(),
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .titleSmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          itemCount: 3,
-        ),
+            ),),
       ),
     );
   }
@@ -172,7 +135,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             'Good morning',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme
+                .of(context)
+                .textTheme
+                .headlineSmall,
           ),
           const Spacer(),
           IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.bell)),

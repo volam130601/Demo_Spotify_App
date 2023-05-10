@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:demo_spotify_app/repository/remote/album_repository.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -27,11 +25,15 @@ class AlbumViewModel with ChangeNotifier {
   }
 
   Future<void> fetchTracksByAlbumId(int albumID) async {
-    await _tracks
-        .getTracksByAlbumId(albumID)
-        .then((value) => setTracks(ApiResponse.completed(value)))
-        .onError((error, stackTrace) =>
-            setTracks(ApiResponse.error(error.toString())));
+    List<Track> trackDownload = [];
+    await _tracks.getTracksByAlbumId(albumID).then((value) {
+      List<Track> temp =
+          value.where((element) => element.preview != '').toList();
+      trackDownload.addAll(temp);
+      return setTracks(ApiResponse.completed(temp));
+    }).onError(
+        (error, stackTrace) => setTracks(ApiResponse.error(error.toString())));
+    fetchTotalSizeDownload(trackDownload);
   }
 
   Future<void> fetchAlbumById(int albumId) async {
@@ -44,19 +46,16 @@ class AlbumViewModel with ChangeNotifier {
   }
 
   ///Size in bytes of tracks in Album
-  String totalSizeDownload = '';
+  int totalSizeDownload = 0;
 
-  setTotalSizeDownload(String totalSize) {
-    totalSizeDownload = totalSize;
+  setTotalSizeDownload(int totalSize) {
+    totalSizeDownload += totalSize;
     notifyListeners();
   }
 
-  Future<void> fetchTotalSizeDownload(int albumId) async {
-    await _tracks.getTracksByAlbumId(albumId).then((value) async {
-      String totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(
-          value.where((element) => element.preview != '').toList());
-      return setTotalSizeDownload(totalSize);
-    }).onError((error, stackTrace) => log('Error fetch total size download'));
+  Future<void> fetchTotalSizeDownload(List<Track> tracks) async {
+    int totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(tracks);
+    setTotalSizeDownload(totalSize);
   }
 
   void checkAlbumId(int currentAlbumId) {
@@ -64,7 +63,7 @@ class AlbumViewModel with ChangeNotifier {
       tracks = ApiResponse.loading();
       albumDetail = ApiResponse.loading();
       albumId = currentAlbumId;
-      totalSizeDownload = '';
+      totalSizeDownload = 0;
     }
   }
 }

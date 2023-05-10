@@ -96,7 +96,6 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         }
         List<Track> tracks = value.tracksPaging;
         Playlist playlist = value.playlistDetail.data!;
-        value.fetchTotalSizeDownload(tracks);
         return Stack(
           children: [
             CustomScrollView(
@@ -261,9 +260,7 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
         ActionDownloadTracks(
           playlist: playlist,
           tracks: tracks,
-          sizeFileDownload: (value.totalSizeDownload != '')
-              ? value.totalSizeDownload
-              : '0.0 MB',
+          sizeFileDownload: value.totalSizeDownload,
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),

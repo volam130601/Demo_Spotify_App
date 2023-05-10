@@ -78,13 +78,15 @@ class CommonUtils {
     return '$size MB';
   }
 
-  static Future<String> getSizeInBytesOfTrackDownload(
+  static Future<int> getSizeInBytesOfTrackDownload(
       List<Track> tracks) async {
     int totalSize = 0;
     for (var track in tracks) {
-      totalSize += await getFileSize(track.preview.toString());
+      if(track.preview != '') {
+        totalSize += await getFileSize(track.preview.toString());
+      }
     }
-    return formatSize(totalSize);
+    return totalSize;
   }
 
   static String convertToShorthand(int num) {

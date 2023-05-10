@@ -1,15 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/local/album_download.dart';
-import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
 import 'package:demo_spotify_app/views/library/widgets/album_detail_download.dart';
+import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 
 import '../../../repository/local/download_repository.dart';
 import '../../../utils/constants/default_constant.dart';
 import '../../../widgets/container_null_value.dart';
-import '../../layout/layout_screen.dart';
 
 class TabAlbum extends StatefulWidget {
   const TabAlbum({Key? key}) : super(key: key);
@@ -67,26 +65,8 @@ class _TabAlbumState extends State<TabAlbum> {
                 },
                 child: InkWell(
                   onTap: () {
-                    Provider.of<AlbumViewModel>(context, listen: false)
-                        .fetchTotalSizeDownload(
-                        albums[index].id!);
-                    Navigator.push(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (BuildContext context,
-                            Animation<double> animation1,
-                            Animation<double> animation2) {
-                          return LayoutScreen(
-                            index: 4,
-                            screen: AlbumDetailDownload(
-                              albumDownload: albums[index],
-                            ),
-                          );
-                        },
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
+                    NavigatorPage.defaultLayoutPageRoute(context,
+                        AlbumDetailDownload(albumDownload: albums[index]));
                   },
                   child: Container(
                     padding: const EdgeInsets.only(left: defaultPadding),

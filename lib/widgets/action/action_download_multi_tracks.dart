@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/config/permission_handler.dart';
+import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -25,7 +26,7 @@ class ActionDownloadTracks extends StatefulWidget {
   final Playlist? playlist;
   final Album? album;
   final List<Track> tracks;
-  final String? sizeFileDownload;
+  final int? sizeFileDownload;
 
   @override
   State<ActionDownloadTracks> createState() => _ActionDownloadTracksState();
@@ -179,7 +180,7 @@ class _ActionDownloadTracksState extends State<ActionDownloadTracks> {
                                       shape: const StadiumBorder()),
                                   child: Text(
                                     (widget.sizeFileDownload != null)
-                                        ? 'TẢI ${(widget.album != null) ? 'ALBUM' : 'PLAYLIST'} (${widget.sizeFileDownload})'
+                                        ? 'TẢI ${(widget.album != null) ? 'ALBUM' : 'PLAYLIST'} (${CommonUtils.formatSize(widget.sizeFileDownload!)})'
                                         : 'TẢI ${(widget.album != null) ? 'ALBUM' : 'PLAYLIST'} (0.0 MB)',
                                     style: Theme.of(context)
                                         .textTheme

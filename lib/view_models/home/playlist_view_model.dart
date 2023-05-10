@@ -15,9 +15,8 @@ class PlaylistViewModel with ChangeNotifier {
   ApiResponse<Playlist> playlistDetail = ApiResponse.loading();
   List<Track> tracksPaging = [];
   bool isLoading = false;
-  int oldLength = 0;
   int playlistId = 0;
-  String totalSizeDownload = '';
+  int totalSizeDownload = 0;
 
   setTracks(ApiResponse<List<Track>> response) {
     tracks = response;
@@ -39,10 +38,11 @@ class PlaylistViewModel with ChangeNotifier {
     notifyListeners();
   }
 
-  setTotalSizeDownload(String totalSize) {
-    totalSizeDownload = totalSize;
+  setTotalSizeDownload(int totalSize) {
+    totalSizeDownload += totalSize;
     notifyListeners();
   }
+
   setIsLoading(newValue) {
     isLoading = newValue;
     notifyListeners();
@@ -61,11 +61,14 @@ class PlaylistViewModel with ChangeNotifier {
 
   Future<void> fetchTracksPagingByPlaylistId(
       int playlistId, int index, int limit) async {
+    List<Track> trackDownload= [];
     await _tracks.getTracksByPlaylistId(playlistId, index, limit).then((value) {
-      return setTracksPaging(
-          value.where((element) => element.preview != '').toList());
+      List<Track> temp = value.where((element) => element.preview != '').toList();
+      trackDownload.addAll(temp);
+      return setTracksPaging(temp);
     }).onError((error, stackTrace) =>
         ToastCommon.showCustomText(content: error.toString()));
+    fetchTotalSizeDownload(trackDownload);
   }
 
   Future<void> fetchPlaylistById(int currentPlaylistId) async {
@@ -78,12 +81,8 @@ class PlaylistViewModel with ChangeNotifier {
   }
 
   Future<void> fetchTotalSizeDownload(List<Track> tracks) async {
-    if(oldLength != tracks.length) {
-      tracks.getRange(oldLength ,tracks.length);
-      String totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(tracks);
-      setTotalSizeDownload(totalSize);
-      oldLength = tracks.length;
-    }
+    int totalSize = await CommonUtils.getSizeInBytesOfTrackDownload(tracks);
+    setTotalSizeDownload(totalSize);
   }
 
   void checkPlaylistId(int currentPlaylistId) {
@@ -91,10 +90,9 @@ class PlaylistViewModel with ChangeNotifier {
       tracks = ApiResponse.loading();
       playlistDetail = ApiResponse.loading();
       playlistId = currentPlaylistId;
-      totalSizeDownload = '';
+      totalSizeDownload = 0;
       tracksPaging = [];
       isLoading = false;
-      oldLength = 0;
     }
   }
 }

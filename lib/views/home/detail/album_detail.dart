@@ -295,9 +295,7 @@ class _AlbumDetailState extends State<AlbumDetail> {
         ActionDownloadTracks(
           album: album,
           tracks: tracks,
-          sizeFileDownload: (value.totalSizeDownload != '')
-              ? value.totalSizeDownload
-              : '0.0 MB',
+          sizeFileDownload: value.totalSizeDownload,
         ),
         IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
         const Spacer(),
