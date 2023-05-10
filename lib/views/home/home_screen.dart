@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/firebase/recent_played.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
+import 'package:demo_spotify_app/views/home/detail/playlist_detail.dart';
 import 'package:demo_spotify_app/views/home/view/playlists_view.dart';
+import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:ionicons/ionicons.dart';
@@ -85,26 +87,29 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisExtent: 60,
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-          ), itemBuilder: (context, index) =>
-            Container(
+          ),
+          itemBuilder: (context, index) => InkWell(
+            onTap: () => NavigatorPage.defaultLayoutPageRoute(
+                context,
+                PlaylistDetail(
+                    playlistId: int.parse(
+                        RecentPlayed.recentPlayed[index].id.toString()))),
+            child: Container(
               height: 60,
               decoration: BoxDecoration(
                   color: Colors.grey.shade800,
-                  borderRadius:
-                  BorderRadius.circular(defaultBorderRadius / 2)),
+                  borderRadius: BorderRadius.circular(defaultBorderRadius / 2)),
               child: Row(
                 children: [
                   SizedBox(
                     width: 60,
                     child: ClipRRect(
                       borderRadius: const BorderRadius.only(
-                          topLeft:
-                          Radius.circular(defaultBorderRadius / 2),
-                          bottomLeft:
-                          Radius.circular(defaultBorderRadius / 2)),
+                          topLeft: Radius.circular(defaultBorderRadius / 2),
+                          bottomLeft: Radius.circular(defaultBorderRadius / 2)),
                       child: CachedNetworkImage(
                         imageUrl:
-                        RecentPlayed.recentPlayed[index].picture.toString(),
+                            RecentPlayed.recentPlayed[index].picture.toString(),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -113,17 +118,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: Text(
                       RecentPlayed.recentPlayed[index].title.toString(),
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleSmall,
+                      style: Theme.of(context).textTheme.titleSmall,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-            ),),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -135,10 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             'Good morning',
-            style: Theme
-                .of(context)
-                .textTheme
-                .headlineSmall,
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           const Spacer(),
           IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.bell)),

@@ -28,24 +28,34 @@ class RecentPlayed {
 
   static final List<RecentPlayed> recentPlayed = [
     RecentPlayed(
-        title: 'Hạ buồn vương nắng',
+        id: '3990906526',
+        title: 'Making my way bake',
         picture:
-            'https://e-cdns-images.dzcdn.net/images/playlist/8e917792796412110f79996f4ae53b09/250x250-000000-80-0-0.jpg'),
+            'https://e-cdns-images.dzcdn.net/images/playlist/298c9544c370218c9bddbe3dde3e5aee/250x250-000000-80-0-0.jpg'),
     RecentPlayed(
-        title: '100% Hello Maestro',
+        id: '3227703762',
+        title: '100% Taylor Swift',
         picture:
-            'https://e-cdns-images.dzcdn.net/images/playlist/8b9e97882dfe87eff081d6ddcc373887/250x250-000000-80-0-0.jpg'),
+            'https://e-cdns-images.dzcdn.net/images/playlist/5bdefa05ea572bbd85e12dc92b8ff64e/250x250-000000-80-0-0.jpg'),
     RecentPlayed(
+        id: '2293317046',
         title: 'Top Hits Gospel',
         picture:
             'https://e-cdns-images.dzcdn.net/images/playlist/aa171bbc81a2cf77e3efd697d110177b/250x250-000000-80-0-0.jpg'),
     RecentPlayed(
-        title: 'Top 50 Sertanejo',
+      id: '3133469542',
+        title: '100% Justin Bieber',
         picture:
-            'https://e-cdns-images.dzcdn.net/images/playlist/988baaea88b6e1b12cadfe20159bca55/250x250-000000-80-0-0.jpg'),
+            'https://e-cdns-images.dzcdn.net/images/playlist/4c94d37d457d99d324d5823dfd9f66cf/250x250-000000-80-0-0.jpg'),
     RecentPlayed(
-        title: 'Making my way bake',
+      id: '5182240424',
+        title: '100% Alan Walker',
         picture:
-            'https://e-cdns-images.dzcdn.net/images/playlist/298c9544c370218c9bddbe3dde3e5aee/250x250-000000-80-0-0.jpg'),
+            'https://e-cdns-images.dzcdn.net/images/playlist/8f0e30cacc8e3df1b55fe7f3b3489f22/250x250-000000-80-0-0.jpg'),
+      RecentPlayed(
+      id: '3133295502',
+        title: '100% Martin Garrix',
+        picture:
+            'https://e-cdns-images.dzcdn.net/images/playlist/f1824a3f5d26b1986a7d1a13c57761e6/250x250-000000-80-0-0.jpg'),
   ];
 }
