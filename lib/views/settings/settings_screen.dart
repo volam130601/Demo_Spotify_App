@@ -21,38 +21,46 @@ class SettingScreen extends StatelessWidget {
     return Consumer<SignInViewModel>(
       builder: (context, value, child) {
         bool isCheckUser = value.user.id != null;
-        return Scaffold(
-          appBar: AppBar(
-            leading: const SizedBox(),
-            leadingWidth: 0,
-            centerTitle: true,
-            title: Text(
-              'Settings',
-              style: Theme.of(context).textTheme.titleMedium,
+        return WillPopScope(
+          onWillPop: () async {
+            final layoutValue = Provider.of<LayoutScreenViewModel>(context ,listen: false);
+            layoutValue.setPageIndex(0);
+            layoutValue.setScreenWidget();
+            return false;
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              leading: const SizedBox(),
+              leadingWidth: 0,
+              centerTitle: true,
+              title: Text(
+                'Settings',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
-          ),
-          body: Column(
-            children: [
-              buildUserListTileItem(context, isCheckUser, value),
-              const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
-              SettingItem(
-                  onTap: () {
-                    Navigator.of(context)
-                        .pushReplacementNamed(RoutesName.login);
-                    ToastCommon.showCustomText(content: 'Log out is success.');
-                    FirebaseAuth.instance.signOut();
-                    AuthGoogle.instance.signOut();
-                    value.signOut();
-                    Provider.of<LayoutScreenViewModel>(context, listen: false)
-                        .clear();
-                    Provider.of<MultiPlayerViewModel>(context, listen: false)
-                        .clear();
-                  },
-                  title: (isCheckUser) ? 'Log out' : 'Log in',
-                  subTitle: (isCheckUser)
-                      ? 'You are logged in as Lam Vo'
-                      : 'You want to sign in spotify app.'),
-            ],
+            body: Column(
+              children: [
+                buildUserListTileItem(context, isCheckUser, value),
+                const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
+                SettingItem(
+                    onTap: () {
+                      Navigator.of(context)
+                          .pushReplacementNamed(RoutesName.login);
+                      ToastCommon.showCustomText(content: 'Log out is success.');
+                      FirebaseAuth.instance.signOut();
+                      AuthGoogle.instance.signOut();
+                      value.signOut();
+                      Provider.of<LayoutScreenViewModel>(context, listen: false)
+                          .clear();
+                      Provider.of<MultiPlayerViewModel>(context, listen: false)
+                          .clear();
+                    },
+                    title: (isCheckUser) ? 'Log out' : 'Log in',
+                    subTitle: (isCheckUser)
+                        ? 'You are logged in as Lam Vo'
+                        : 'You want to sign in spotify app.'),
+              ],
+            ),
           ),
         );
       },

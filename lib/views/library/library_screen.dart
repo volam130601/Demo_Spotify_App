@@ -3,6 +3,7 @@ import 'package:demo_spotify_app/models/album.dart';
 import 'package:demo_spotify_app/models/firebase/favorite_playlist.dart';
 import 'package:demo_spotify_app/models/firebase/playlist_new.dart';
 import 'package:demo_spotify_app/models/playlist.dart';
+import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/library/add_playlist.dart';
 import 'package:demo_spotify_app/views/library/favorite_screen.dart';
@@ -62,48 +63,56 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(context),
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 200,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SelectionTitle(title: 'Library'),
-                  buildListLibrary(),
-                ],
+    return WillPopScope(
+      onWillPop: () async {
+        final layoutValue = Provider.of<LayoutScreenViewModel>(context ,listen: false);
+        layoutValue.setPageIndex(0);
+        layoutValue.setScreenWidget();
+        return false;
+      },
+      child: Scaffold(
+        appBar: buildAppBar(context),
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 200,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SelectionTitle(title: 'Library'),
+                    buildListLibrary(),
+                  ],
+                ),
               ),
             ),
+            SliverPersistentHeader(
+              delegate: StickyTabBarLibraryDelegate(
+                child: TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: 'Playlist'),
+                    Tab(text: 'Album'),
+                  ],
+                  labelColor: Colors.white,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  padding: const EdgeInsets.only(
+                      top: defaultPadding / 2,
+                      bottom: defaultPadding / 2,
+                      right: defaultPadding),
+                  indicatorPadding:
+                      const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                ),
+              ),
+              pinned: true,
+            )
+          ],
+          body: TabBarView(
+            controller: _tabController,
+            physics: const BouncingScrollPhysics(
+                decelerationRate: ScrollDecelerationRate.fast),
+            children: [buildTabPlaylist(context), buildTabAlbum(context)],
           ),
-          SliverPersistentHeader(
-            delegate: StickyTabBarLibraryDelegate(
-              child: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(text: 'Playlist'),
-                  Tab(text: 'Album'),
-                ],
-                labelColor: Colors.white,
-                indicatorSize: TabBarIndicatorSize.label,
-                padding: const EdgeInsets.only(
-                    top: defaultPadding / 2,
-                    bottom: defaultPadding / 2,
-                    right: defaultPadding),
-                indicatorPadding:
-                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-              ),
-            ),
-            pinned: true,
-          )
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          physics: const BouncingScrollPhysics(
-              decelerationRate: ScrollDecelerationRate.fast),
-          children: [buildTabPlaylist(context), buildTabAlbum(context)],
         ),
       ),
     );
