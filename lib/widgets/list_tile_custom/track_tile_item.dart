@@ -21,13 +21,14 @@ class TrackTileItem extends StatefulWidget {
       this.isDownloaded = false,
       this.playlist,
       this.album,
-      this.playlistNew})
+      this.playlistNew, this.onTap})
       : super(key: key);
   final Track track;
   final bool isDownloaded;
   final PlaylistNew? playlistNew;
   final Playlist? playlist;
   final Album? album;
+  final VoidCallback? onTap;
 
   @override
   State<TrackTileItem> createState() => _TrackTileItemState();
@@ -36,89 +37,92 @@ class TrackTileItem extends StatefulWidget {
 class _TrackTileItemState extends State<TrackTileItem> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: defaultPadding, vertical: defaultPadding / 2),
-      height: 50,
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(defaultBorderRadius / 2),
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: CachedNetworkImage(
-                imageUrl: (widget.album != null)
-                    ? '${widget.album!.coverMedium}'
-                    : widget.track.album!.coverMedium.toString(),
-                placeholder: (context, url) => Image.asset(
-                  'assets/images/music_default.jpg',
+    return InkWell(
+      onTap: widget.onTap ?? () {},
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+            horizontal: defaultPadding, vertical: defaultPadding / 2),
+        height: 50,
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(defaultBorderRadius / 2),
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: CachedNetworkImage(
+                  imageUrl: (widget.album != null)
+                      ? '${widget.album!.coverMedium}'
+                      : widget.track.album!.coverMedium.toString(),
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/music_default.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                  errorWidget: (context, url, error) => const Icon(Icons.error),
                   fit: BoxFit.cover,
                 ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                fit: BoxFit.cover,
               ),
             ),
-          ),
-          paddingWidth(0.5),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(
-                  widget.track.title.toString(),
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Row(
-                  children: [
-                    Selector<DownloadViewModel, bool>(
-                      selector: (context, viewModel) {
-                        final bool isDownloaded = viewModel.trackDownloads
-                            .any((item) => item.id == widget.track.id!);
-                        return isDownloaded;
-                      },
-                      builder: (context, isDownloaded, child) {
-                        if (isDownloaded == true) {
-                          return Row(
-                            children: [
-                              const Icon(Ionicons.arrow_down_circle_outline,
-                                  color: Colors.deepPurple),
-                              paddingWidth(0.5),
-                            ],
-                          );
-                        } else {
-                          return const SizedBox();
-                        }
-                      },
-                    ),
-                    Expanded(
-                      child: Text(widget.track.artist!.name.toString(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
-                              ?.copyWith(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w500),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis),
-                    ),
-                  ],
-                ),
-              ],
+            paddingWidth(0.5),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    widget.track.title.toString(),
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    children: [
+                      Selector<DownloadViewModel, bool>(
+                        selector: (context, viewModel) {
+                          final bool isDownloaded = viewModel.trackDownloads
+                              .any((item) => item.id == widget.track.id!);
+                          return isDownloaded;
+                        },
+                        builder: (context, isDownloaded, child) {
+                          if (isDownloaded == true) {
+                            return Row(
+                              children: [
+                                const Icon(Ionicons.arrow_down_circle_outline,
+                                    color: Colors.deepPurple),
+                                paddingWidth(0.5),
+                              ],
+                            );
+                          } else {
+                            return const SizedBox();
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: Text(widget.track.artist!.name.toString(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w500),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          buildButtonFavoriteSong(),
-          ActionMore(
-            track: widget.track,
-            playlist: widget.playlist,
-            album: widget.album,
-            playlistNew:
-                (widget.playlistNew != null) ? widget.playlistNew : null,
-          ),
-        ],
+            buildButtonFavoriteSong(),
+            ActionMore(
+              track: widget.track,
+              playlist: widget.playlist,
+              album: widget.album,
+              playlistNew:
+                  (widget.playlistNew != null) ? widget.playlistNew : null,
+            ),
+          ],
+        ),
       ),
     );
   }

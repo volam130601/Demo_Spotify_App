@@ -124,6 +124,11 @@ class _AddPlaylistDetailScreenState extends State<AddPlaylistDetailScreen> {
                   track: tracks[index],
                   album: tracks[index].album,
                   playlistNew: widget.playlistNew,
+                  onTap: () {
+                    var value = Provider.of<MultiPlayerViewModel>(context,
+                        listen: false);
+                    value.initState(tracks: tracks, index: index);
+                  },
                 ),
                 itemCount: tracks.length,
               ),

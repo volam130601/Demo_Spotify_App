@@ -4,6 +4,7 @@ import 'package:demo_spotify_app/utils/colors.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/utils/constants/default_constant.dart';
 import 'package:demo_spotify_app/utils/toast_utils.dart';
+import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:demo_spotify_app/widgets/navigator/slide_animation_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -11,6 +12,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../models/artist.dart';
 import '../../../repository/remote/firebase/follow_artist_repository.dart';
+import '../../home/detail/artist/artist_detail.dart';
 import 'more_artist_search_screen.dart';
 
 class FollowArtistScreen extends StatelessWidget {
@@ -116,49 +118,54 @@ class FollowArtistScreen extends StatelessWidget {
 
   Widget buildListTileFollowArtist(
       BuildContext context, Artist artist, FollowArtist followArtist) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-      child: ListTile(
-        leading: SizedBox(
-          height: 50,
-          width: 50,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(50),
-            child: CachedNetworkImage(
-              imageUrl: artist.pictureMedium.toString(),
-              placeholder: (context, url) => Image.asset(
-                'assets/images/music_default.jpg',
+    return InkWell(
+      onTap: () {
+        NavigatorPage.defaultLayoutPageRoute(context, ArtistDetail(artistId: artist.id!.toInt()));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+        child: ListTile(
+          leading: SizedBox(
+            height: 50,
+            width: 50,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: CachedNetworkImage(
+                imageUrl: artist.pictureMedium.toString(),
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/music_default.jpg',
+                  fit: BoxFit.cover,
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
                 fit: BoxFit.cover,
               ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
             ),
           ),
-        ),
-        contentPadding: const EdgeInsets.all(0),
-        title: Text(
-          artist.name.toString(),
-          style: Theme.of(context).textTheme.titleMedium,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(
-          (artist.nbFan != null)
-              ? '${CommonUtils.convertToShorthand(artist.nbFan!.toInt())} following'
-              : '0 following',
-          style: Theme.of(context)
-              .textTheme
-              .titleSmall
-              ?.copyWith(fontWeight: FontWeight.w500, color: Colors.grey),
-        ),
-        trailing: IconButton(
-          onPressed: () {
-            FollowArtistRepository.instance
-                .unFollowingArtist(followArtist: followArtist, artist: artist);
-            ToastCommon.showCustomText(
-                content: 'Unfollow artist ${artist.name} from artist follow');
-          },
-          icon: const Icon(Ionicons.heart),
+          contentPadding: const EdgeInsets.all(0),
+          title: Text(
+            artist.name.toString(),
+            style: Theme.of(context).textTheme.titleMedium,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            (artist.nbFan != null)
+                ? '${CommonUtils.convertToShorthand(artist.nbFan!.toInt())} following'
+                : '0 following',
+            style: Theme.of(context)
+                .textTheme
+                .titleSmall
+                ?.copyWith(fontWeight: FontWeight.w500, color: Colors.grey),
+          ),
+          trailing: IconButton(
+            onPressed: () {
+              FollowArtistRepository.instance
+                  .unFollowingArtist(followArtist: followArtist, artist: artist);
+              ToastCommon.showCustomText(
+                  content: 'Unfollow artist ${artist.name} from artist follow');
+            },
+            icon: const Icon(Ionicons.heart),
+          ),
         ),
       ),
     );

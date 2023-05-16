@@ -113,15 +113,16 @@ class _PlaylistDetailState extends State<PlaylistDetail> {
                         child: TrackTileItem(
                           track: tracks[index],
                           playlist: playlist,
+                          onTap: () {
+                            var value = Provider.of<MultiPlayerViewModel>(
+                                context,
+                                listen: false);
+                            value.initState(
+                                tracks: tracks,
+                                playlistId: playlist.id,
+                                index: index);
+                          },
                         ),
-                        onTap: () {
-                          var value = Provider.of<MultiPlayerViewModel>(context,
-                              listen: false);
-                          value.initState(
-                              tracks: tracks,
-                              playlistId: playlist.id,
-                              index: index);
-                        },
                       );
                     },
                     childCount: tracks.length,

@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/track.dart';
 import 'package:demo_spotify_app/utils/common_utils.dart';
 import 'package:demo_spotify_app/view_models/home/album_view_model.dart';
+import 'package:demo_spotify_app/views/home/detail/artist/artist_detail.dart';
+import 'package:demo_spotify_app/widgets/navigator/no_animation_page_route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -100,9 +102,9 @@ class _AlbumDetailState extends State<AlbumDetail> {
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
-                            return InkWell(
-                              child: TrackTileItem(
-                                  track: tracks[index], album: album),
+                            return TrackTileItem(
+                              track: tracks[index],
+                              album: album,
                               onTap: () {
                                 var value = Provider.of<MultiPlayerViewModel>(
                                     context,
@@ -139,19 +141,29 @@ class _AlbumDetailState extends State<AlbumDetail> {
                                   style:
                                       Theme.of(context).textTheme.titleMedium),
                               paddingHeight(1.5),
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundImage: CachedNetworkImageProvider(
-                                        album.artist!.pictureSmall.toString()),
-                                    radius: 20,
-                                  ),
-                                  paddingWidth(1.5),
-                                  Text(album.artist!.name.toString(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium)
-                                ],
+                              InkWell(
+                                onTap: () =>
+                                    NavigatorPage.defaultLayoutPageRoute(
+                                        context,
+                                        ArtistDetail(
+                                            artistId:
+                                                album.artist!.id!.toInt())),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundImage:
+                                          CachedNetworkImageProvider(album
+                                              .artist!.pictureSmall
+                                              .toString()),
+                                      radius: 20,
+                                    ),
+                                    paddingWidth(1.5),
+                                    Text(album.artist!.name.toString(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium)
+                                  ],
+                                ),
                               ),
                               paddingHeight(5),
                             ],

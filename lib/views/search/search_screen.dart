@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/data/response/status.dart';
 import 'package:demo_spotify_app/models/genre/genre_search.dart';
+import 'package:demo_spotify_app/view_models/layout_screen_view_model.dart';
 import 'package:demo_spotify_app/view_models/search/search_view_model.dart';
 import 'package:demo_spotify_app/views/layout/layout_screen.dart';
 import 'package:demo_spotify_app/views/search/genre_detail_screen.dart';
@@ -48,12 +49,20 @@ class _SearchScreenState extends State<SearchScreen> {
             );
           case Status.COMPLETED:
             List<GenreSearch> genreSearches = value.genreSearches.data!;
-            return Scaffold(
-              body: CustomScrollView(
-                slivers: [
-                  buildHeader(context),
-                  buildBrowserAll(genreSearches),
-                ],
+            return WillPopScope(
+              onWillPop: () async {
+                final layoutValue = Provider.of<LayoutScreenViewModel>(context ,listen: false);
+                layoutValue.setPageIndex(0);
+                layoutValue.setScreenWidget();
+                return false;
+              },
+              child: Scaffold(
+                body: CustomScrollView(
+                  slivers: [
+                    buildHeader(context),
+                    buildBrowserAll(genreSearches),
+                  ],
+                ),
               ),
             );
           case Status.ERROR:

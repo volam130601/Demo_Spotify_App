@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/firebase/recent_played.dart';
+import 'package:demo_spotify_app/utils/toast_utils.dart';
 import 'package:demo_spotify_app/view_models/login/sign_in_view_model.dart';
 import 'package:demo_spotify_app/views/home/detail/playlist_detail.dart';
 import 'package:demo_spotify_app/views/home/view/playlists_view.dart';
@@ -24,6 +25,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  DateTime? currentBackPressTime;
+
   @override
   void initState() {
     super.initState();
@@ -38,36 +41,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<HomeViewModel>(
-        builder: (context, value, child) {
-          return Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: defaultPadding),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  child: Column(
-                    children: [
-                      paddingHeight(1),
-                      headerBody(),
-                      buildHomeRecentPlayed(),
-                      const PlaylistView(),
-                      paddingHeight(2),
-                      const AlbumListView(),
-                      paddingHeight(2),
-                      const TrackListView(),
-                      paddingHeight(2),
-                      const ArtistListView(),
-                      paddingHeight(8),
-                    ],
+    return WillPopScope(
+      onWillPop: () async {
+        if (currentBackPressTime == null ||
+            DateTime.now().difference(currentBackPressTime!) >
+                const Duration(seconds: 2)) {
+          currentBackPressTime = DateTime.now();
+          ToastCommon.showCustomText(content: 'Nhấn lần nữa để thoát');
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        body: Consumer<HomeViewModel>(
+          builder: (context, value, child) {
+            return Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: defaultPadding),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      children: [
+                        paddingHeight(1),
+                        headerBody(),
+                        buildHomeRecentPlayed(),
+                        const PlaylistView(),
+                        paddingHeight(2),
+                        const AlbumListView(),
+                        paddingHeight(2),
+                        const TrackListView(),
+                        paddingHeight(2),
+                        const ArtistListView(),
+                        paddingHeight(8),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -145,8 +160,6 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(onPressed: () {}, icon: const Icon(FeatherIcons.bell)),
           IconButton(
               onPressed: () {}, icon: const Icon(Ionicons.timer_outline)),
-          IconButton(
-              onPressed: () {}, icon: const Icon(Ionicons.settings_outline)),
         ],
       ),
     );
