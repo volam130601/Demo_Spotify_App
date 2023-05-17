@@ -51,7 +51,7 @@ class AlbumListView extends StatelessWidget {
                       physics: const BouncingScrollPhysics(),
                       itemBuilder: (BuildContext context, int index) {
                         return CardItemCustom(
-                          image: albums[index].coverMedium as String,
+                          image: albums[index].coverMedium.toString(),
                           titleTop: albums[index].artist!.name,
                           centerTitle: false,
                           onTap: () {

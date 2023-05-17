@@ -46,7 +46,7 @@ class _CardItemCustomState extends State<CardItemCustom> {
         child: CachedNetworkImage(
           imageUrl: widget.image,
           placeholder: (context, url) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+          errorWidget: (context, url, error) => Image.asset('assets/images/music_default.jpg', fit: BoxFit.cover,),
           fit: BoxFit.cover,
         ),
       );
