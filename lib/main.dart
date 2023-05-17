@@ -74,8 +74,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ArtistViewModel()),
         ChangeNotifierProvider(create: (_) => MultiPlayerViewModel()),
         ChangeNotifierProvider(create: (_) => SearchViewModel()),
-        ChangeNotifierProvider(
-            create: (_) => GenreDetailViewModel(MultiPlayerViewModel())),
+        ChangeNotifierProvider(create: (_) => GenreDetailViewModel()),
         ChangeNotifierProvider(create: (_) => LayoutScreenViewModel()),
         ChangeNotifierProvider(create: (_) => DownloadViewModel()),
         ChangeNotifierProvider(create: (_) => LibraryViewModel()),

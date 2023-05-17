@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo_spotify_app/models/genre/genre_search.dart';
 import 'package:demo_spotify_app/view_models/search/genre_detail_view_model.dart';
+import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,7 @@ class _GenreDetailState extends State<GenreDetail> {
     super.initState();
     Provider.of<GenreDetailViewModel>(context, listen: false)
         ..checkGenreId(widget.genreSearch.id!)
-        ..fetchData(widget.genreSearch);
+        ..fetchData(widget.genreSearch , Provider.of<MultiPlayerViewModel>(context, listen: false));
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.offset >= (200 - kToolbarHeight)) {

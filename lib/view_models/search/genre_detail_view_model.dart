@@ -12,9 +12,6 @@ import '../../widgets/navigator/slide_animation_page_route.dart';
 
 class GenreDetailViewModel with ChangeNotifier {
   final _genres = GenreRepository();
-  final MultiPlayerViewModel _multiPlayerViewModel;
-
-  GenreDetailViewModel(this._multiPlayerViewModel);
 
   ApiResponse<List<Track>> tracks = ApiResponse.loading();
   List<Widget> widgetsGenreList = [];
@@ -34,27 +31,27 @@ class GenreDetailViewModel with ChangeNotifier {
             setTracks(ApiResponse.error(error.toString())));
   }
 
-  Future<void> fetchData(GenreSearch genreSearch) async {
+  Future<void> fetchData(
+      GenreSearch genreSearch, MultiPlayerViewModel multiPlayerValue) async {
     for (int i = 0; i < genreSearch.radios!.length; i++) {
       var item = genreSearch.radios![i];
       await fetchTrackTopsByGenreIdApi(item.id!.toInt(), 0, 10);
       if (tracks.data!.isNotEmpty && tracks.data != null) {
-        List<Track> item = tracks.data!;
+        List<Track> data = tracks.data!;
         widgetsGenreList.add(SizedBox(
           height: 200.0,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: item.length,
+            itemCount: data.length,
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
               return CardItemCustom(
-                image: item[index].album!.coverMedium as String,
-                titleTop: item[index].title,
-                titleBottom: item[index].artist!.name,
+                image: data[index].album!.coverMedium as String,
+                titleTop: data[index].title,
+                titleBottom: data[index].artist!.name,
                 centerTitle: true,
                 onTap: () async {
-                  await _multiPlayerViewModel.initState(
-                      tracks: item, index: index);
+                  await multiPlayerValue.initState(tracks: data, index: index);
                   //ignore: use_build_context_synchronously
                   Navigator.push(
                       context, SlideTopPageRoute(page: const TrackPlay()));
