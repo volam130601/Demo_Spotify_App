@@ -43,17 +43,17 @@ class SettingScreen extends StatelessWidget {
                 buildUserListTileItem(context, isCheckUser, value),
                 const SettingItem(title: 'Version', subTitle: '1.0.0-beta'),
                 SettingItem(
-                    onTap: () {
-                      Navigator.of(context)
-                          .pushReplacementNamed(RoutesName.login);
-                      ToastCommon.showCustomText(content: 'Log out is success.');
-                      FirebaseAuth.instance.signOut();
+                    onTap: () async {
                       AuthGoogle.instance.signOut();
-                      value.signOut();
+                      // value.signOut();
                       Provider.of<LayoutScreenViewModel>(context, listen: false)
                           .clear();
                       Provider.of<MultiPlayerViewModel>(context, listen: false)
                           .clear();
+                      FirebaseAuth.instance.signOut();
+                      ToastCommon.showCustomText(content: 'Log out is success.');
+                      await Navigator.of(context)
+                          .pushReplacementNamed(RoutesName.login);
                     },
                     title: (isCheckUser) ? 'Log out' : 'Log in',
                     subTitle: (isCheckUser)
@@ -90,7 +90,8 @@ class SettingScreen extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(
-                    signInProvider.user.displayName!
+                      signInProvider.user.displayName != null ?
+                    signInProvider.user.displayName! : 'Your name'
                         .substring(0, 1)
                         .toUpperCase(),
                     style: Theme.of(context)
