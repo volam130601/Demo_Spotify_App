@@ -114,6 +114,7 @@ class MultiPlayerViewModel with ChangeNotifier {
   }
 
   void clear() {
+    _player.dispose();
     _player = AudioPlayer();
     _playlist = ConcatenatingAudioSource(children: []);
     isCheckPlayer = false;
