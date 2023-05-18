@@ -1,4 +1,5 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:demo_spotify_app/utils/theme_data.dart';
 import 'package:demo_spotify_app/view_models/search/genre_detail_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/comment_view_model.dart';
@@ -15,6 +16,7 @@ import 'package:demo_spotify_app/view_models/search/search_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/multi_control_player_view_model.dart';
 import 'package:demo_spotify_app/view_models/track_play/track_play_view_model.dart';
 import 'package:demo_spotify_app/views/layout/layout_screen.dart';
+import 'package:demo_spotify_app/views/library/download_screen.dart';
 import 'package:demo_spotify_app/views/login/main_login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -47,7 +49,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  Connectivity connectivity = Connectivity();
   bool isLoading = true;
+  bool isNoInternet = false;
 
   @override
   void initState() {
@@ -56,9 +60,17 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> setIsLoading() async {
+    bool isCheck = false;
+    var connectivityResult = await connectivity.checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      print('No internet connection');
+      isCheck = true;
+    }
+    print('check : $isCheck');
     await Future.delayed(const Duration(seconds: 2));
     setState(() {
       isLoading = false;
+      isNoInternet = isCheck;
     });
   }
 
@@ -88,13 +100,16 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               title: 'Demo Spotify App',
               theme: Styles.themeData(true, context),
-              initialRoute: (FirebaseAuth.instance.currentUser != null)
-                  ? RoutesName.home
-                  : RoutesName.login,
+              initialRoute: isNoInternet
+                  ? RoutesName.downloadedScreen
+                  : FirebaseAuth.instance.currentUser != null
+                      ? RoutesName.home
+                      : RoutesName.login,
               routes: {
                 RoutesName.home: (context) =>
                     const LayoutScreen(index: 0, screen: Placeholder()),
                 RoutesName.login: (context) => const LoginScreen(),
+                RoutesName.downloadedScreen: (context) => const DownloadScreen(),
               },
               builder: BotToastInit(),
               navigatorObservers: [BotToastNavigatorObserver()],
